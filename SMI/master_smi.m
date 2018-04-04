@@ -6,6 +6,7 @@ function master_smi(subID, flag, filename)
 %   - 'roi'         (cstream_eye_roi_child & cevent_eye_roi_child)
 %   - 'fixroi'      (cstream_eye_roi_fixation_child & cevent_eye_roi_fixation_child)
 %   - 'trials'      (cevent_trials)
+%   - 'blocks'      (cevent_blocks)
 %   - 'cont2xy'     (cont2_eye_xy_child)
 %   - 'blinkroi'    (cstream_eye_roi_blink_child)
 %   - 'saccaderoi'  (cstream_eye_roi_saccade_child)
@@ -69,7 +70,13 @@ x = zeros(numOfCleanData, 1);
 y = zeros(numOfCleanData, 1);
 aoi = zeros(numOfCleanData, 1);
 
-%Number of AOIs in the study
+%Ask for the deigned number of AOIs
+deignedNumberOfAOIs = input('How many AOIs in this study?/n>>');
+
+%Ask for the number of trials in each block
+numOfTrialsInEachBlock = input('How many trials in each block?/n>>');
+
+%Actual number of AOIs in this study
 numOfAOIs = 0;
 listOfAOIs = {};
 for i = 1:numOfCleanData
@@ -80,7 +87,8 @@ for i = 1:numOfCleanData
         listOfAOIs = horzcat(listOfAOIs, cellaoi{i});
     end
 end
-disp(['[*] There are ' num2str(numOfAOIs) ' AOIs in this study'])
+
+disp(['[*] There are ' num2str(numOfAOIs) ' AOIs detected in this trial'])
 for i = 1:numOfCleanData
     
     if strcmp(cellx{i}, '-')
@@ -98,7 +106,7 @@ for i = 1:numOfCleanData
     if strcmp(cellaoi{i}, '-')
         aoi(i) = 96;
     elseif strcmp(cellaoi{i}, 'White Space')
-        aoi(i) = numOfAOIs + 1;
+        aoi(i) = deignedNumberOfAOIs + 1;
     else
         aoi(i) = str2num(cellaoi{i});
     end
@@ -190,6 +198,7 @@ for i = 1:numel(stimList)
 end
 
 %Transcribe the final data to lab format data
+%Generating cevent_trials data
 cevent_trials = [];
 for i = 1:numOfTrials
     cevent_trials(i, 1) = 30 + ...
@@ -198,6 +207,15 @@ for i = 1:numOfTrials
     cevent_trials(i, 3) = stimNumList(i);
 end
 
+%generating cevent_blocks data
+cevent_blocks = [];
+cevent_blocks(:, 1:2) = cevent_trials(:, 1:2);
+numOfBlocks = numOfTrials / numOfTrialsInEachBlock;
+for i = 1:numOfBlocks
+    cevent_blocks(((i-1)*numOfTrialsInEachBlock)+1:i*numOfTrialsInEachBlock, 3) = i;
+end
+
+%====================================
 cont2_eye_xy_child = [];
 cstream_eye_roi_child = [];
 cstream_eye_roi_fixation_child = [];
@@ -285,6 +303,9 @@ switch flag
         record_additional_variable(subID, 'cstream_eye_roi_missing_child', cstream_eye_roi_missing_child)
         %----trials----
         record_variable(subID, 'cevent_trials', cevent_trials)
+        %----blocks----
+        record_additional_variable(subID, 'cevent_blocks', cevent_blocks)
+        
         
     case 'all'
         %----cont2----
@@ -297,6 +318,8 @@ switch flag
         record_variable(subID, 'cevent_eye_roi_fixation_child', cstream2cevent(cstream_eye_roi_fixation_child))
         %----trials----
         record_variable(subID, 'cevent_trials', cevent_trials)
+        %----blocks----
+        record_additional_variable(subID, 'cevent_blocks', cevent_blocks)
         
     case 'roi'
         %-----roi-----
@@ -311,6 +334,10 @@ switch flag
     case 'trials'
         %----trials----
         record_variable(subID, 'cevent_trials', cevent_trials)
+        
+    case 'blocks'
+        %----blocks----
+        record_additional_variable(subID, 'cevent_blocks', cevent_blocks)
         
     case 'cont2xy'
         %----cont2----
