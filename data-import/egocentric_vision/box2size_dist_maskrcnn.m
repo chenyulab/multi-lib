@@ -158,9 +158,9 @@ end
 % record variables
 for i = unique(mappings)
     
-%     record_variable(subID, sprintf('cont_vision_min-dist_center-to-obj%d_%s', i, agent), horzcat(dist_result(:, 1), dist_result(:, i+1)));
-%     record_variable(subID, sprintf('cont_vision_size_obj%d_%s', i, agent), horzcat(size_result(:, 1), size_result(:, i+1)));
-    %record_variable(subID, sprintf('cont_eye-vision_min-dist_gaze-to-obj%d_%s', i, agent), horzcat(gaze_to_bbox_center_result(:, 1), gaze_to_bbox_center_result(:, i+1)))
+     record_variable(subID, sprintf('cont_vision_min-dist_center-to-obj%d_%s', i, agent), horzcat(dist_result(:, 1), dist_result(:, i+1)));
+     record_variable(subID, sprintf('cont_vision_size_obj%d_%s', i, agent), horzcat(size_result(:, 1), size_result(:, i+1)));
+     record_variable(subID, sprintf('cont_eye-vision_min-dist_gaze-to-obj%d_%s', i, agent), horzcat(gaze_to_bbox_center_result(:, 1), gaze_to_bbox_center_result(:, i+1)))
 end
 
 end
