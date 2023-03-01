@@ -5,6 +5,18 @@ function master_preprocessing_toy_room(kidIDs, expID, option, flagReliability)
 %   2. fixation_frames_{child|parent}_reliability.mat
 %   3. coding_eye_roi_{child|parent}.mat
 
+switch true
+    case ismember(expID,351:398)
+        disp('here');
+        fixation1 = 30;
+        fixation2 = 31;
+    otherwise
+        fixation1 = 27;
+        fixation2 = 28;
+end
+
+disp('end');
+
 if ~exist('flagReliability', 'var')
     flagReliability = 0;
 end
@@ -107,8 +119,8 @@ for k = 1:numel(kidIDs)
                 if ~flagReliability
                     save(fullfile(root,'derived',['cevent_fixations_' agent]), 'sdata');
                 end
-                fixations(1:2:end,3) = 27;
-                fixations(2:2:end,3) = 28;
+                fixations(1:2:end,3) = fixation1;
+                fixations(2:2:end,3) = fixation2;
                 frcst = cevent2cstreamtb(fixations, fr);
                 frcst(meanframe,2) = -1;
                 log = frcst(:,2) == 0;

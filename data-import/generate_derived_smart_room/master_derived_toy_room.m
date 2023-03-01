@@ -7,6 +7,18 @@ function master_derived_toy_room(subexpIDs, option, flagReliability)
 %   ja
 %   inhand-roi
 
+% disp(ismember(floor(subexpIDs/100),351:398));
+
+switch true
+    case ismember(floor(subexpIDs/100),351:398)
+        disp('here');
+        fixation1 = 30;
+        fixation2 = 31;
+    otherwise
+        fixation1 = 27;
+        fixation2 = 28;
+end
+
 if ~exist('flagReliability', 'var')
     flagReliability = 0;
 end
@@ -58,9 +70,9 @@ for s = 1:numel(subs)
                     % the old script propagates the middle frame's ROI to the whole prefixation and 
                     % replaces the other coded frames' value with the middle frame value; the updated
                     % code only replaces 27s and 28s and keeps the other coding - DZ
-                    data((data(:, 2)==27 | data(:, 2)==28) & data(:, 1) >= fixations(f,1) & data(:, 1) < fixations(f,2), 2) = data(fixations(f,3),2);
+                    data((data(:, 2)==fixation1 | data(:, 2)==fixation2) & data(:, 1) >= fixations(f,1) & data(:, 1) < fixations(f,2), 2) = data(fixations(f,3),2);
                 end
-                log = ismember(data(:,2), [27 28]);
+                log = ismember(data(:,2), [fixation1 fixation2]);
                 data(log,2) = -1;
                 data(data(:,2)==-1,2) = NaN;
                 data(:,1) = (data(:,1) - 1)/30 + 30;
