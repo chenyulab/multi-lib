@@ -7,7 +7,6 @@ function master_preprocessing_toy_room(kidIDs, expID, option, flagReliability)
 
 switch true
     case ismember(expID,351:398)
-        disp('here');
         fixation1 = 30;
         fixation2 = 31;
     otherwise
@@ -15,7 +14,6 @@ switch true
         fixation2 = 28;
 end
 
-disp('end');
 
 if ~exist('flagReliability', 'var')
     flagReliability = 0;
