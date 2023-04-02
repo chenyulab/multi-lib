@@ -5,7 +5,7 @@
 % variable and finds the utterances based on cevent variable's timestamps.
 % 
 % Input: expID, cevent variable name, category (objID), 
-%        a list of target words, output filename, grouping option, and
+%        a list of target words, output filename, and
 %        option 'whence' and 'interval' arguments for shifting timestamps.
 % Output: a table containing expID, subID, onset and offset of cevent,
 %         category (objID), target words frequency, aggregated utterances,
