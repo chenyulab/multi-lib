@@ -12,7 +12,8 @@
 
 function sub_list = list_key_words_count(keywords_list,subexpID,output_filename)
     summary_filename = 'summary_word_count.csv';
-    [~,~,summary_count] = get_word_count_matrix(subexpID,summary_filename);
+    [~,~,~,summary_count] = get_word_count_matrix(subexpID,summary_filename);
+    disp(class(summary_count));
 
     sub_list = summary_count(ismember(summary_count.word,keywords_list),:);
 
