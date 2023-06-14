@@ -15,7 +15,7 @@
 %%%
 
 
-function [all_words,utterances] = parse_speech_trans(subID)
+function [all_words,utterances] = parse_speech_trans(subID) 
     % Parse a speech transcription file
     speech_dir = fullfile(get_subject_dir(subID), 'speech_transcription_p');
     sub_info = get_subject_info(subID);
@@ -32,18 +32,32 @@ function [all_words,utterances] = parse_speech_trans(subID)
         while (1)
             line = fgetl(speech_file);
             
-            L = L + 1;
+            % L = L + 1;
             
             if line == -1
                 break
             end
         
-            [timestamp,~,~,nextindex] = sscanf(line, '%f');  
-        
-            utterances(L).start = timestamp(1);
-            utterances(L).end = timestamp(2);
-            utterances(L).words = line(nextindex:end);
-            all_words = strcat(all_words, {' '},utterances(L).words);
+            [timestamp,~,~,nextindex] = sscanf(line, '%f');
+
+            % get subject's trial time
+            trial_time_mtr = get_trial_times(subID);
+
+            % load trialInfo
+            trialInfo_path = get_info_file_path(subID);
+            trialInfo = load(trialInfo_path);
+            
+            % obtain speechTime for timing conversion
+            speechTime = trialInfo.trialInfo.speechTime;
+
+            % check if an utterance is within trial
+            if sum(timestamp(1) + speechTime >= trial_time_mtr(:,1)) >= 1 && sum(timestamp(2) + speechTime <= trial_time_mtr(:,2)) >= 1
+                L = L + 1;
+                utterances(L).start = timestamp(1);
+                utterances(L).end = timestamp(2);
+                utterances(L).words = line(nextindex:end);
+                all_words = strcat(all_words, {' '},utterances(L).words);
+            end
         end
     
         all_words = char(strtrim(all_words));
