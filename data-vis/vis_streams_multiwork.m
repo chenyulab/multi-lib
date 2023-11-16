@@ -1,4 +1,4 @@
-function vis_streams_multiwork_v2(subexpIDs, vars, streamlabels, directory, args)
+function vis_streams_multiwork(subexpIDs, vars, streamlabels, directory, args)
 % see demo_vis_streams_multiwork for documentation
 if ischar(subexpIDs) && contains(subexpIDs, 'demo')
     switch subexpIDs
