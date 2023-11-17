@@ -1,6 +1,6 @@
 %%%
 % Author: Jane Yang
-% Last Modifier: 3/27/2023
+% Last Modifier: 11/16/2023
 % This function selects relevant target category instances in a cevent 
 % variable and finds the utterances based on cevent variable's timestamps.
 % 
@@ -19,6 +19,13 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
     % check if 'whence' and 'interval'
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
+    end
+
+    % threshold for filtering cevent instances that are less than N seconds long
+    if isfield(args, 'threshold')
+        threshold = args.threshold;
+    else
+        threshold = 0;
     end
 
     if isfield(args, 'whence')
@@ -59,10 +66,7 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
     
     
         %% convert timestamps in speech transcription file to system time
-        % load trialInfo variable to get speech time
-        trialInfo_path = get_info_file_path(sub_list(i));
-        trialInfo = load(trialInfo_path);
-        speechTime = trialInfo.trialInfo.speechTime;
+        speechTime = get_timing(sub_list(i)).speechTime;
     
         % convert original timestamp to system time -- TODO: not sure if
         % all raw speech transcriptions have timestamps that are
@@ -73,7 +77,9 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
         end
     
         % get timestamps of cevent variable
-        cevent = get_variable(sub_list(i),cevent_var);
+        cevent = get_variable_by_trial_cat(sub_list(i),cevent_var);
+        % filter cevent instances that are less than 3 seconds long
+        cevent = cevent(cevent(:,2)-cevent(:,1)>=threshold,:);
         
         %% iterate thru categories
         for id = 1:numel(category_list)
@@ -132,18 +138,15 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
 
                 % append new instance to a list of instances
                 overall_instance = [overall_instance;instance];
-            end
-            % create instance entry: {'expID','subID','onset','offset','category','utterances'}
-%             instance = [repmat(expID,size(onset,1),1) repmat(sub_list(i),size(onset,1),1) onset offset repmat(cat,size(onset,1),1) utt_list];    
+            end 
         end
+    end
+    %% create output CSV
+    summary_table = array2table(overall_instance,'VariableNames',colNames);
 
-        %% create output CSV
-        summary_table = array2table(overall_instance,'VariableNames',colNames);
-
-        % don't write to a CSV file if the function is used as an intermediate
-        % helper function
-        if ~strcmp(output_filename,'')
-            writetable(summary_table,output_filename);
-        end
+    % don't write to a CSV file if the function is used as an intermediate
+    % helper function
+    if ~strcmp(output_filename,'')
+        writetable(summary_table,output_filename);
     end
 end
