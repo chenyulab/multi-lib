@@ -1,4 +1,4 @@
-function cevents_shuffled = cevent_shuffling(cevents, ranges, is_trial)
+function cevents_shuffled = cevent_shuffling(cevents, ranges)
 % This function shuffles the cevents within certain ranges while reserving
 % their duration
 
@@ -7,10 +7,6 @@ ROI_EMPTY = 0;
 if isempty(cevents)
     cevents_shuffled = zeros(0, 3);
     return;
-end
-
-if nargin < 3
-    is_trial = false;
 end
 
 %%%%%%%%%%%
@@ -63,7 +59,7 @@ for ridx = 1:size(ranges, 1)
     cevents_shuffled{1, ridx} = cevents_new;
 end
 
-if ~is_trial
+if size(ranges,1) > 1
     cevents_shuffled = vertcat(cevents_shuffled{:});
 end
 
