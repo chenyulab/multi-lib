@@ -21,6 +21,13 @@ function grouped_instance = group_speech_in_situ(expID,cevent_var,category,targe
         args = struct([]);
     end
 
+    % threshold for filtering cevent instances that are less than N seconds long
+    if isfield(args, 'threshold')
+        threshold = args.threshold;
+    else
+        threshold = 0;
+    end
+
     if isfield(args, 'whence')
         whence = args.whence;
     else
@@ -74,13 +81,13 @@ function grouped_instance = group_speech_in_situ(expID,cevent_var,category,targe
             %%% TODO: get combined utterances word count and show
             %%% distribution
 
-            % get word count for all words in the combined utterance
-            combined_utt_count_table = wordCloudCounts(combined_utt); 
-
-            % generate word cloud
-            wordcloud(combined_utt);
-            title(num2str(sub_list(i)));
-            saveas(gcf,['wordcloud_' num2str(sub_list(i)) '_obj' num2str(category) '.png']);
+            % % get word count for all words in the combined utterance
+            % combined_utt_count_table = wordCloudCounts(combined_utt); 
+            % 
+            % % generate word cloud
+            % wordcloud(combined_utt);
+            % title(num2str(sub_list(i)));
+            % saveas(gcf,['wordcloud_' num2str(sub_list(i)) '_obj' num2str(category) '.png']);
         end
     elseif strcmp(option,'experiment')
         overall_instance = extract_speech_in_situ(expID,cevent_var,category,target_words,'',args);
@@ -106,13 +113,13 @@ function grouped_instance = group_speech_in_situ(expID,cevent_var,category,targe
             %%% TODO: get combined utterances word count and show
             %%% distribution
 
-            % get word count for all words in the combined utterance
-            combined_utt_count_table = wordCloudCounts(combined_utt);
-
-            % generate word cloud
-            wordcloud(combined_utt);
-            title("exp"+num2str(exp_list(i)));
-            saveas(gcf,['wordcloud_' 'exp_' num2str(exp_list(i)) '_' num2str(category) '.png']);
+            % % get word count for all words in the combined utterance
+            % combined_utt_count_table = wordCloudCounts(combined_utt);
+            % 
+            % % generate word cloud
+            % wordcloud(combined_utt);
+            % title("exp"+num2str(exp_list(i)));
+            % saveas(gcf,['wordcloud_' 'exp_' num2str(exp_list(i)) '_' num2str(category) '.png']);
         end
     else
         fprintf('Please specify a level of grouping: choose to group data in subject-level or experiment-level\n.');

@@ -11,6 +11,8 @@
 %        option 'whence' and 'interval' arguments for shifting timestamps.
 % Output: generates CSV files correspondingly, returns objIDs and target
 %         words list parsed from experiment's dictionary.
+%
+% Example function call: demo_group_speech_in_situ(12,'cevent_eye_roi_sustained-3s_child','subject','.\roi-3s_sub-level',args)
 %%%
 
 function [objID,names] = demo_group_speech_in_situ(expID,cevent_var,option,output_dir,args)
@@ -18,6 +20,13 @@ function [objID,names] = demo_group_speech_in_situ(expID,cevent_var,option,outpu
     % check if 'whence' and 'interval'
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
+    end
+
+    % threshold for filtering cevent instances that are less than N seconds long
+    if isfield(args, 'threshold')
+        threshold = args.threshold;
+    else
+        threshold = 0;
     end
 
     if isfield(args, 'whence')

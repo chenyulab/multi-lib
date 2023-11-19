@@ -12,6 +12,8 @@
 %         and utterances summary information ('#Token','#UniqueWord',
 %         '#Utterance','#Noun','#Verb','#Adjective','utterances'). 
 %         A .CSV file is generated based on the output table.
+%
+% Example function call: extract_speech_in_situ(12,'cevent_eye_roi_sustained-3s_child',1,["helmet","hat"],'test_new-overlap-rule.csv',args)
 %%%
 
 function overall_instance = extract_speech_in_situ(expID,cevent_var,category_list,target_words,output_filename,args)
@@ -78,8 +80,6 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
     
         % get timestamps of cevent variable
         cevent = get_variable_by_trial_cat(sub_list(i),cevent_var);
-        % filter cevent instances that are less than 3 seconds long
-        cevent = cevent(cevent(:,2)-cevent(:,1)>=threshold,:);
         
         %% iterate thru categories
         for id = 1:numel(category_list)
@@ -107,12 +107,33 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
             % iterate each cevent
             %% find timestamps that matches the category
             for k = 1:size(onset,1)
+                overlap_prop1 = [];
+                overlap_prop2 = [];
                 bt = onset(k);
                 et = offset(k);
+                
     
                 % find utterance timestamps that falls within bt-et range
                 utt_onset = [speech_var.start];
-                match_idx = find(utt_onset >= bt & utt_onset <= et);
+                utt_offset = [speech_var.end];
+                dur = utt_offset - utt_onset; % duration of the speech utterance
+                % case 1: naming started after base cevent + with >50%
+                % overlap --> onset of naming is in between onset/offset of
+                % base cevent
+                index1 = find(utt_onset >= bt & utt_onset <= et);
+                overlap_prop1 = abs(utt_onset(index1) - et)/dur(index1);
+                index2 = overlap_prop1 > threshold;
+                index3 = index1(index2);
+
+                % case 2: naming started before base cevent + with >50%
+                % overlap --> offset of naming is in between onset/offset of
+                % base cevent
+                index4 = find(utt_offset >= bt & utt_offset <= et);
+                overlap_prop2 = (utt_offset(index4)-bt)/dur(index4);
+                index5 = overlap_prop2 > threshold;
+                index6 = index4(index5);
+                match_idx = union(index3,index6);
+                disp(match_idx);
     
                 sub_utt = "";
     
