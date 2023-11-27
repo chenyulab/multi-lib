@@ -19,7 +19,7 @@ end
 subjects = global_subject_table;
 
 current = datetime('now');
-one_hour = duration(1,0,0);
+one_hour = duration(0,1,0);
 last_read_duration = current - global_last_read;
 if last_read_duration > one_hour
     global_subject_table = []; % if it's been an hour since the last read, re-read next time
