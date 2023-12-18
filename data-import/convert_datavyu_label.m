@@ -35,7 +35,7 @@
 % Output: Corresponding .mat variables will be created and saved under
 % derived folder of corresponding subject.
 % 
-% Example function call: [cevent_mtr,cstream_mtr] = convert_label(9601,{'inhand_left-hand_obj-all_child','inhand_left-hand_obj-all_parent','inhand_right-hand_obj-all_child','inhand_right-hand_obj-all_parent'},13,0,{1,1,1,1})
+% Example function call: [cevent_mtr,cstream_mtr] = convert_datavyu_label(9601,{'inhand_left-hand_obj-all_child','inhand_left-hand_obj-all_parent','inhand_right-hand_obj-all_child','inhand_right-hand_obj-all_parent'},13,0,{1,1,1,1})
 %%
 function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_col,time_offset,mapping_list)
     % system start time
@@ -126,10 +126,10 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
         % Save variables in derived folder in Multiwork experiment folder
         % save cevent var
         cevent_mtr = [new_onset new_offset new_label];
-        record_additional_variable(subID,['cevent_' char(var_name)],cevent_mtr);
+        record_variable(subID,['cevent_' char(var_name)],cevent_mtr);
 
         % save cstream var
         cstream_mtr = cevent2cstream(cevent_mtr,time_offset,0.001,0);
-        record_additional_variable(subID,['cstream_' char(var_name)],cstream_mtr);
+        record_variable(subID,['cstream_' char(var_name)],cstream_mtr);
     end
 end
