@@ -58,7 +58,7 @@ function [objID,names] = demo_group_speech_in_situ(expID,cevent_var,option,outpu
     for i = 1:numel(objID)
         category = objID(i);
         target_words = string(names{i,1});
-        output_filename = fullfile(output_dir,sprintf('exp%d_grouped-%s-level_obj%d_words-%s.csv',expID,option,category,strjoin(target_words,'-')));
+        output_filename = fullfile(output_dir,sprintf('%s_grouped-%s-level_obj%d_words-%s_threshold-%.1f_exp%d.csv',cevent_var,option,category,strjoin(target_words,'-'),threshold,expID));
         
         grouped_instance = group_speech_in_situ(expID,cevent_var,category,target_words,output_filename,option);
     end

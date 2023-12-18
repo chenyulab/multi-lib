@@ -11,7 +11,6 @@ function master_derived_toy_room(subexpIDs, option, flagReliability)
 
 switch true
     case ismember(floor(subexpIDs/100),351:398)
-        disp('here');
         fixation1 = 30;
         fixation2 = 31;
     otherwise

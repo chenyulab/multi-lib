@@ -165,11 +165,11 @@ for s = 1:numel(subs)
             cevent_final = cevent_remove_small_segments(new_cev, min_duration);
             
             % record both cevent and cstream
-            record_variable(subs(s), output_name{v}, cevent_final);
+            record_additional_variable(subs(s), output_name{v}, cevent_final);
             if record_cstream
                 timebase = make_time_base(subs(s));
                 cst = cevent2cstream_v2(cevent_final, [], [], timebase);
-                record_variable(subs(s), strrep(output_name{v}, 'cevent', 'cstream'), cst);
+                record_additional_variable(subs(s), strrep(output_name{v}, 'cevent', 'cstream'), cst);
             end
         catch ME
             exceptions(e,1:3) = {subs(s), variable_name{v}, ME.message};
