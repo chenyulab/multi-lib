@@ -41,6 +41,9 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
     % system start time
     system_start = 30;
 
+    % generate info.mat file
+    read_trial_info(subID);
+
     % get Datavyu input_filename from supporting file folder of each
     % subject
     root = get_subject_dir(subID);
