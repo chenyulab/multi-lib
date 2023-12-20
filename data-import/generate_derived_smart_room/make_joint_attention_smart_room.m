@@ -84,6 +84,7 @@ for i = 1 : size(sub_list,1)
             if is_empty == 0
                 % joint moments
                 cevent_joint{m} = cevent_shared(cevent_final{1},cevent_final{2});
+
                 % if two joint events are close enough, merge them into one big
                 % one
                 if ~isempty(cevent_joint{m})

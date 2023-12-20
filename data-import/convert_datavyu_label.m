@@ -35,7 +35,7 @@
 % Output: Corresponding .mat variables will be created and saved under
 % derived folder of corresponding subject.
 % 
-% Example function call: [cevent_mtr,cstream_mtr] = convert_datavyu_label(9601,{'inhand_left-hand_obj-all_child','inhand_left-hand_obj-all_parent','inhand_right-hand_obj-all_child','inhand_right-hand_obj-all_parent'},13,0,{1,1,1,1})
+% Example function call: convert_datavyu_label(35112,{'eye_roi_parent','inhand_left-hand_obj-all_child','inhand_right-hand_obj-all_child','inhand_left-hand_obj-all_parent','inhand_right-hand_obj-all_parent'},1,243/30,{1,1,1,1,1})
 %%
 function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_col,time_offset,mapping_list)
     % system start time
@@ -131,8 +131,19 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
         cevent_mtr = [new_onset new_offset new_label];
         record_variable(subID,['cevent_' char(var_name)],cevent_mtr);
 
+        % generate timebase for converting cevent to cstream
+        % trials = get_trials(subID);
+        % start_frame = trials(1,1);
+        % end_frame = trials(end,2);
+        rate = get_rate(subID);
+        % frames = [start_frame:end_frame]';
+        % tb = (frames-1)/rate + system_start;
+
+
+
         % save cstream var
-        cstream_mtr = cevent2cstream(cevent_mtr,time_offset,0.001,0);
+        cstream_mtr = cevent2cstream(cevent_mtr,floor(cevent_mtr(1,1)),1/rate,0);
+        % cstream_mtr = cevent2cstreamtb(cevent_mtr,tb);
         record_variable(subID,['cstream_' char(var_name)],cstream_mtr);
     end
 end
