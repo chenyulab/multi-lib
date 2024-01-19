@@ -102,10 +102,9 @@ function [cevent_naming,cstream_naming] = make_naming_local_id_by_whisper(subID)
                 end
             end
         end
-    
-        %%% TODO: change cevent2cstream to cevent2cstreamtb using trial's
-        %%% timebase?
-        cstream_naming = cevent2cstream(cevent_naming,speechTime,0.001,0);
+
+        rate = get_rate(subID);
+        cstream_naming = cevent2cstream(cevent_naming,speechTime,1/rate,0);
         record_variable(subID,'cevent_speech_naming_local-id',cevent_naming);
         record_variable(subID,'cstream_speech_naming_local-id',cstream_naming);
     else
