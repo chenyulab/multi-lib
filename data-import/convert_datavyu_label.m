@@ -1,6 +1,6 @@
 %%
 % Author: Jane Yang
-% Last modified date: 08/14/2023
+% Last modified date: 02/16/2024
 % This function reads a .csv file containing several variables coding data 
 % from Datavyu and converts each target variable coding to .mat variable,
 % saving each variable to corresponding subject folder.
@@ -146,4 +146,6 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
         % cstream_mtr = cevent2cstreamtb(cevent_mtr,tb);
         record_variable(subID,['cstream_' char(var_name)],cstream_mtr);
     end
+    % generate visuals
+    make_experiment_vis(subID, 1);
 end
