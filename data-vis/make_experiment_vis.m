@@ -16,10 +16,10 @@
         switch option
             case 1 % CORE visualizations 
                 vars = {'cevent_eye_roi_child', 'cevent_eye_roi_parent',...
-                    'cevent_inhand_left-hand_obj-all_child', 'cevent_inhand_left-hand_obj-all_parent',...
-                    'cevent_inhand_right-hand_obj-all_child', 'cevent_inhand_right-hand_obj-all_parent'};
+                        'cevent_inhand_left-hand_obj-all_child', 'cevent_inhand_right-hand_obj-all_child',...
+                        'cevent_inhand_left-hand_obj-all_parent','cevent_inhand_right-hand_obj-all_parent'};
                 
-                streamlabels = {'ceye', 'peye', 'c_L_hand', 'p_L_hand', 'c_R_hand', 'p_R_hand'};
+                streamlabels = {'ceye', 'peye', 'c_L_hand', 'c_R_hand', 'p_L_hand', 'p_R_hand'};
                 directory = fullfile(exp_dir, 'included', 'data_vis', 'CORE');
                 
                 if ~exist(directory, 'dir')
@@ -33,7 +33,7 @@
                         'cevent_eye_joint-attend_child-lead-moment_both',...
                         'cevent_eye_joint-attend_parent-lead-moment_both'};
 
-                streamlabels = {'ceye', 'peye', 'c_hand', 'p_hand', 'JA_c_lead', 'JA_c_lead'};
+                streamlabels = {'ceye', 'peye', 'c_hand', 'p_hand', 'JA_c_lead', 'JA_p_lead'};
                 directory = fullfile(exp_dir, 'included', 'data_vis', 'JA');
                 
                 if ~exist(directory, 'dir')

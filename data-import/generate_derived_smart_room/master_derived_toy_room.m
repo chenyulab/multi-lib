@@ -13,6 +13,9 @@ switch true
     case ismember(floor(subexpIDs/100),351:398)
         fixation1 = 30;
         fixation2 = 31;
+    case ismember(subexpIDs,[5809 5810 5812])
+        fixation1 = 28;
+        fixation2 = 29;
     otherwise
         fixation1 = 27;
         fixation2 = 28;
@@ -26,6 +29,8 @@ subs = cIDs(subexpIDs);
 for s = 1:numel(subs)
     sub = subs(s);
     fprintf('%d\n', sub);
+    fprintf('%d\n',fixation1);
+    fprintf('%d\n',fixation2);
     read_trial_info(sub);
     fs = filesep;
     root = get_subject_dir(sub);
@@ -96,7 +101,7 @@ for s = 1:numel(subs)
                     record_variable(sub, ['cevent_eye_roi_' agent], cev);
                 end
 
-                record_eyegaze_toyroom(sub, agent); % added by Sven to automatically generate cont2_eye_xy_child/parent
+                % record_eyegaze_toyroom(sub, agent); % added by Sven to automatically generate cont2_eye_xy_child/parent
             end
         end
     end
