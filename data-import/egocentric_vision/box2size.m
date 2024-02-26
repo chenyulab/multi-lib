@@ -1,4 +1,4 @@
-function box2size(sID, flag)
+function box2size(sID, flag,num_objs)
 if ~exist('flag', 'var')
     flag = 'child';
 end
@@ -22,7 +22,7 @@ contents = load(boxpath);
 boxdata = contents.box_data;
 img = imread([imgpath sep boxdata(1).frame_name(strfind(boxdata(1).frame_name, 'img_'):end)]);
 [n_rows, n_cols, ~] = size(img);
-result = zeros(numel(boxdata), 25);
+result = zeros(numel(boxdata), num_objs+1);
 
 %assignin('base', 'boxdata', boxdata)
 
@@ -39,7 +39,7 @@ for i = 1:numel(boxdata)
     boxes(:,2) = boxes(:,2) - boxes(:,4)/2;
     boxes = ceil(boxes); % [x y w h] in abs. coordinates
     %result(i, 1) = timestamp;
-    for j = 1:24
+    for j = 1:num_objs
         box = boxes(j,:);
         if sum(box == 0)
             result(i, j+1) = NaN;
