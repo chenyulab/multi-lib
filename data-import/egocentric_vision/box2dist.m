@@ -1,4 +1,4 @@
-function box2dist(sID, flag)
+function box2dist(sID, flag,num_objs)
 if ~exist('flag', 'var')
     flag = 'child';
 end
@@ -23,7 +23,7 @@ boxdata = contents.box_data;
 img = imread([imgpath sep boxdata(1).frame_name(strfind(boxdata(1).frame_name, 'img_'):end)]);
 assignin('base', 'img', img);
 [n_rows, n_cols, ~] = size(img);
-result = zeros(numel(boxdata), 25);
+result = zeros(numel(boxdata), num_objs+1);
 centx = ceil(n_cols / 2);
 centy = ceil(n_rows / 2);
 diag = sqrt(centx^2 + centy^2);
@@ -43,7 +43,7 @@ for i = 1:numel(boxdata)
     boxes(:,2) = boxes(:,2) - boxes(:,4)/2;
     boxes = ceil(boxes); % [x y w h] in abs. coordinates
     %result(i, 1) = timestamp;
-    for j = 1:24
+    for j = 1:num_objs
         box = boxes(j,:);
         if sum(box == 0)
             dist = NaN;
@@ -96,7 +96,7 @@ end
 
 assignin('base', 'result', result);
 
-for i = 1:24
+for i = 1:num_objs
     record_variable(sID, sprintf('cont_vision_min-dist_center-to-obj%d_%s', i, parentOrChild), horzcat(result(:, 1), result(:, i+1)));
 end
 

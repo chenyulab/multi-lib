@@ -62,7 +62,7 @@ function [box] = trim_box_to_frame(box, n_rows, n_cols)
     h = min(max(1,h), n_rows - y);
     box = [x y w h];
 end
-for i = 1:24
+for i = 1:num_objs
     record_variable(sID, sprintf('cont_vision_size_obj%d_%s', i, parentOrChild), horzcat(result(:, 1), result(:, i+1)));
 end
 end
