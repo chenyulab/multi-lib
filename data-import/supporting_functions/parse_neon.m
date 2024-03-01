@@ -57,15 +57,14 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
     
         chunked_fixation_table = array2table(chunked_fixation,'VariableNames',{'onset','offset'});
     
-        % writetable(chunked_fixation_table,output_filename); % TODO: may need to change this to save to corresponding folder on tempbackus? depending on the stage of processing
+        writetable(chunked_fixation_table,output_filename);
 
         % if subject folder already exists on temp_backus, save fixation
         % files to temp_backus as well
         temp_backus_dir = fullfile(get_temp_backus_root(),sprintf('experiment_%d',expID),'included',sprintf('__%d_%d',date,kidID),'supporting_files');
         if exist(temp_backus_dir, 'dir')
             temp_backus_output_filename = fullfile(temp_backus_dir,sprintf('%s_fixation.csv',agent));
-            % disp(temp_backus_output_filename);
-            % writetable(chunked_fixation_table,temp_backus_output_filename);
+            writetable(chunked_fixation_table,temp_backus_output_filename);
         end
     end
 end
