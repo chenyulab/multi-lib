@@ -33,7 +33,9 @@
 function [cevent_naming,cstream_naming] = make_naming_local_id_by_whisper(subID)
     % get input whisper transcription file from speech_transcription folder from the subject
     root = get_subject_dir(subID);
-    trans_fileList = dir(fullfile(root,'speech_transcription_p','speech_*.txt'));
+    subTable = read_subject_table();
+    kidID = subTable(subTable(:,1)==subID,4);
+    trans_fileList = dir(fullfile(root,'speech_transcription_p',sprintf('speech_%d.txt',kidID)));
 
     if ~isempty(trans_fileList)
         input_filename = trans_fileList.name;
