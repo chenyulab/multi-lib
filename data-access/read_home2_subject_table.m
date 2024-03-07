@@ -1,3 +1,10 @@
+%%%
+% Author: Jane Yang
+% Last modifier: 2/29/2024 (Leap Day!)
+% 
+% Description: This function is a helper function that read the
+% HOME2_general_subject_info.csv file in Multiwork.
+%%%
 function subjects = read_home2_subject_table()
     global global_home2_subject_table;
     

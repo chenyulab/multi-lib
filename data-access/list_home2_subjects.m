@@ -1,18 +1,70 @@
-% add age interval to input arg
-% 351:355 --> new expID
-% 1: toyplay, 2: book reading, 3: meal time, 4: sorting, 5: ball drop
-function sub_list = list_home2_subjects(actID,visitID,age_range)
-    if ~exist('age_range','var')
-        age_range = [];
+%%%
+% Author: Jane Yang
+% Last modifier: 2/29/2024 (Leap Day!)
+% 
+% Description: This function takes in one required argument and three
+% optional arguments (visitIDs, ageRange, and kidIDs), returning a list of 
+% subjects that fall into the query category. Users can freely assign any 
+% optional arguments for more specific subject query. visitIDs defaults at
+% [1,2,3], returning all subjects participated in the study regardless of
+% the number of visits. ageRange defaults at [0,40], including kids between
+% 0 to 40 months old. If a user would like to know all the subIDs for a
+% kid, the user can do so by specifying the kidID. Users can choose to
+% assign any or all three optional arguments.
+%
+% This function ONLY targets experiment 350+ (home2 experiments).
+%
+% Input:        Name        Description
+%               expIDs      a list of experiment IDs - [351, 353]
+%               varargin    optional parameters:
+%                               - visitIDs: a list incidates the number of
+%                                           visits - [1] or [1,2] etc.
+%                               - ageRange: an array specifying the age
+%                                           range
+%                               - kidIDs: a list of kidIDs or one kidID
+%
+% Output: an array of subject IDs
+%%%
+% sub_list = list_home2_subjects(351, 'visitIDs', [2], 'ageRange', [12 24])
+function sub_list = list_home2_subjects(expIDs,varargin)
+    % define default values for optional parameters
+    ageRange = [0 40];
+    visitIDs = [1 2 3];
+    kidIDs = 0;
+
+    % Parse input arguments: Method 1
+    % numArgs = length(varargin);
+    % if numArgs > 1
+    %     visitIDs = varargin{1};
+    %     disp(visitIDs);
+    % end
+    % if numArgs > 2
+    %     ageRange = varargin{2};
+    % end
+    % if numArgs > 3
+    %     kidIDs = varargin{3};
+    % end
+
+    % Parse input arguments: Method 2
+    for i = 1:2:length(varargin)
+        if strcmpi(varargin{i}, 'visitIDs')
+            visitIDs = varargin{i+1};
+        elseif strcmpi(varargin{i}, 'ageRange')
+            ageRange = varargin{i+1};
+        elseif strcmpi(varargin{i}, 'kidIDs')
+            kidIDs = varargin{i+1};
+        else
+            error('Invalid parameter name: %s', varargin{i});
+        end
     end
 
-    % parse activity->expID mapping
-    mapping = readtable(fullfile(get_multidir_root(),'home2_activity_mapping.csv')); % TODO: put it in a file
-    expID = table2array(mapping(table2array(mapping(:,1))==actID,2));
-
     % read subject table
-    home2_subject_table = read_home2_subject_table();
+    sub_table = table2array(read_home2_subject_table());
 
-    sub_list = home2_subject_table(home2_subject_table.Exp_num == expID & home2_subject_table.Visit == visitID & home2_subject_table.Age >= age_range(1) & home2_subject_table.Age <= age_range(2),1);
-    sub_list = table2array(sub_list);
+    % if kidIDs not specified
+    if kidIDs == 0
+        sub_list = sub_table(ismember(sub_table(:,2),expIDs) & ismember(sub_table(:,5),visitIDs) & sub_table(:,6) >= ageRange(1) & sub_table(:,6) <= ageRange(2),1);
+    else % special case: query subIDs for the same kid
+        sub_list = sub_table(ismember(sub_table(:,2),expIDs) & ismember(sub_table(:,5),visitIDs) & sub_table(:,6) >= ageRange(1) & sub_table(:,6) <= ageRange(2) & sub_table(:,4) == kidIDs,[1 5]);
+    end
 end
