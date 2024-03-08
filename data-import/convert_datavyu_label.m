@@ -169,6 +169,6 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
     % generate naming variables
     make_naming_local_id_by_whisper(subID);
 
-    % generate visuals
+    % generate CORE variables visualization
     make_experiment_vis(subID, 1);
 end

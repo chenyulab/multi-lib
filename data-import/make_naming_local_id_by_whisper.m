@@ -28,9 +28,15 @@
 % Helper function called: speech_trans_to_array.m
 % 
 % Example function call: make_naming_local_id_by_whisper(35101)
+% for Spanish transcriptions: make_naming_local_id_by_whisper(35101,1)
 %%%
 
-function [cevent_naming,cstream_naming] = make_naming_local_id_by_whisper(subID)
+function [cevent_naming,cstream_naming] = make_naming_local_id_by_whisper(subID,isSpanishFlag)
+    % check whether input transcription is in Spanish
+    if ~exist('isSpanishFlag', 'var')
+        isSpanishFlag = 0;
+    end
+    
     % get input whisper transcription file from speech_transcription folder from the subject
     root = get_subject_dir(subID);
     subTable = read_subject_table();
@@ -48,7 +54,11 @@ function [cevent_naming,cstream_naming] = make_naming_local_id_by_whisper(subID)
         elseif ismember(expID,80)
             map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'exp80_object_word_pairs.xlsx'));
         else
-            map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs.xlsx'));
+            if ~isSpanishFlag % English transcription
+                map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs.xlsx'));
+            else % Spanish transcription
+                map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs_spanish.xlsx'));
+            end
         end
 
         word_object_mapping_filename = map_fileList.name;

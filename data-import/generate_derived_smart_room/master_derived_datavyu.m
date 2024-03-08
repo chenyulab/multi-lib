@@ -35,5 +35,12 @@ function master_derived_datavyu(subexpIDs)
         
         fprintf('\nProcessing inhand/roi for %d\n', sub);
         make_joint_eye_inhand_smart_room(sub);
+
+        % generate new version of inhand-eye variables
+        make_all_inhand_eye(sub);
+
+        % generate derived variables visualization
+        make_experiment_vis(sub, 2);
+        make_experiment_vis(sub, 3);
     end
 end
