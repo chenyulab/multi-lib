@@ -3,7 +3,7 @@
 % Last modifier: 2/29/2024 (Leap Day!)
 % 
 % Description: This function takes in one required argument and three
-% optional arguments (visitIDs, ageRange, and kidIDs), returning a list of 
+% optional arguments (visitIDs, ageRange, and kidID), returning a list of 
 % subjects that fall into the query category. Users can freely assign any 
 % optional arguments for more specific subject query. visitIDs defaults at
 % [1,2,3], returning all subjects participated in the study regardless of
@@ -21,7 +21,7 @@
 %                                           visits - [1] or [1,2] etc.
 %                               - ageRange: an array specifying the age
 %                                           range
-%                               - kidIDs: a list of kidIDs or one kidID
+%                               - kidID: a list of kidID or one kidID
 %
 % Output: an array of subject IDs
 %%%
@@ -29,8 +29,8 @@
 function sub_list = list_home2_subjects(expIDs,varargin)
     % define default values for optional parameters
     ageRange = [0 40];
-    visitIDs = [1 2 3];
-    kidIDs = 0;
+    visitIDs = [1 2 3 4];
+    kidID = 0;
 
     % Parse input arguments: Method 1
     % numArgs = length(varargin);
@@ -42,7 +42,7 @@ function sub_list = list_home2_subjects(expIDs,varargin)
     %     ageRange = varargin{2};
     % end
     % if numArgs > 3
-    %     kidIDs = varargin{3};
+    %     kidID = varargin{3};
     % end
 
     % Parse input arguments: Method 2
@@ -51,8 +51,8 @@ function sub_list = list_home2_subjects(expIDs,varargin)
             visitIDs = varargin{i+1};
         elseif strcmpi(varargin{i}, 'ageRange')
             ageRange = varargin{i+1};
-        elseif strcmpi(varargin{i}, 'kidIDs')
-            kidIDs = varargin{i+1};
+        elseif strcmpi(varargin{i}, 'kidID')
+            kidID = varargin{i+1};
         else
             error('Invalid parameter name: %s', varargin{i});
         end
@@ -61,10 +61,10 @@ function sub_list = list_home2_subjects(expIDs,varargin)
     % read subject table
     sub_table = table2array(read_home2_subject_table());
 
-    % if kidIDs not specified
-    if kidIDs == 0
+    % if kidID not specified
+    if kidID == 0
         sub_list = sub_table(ismember(sub_table(:,2),expIDs) & ismember(sub_table(:,5),visitIDs) & sub_table(:,6) >= ageRange(1) & sub_table(:,6) <= ageRange(2),1);
     else % special case: query subIDs for the same kid
-        sub_list = sub_table(ismember(sub_table(:,2),expIDs) & ismember(sub_table(:,5),visitIDs) & sub_table(:,6) >= ageRange(1) & sub_table(:,6) <= ageRange(2) & sub_table(:,4) == kidIDs,[1 5]);
+        sub_list = sub_table(ismember(sub_table(:,2),expIDs) & ismember(sub_table(:,5),visitIDs) & sub_table(:,6) >= ageRange(1) & sub_table(:,6) <= ageRange(2) & sub_table(:,4) == kidID,[1 5]);
     end
 end
