@@ -35,8 +35,6 @@ for s = 1:numel(subjs)
 
     times = times(log,:);
     
-    record_variable(sid, 'event_trials', times(:,[1 2]));
-    
     record_variable(sid, 'cevent_trials', times);
     
     rate = get_rate(sid);
