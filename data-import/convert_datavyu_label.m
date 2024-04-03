@@ -41,6 +41,10 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
     % system start time
     system_start = 30;
 
+    % fixation merge threshold -- merge fixations that are less than 4
+    % frames apart from each other
+    merge_thres = 4;
+
     % generate info.mat file
     read_trial_info(subID);
 
@@ -130,20 +134,10 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
         % save cevent var
         cevent_mtr = [new_onset new_offset new_label];
         record_variable(subID,['cevent_' char(var_name)],cevent_mtr);
-
-        % generate timebase for converting cevent to cstream
-        % trials = get_trials(subID);
-        % start_frame = trials(1,1);
-        % end_frame = trials(end,2);
         rate = get_rate(subID);
-        % frames = [start_frame:end_frame]';
-        % tb = (frames-1)/rate + system_start;
-
-
 
         % save cstream var
         cstream_mtr = cevent2cstream(cevent_mtr,floor(cevent_mtr(1,1)),1/rate,0);
-        % cstream_mtr = cevent2cstreamtb(cevent_mtr,tb);
         record_variable(subID,['cstream_' char(var_name)],cstream_mtr);
 
         % check if current variable is a fixation variable
@@ -151,7 +145,7 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
         if contains(var_name,'eye_roi_fixation')
             % merge two consecutive fixations less than 4 frames away
             % from each other, if two instances are on the same object
-            cevent_merged = cevent_merge_segments(cevent_mtr, 4/30);
+            cevent_merged = cevent_merge_segments(cevent_mtr, merge_thres/rate);
             cstream_merged = cevent2cstream(cevent_merged,floor(cevent_merged(1,1)),1/rate,0); % convert to cstream
             
             % parse current varname to get the agent field
@@ -168,7 +162,4 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
 
     % generate naming variables
     make_naming_local_id_by_whisper(subID);
-
-    % generate CORE variables visualization
-    make_experiment_vis(subID, 1);
 end

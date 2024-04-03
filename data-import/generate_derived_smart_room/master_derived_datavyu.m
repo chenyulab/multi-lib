@@ -39,6 +39,8 @@ function master_derived_datavyu(subexpIDs)
         % generate new version of inhand-eye variables
         make_all_inhand_eye(sub);
 
+        % make CORE variables visualization
+        make_experiment_vis(sub, 1);
         % generate derived variables visualization
         make_experiment_vis(sub, 2);
         make_experiment_vis(sub, 3);
