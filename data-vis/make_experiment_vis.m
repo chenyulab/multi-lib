@@ -59,7 +59,7 @@
                    mkdir(directory)
                 end
                 
-                vis_streams_multiwork(subexpIDs(i), vars, var_labels, directory);
+                vis_streams_multiwork(sub_expIDs(i), vars, var_labels, directory);
                 
                 vars = {'cevent_eye_roi_parent', 'cevent_eye_roi_no-inhand_parent',...
                         'cevent_inhand_left-hand_obj-all_parent','cevent_inhand_right-hand_obj-all_parent',...
@@ -77,7 +77,7 @@
                    mkdir(directory)
                 end
                 
-                vis_streams_multiwork(subexpIDs(i), vars, var_labels, directory);
+                vis_streams_multiwork(sub_expIDs(i), vars, var_labels, directory);
                 
                 vars = {'cevent_eye_roi_child', ...
                         'cevent_inhand_left-hand_obj-all_parent','cevent_inhand_right-hand_obj-all_parent',...
@@ -95,7 +95,7 @@
                    mkdir(directory)
                 end
                 
-                vis_streams_multiwork(subexpIDs(i), vars, var_labels, directory);
+                vis_streams_multiwork(sub_expIDs(i), vars, var_labels, directory);
                 
                 vars = {'cevent_eye_roi_parent', ...
                         'cevent_inhand_left-hand_obj-all_child','cevent_inhand_right-hand_obj-all_child',...
@@ -113,7 +113,7 @@
                    mkdir(directory)
                 end
                 
-                vis_streams_multiwork(subexpIDs(i), vars, var_labels, directory);
+                vis_streams_multiwork(sub_expIDs(i), vars, var_labels, directory);
 
                 
         end
