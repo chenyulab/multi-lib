@@ -1,6 +1,6 @@
 %%%
 % Author: Jane Yang
-% Last Modifier: 3/15/2023
+% Last Modifier: 4/12/2024
 % This function returns a CSV file containing the frequency of each word
 % appeared in the subjects.
 % 
@@ -11,11 +11,11 @@
 %%%
 
 function sub_list = list_key_words_count(keywords_list,subexpID,output_filename)
-    summary_filename = 'summary_word_count.csv';
-    [~,~,summary_count] = get_word_count_matrix(subexpID,summary_filename);
-    disp(class(summary_count));
+    summary_filename = 'summary_word_count_table.csv';
+    wordCountTable = get_word_count_matrix(subexpID,summary_filename);
 
-    sub_list = summary_count(ismember(summary_count.word,keywords_list),:);
+    % check for keywords appeared in the summary table
+    sub_list = wordCountTable(ismember(wordCountTable.Word,keywords_list),:);
 
     writetable(sub_list,output_filename);
 end
