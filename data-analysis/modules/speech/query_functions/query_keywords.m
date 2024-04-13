@@ -29,7 +29,7 @@
 % 
 % Example function call: rtr_table = query_csv_speech([12],{'babyname'},'M:\event_clips\test','test-babyname.csv',args)
 
-function rtr_table = query_csv_speech(expIDs,word_list,output_dir,output_filename,args)
+function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,args)
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
@@ -49,13 +49,6 @@ function rtr_table = query_csv_speech(expIDs,word_list,output_dir,output_filenam
     else
         cam = 7; % default to cam07 --> kid's view
     end
-
-    % %%% TODO: maybe change this name??
-    % if isfield(args,'window')
-    %     window = args.window;
-    % else
-    %     window = 0; % default to window 0 --> words need to be in the same utterance
-    % end
 
     if numel(word_list) == 0
         error('[-] Error: Invalid word input. Please enter at least one word to query.')
@@ -170,31 +163,6 @@ function rtr_table = query_csv_speech(expIDs,word_list,output_dir,output_filenam
                 match_system_onset = match_system_onset(trial_index_combined);
                 match_system_offset = match_system_offset(trial_index_combined);
 
-                % % check if need to modify timestamps
-                % if ~isempty(whence)
-                %     if strcmp(whence,'start')
-                %         match_onset = match_onset + interval(1);
-                %         match_offset = match_onset + interval(2);
-                % 
-                %         match_system_onset = match_system_onset + interval(1);
-                %         match_system_offset = match_system_onset + interval(2);
-                %     elseif strcmp(whence,'end')
-                %         match_onset = match_offset + interval(1);
-                %         match_offset = match_offset + interval(2);
-                % 
-                %         match_system_onset = match_system_offset + interval(1);
-                %         match_system_offset = match_system_offset + interval(2);
-                %     elseif strcmp(whence,'startend')
-                %         match_onset = match_onset + interval(1);
-                %         match_offset = match_offset + interval(2);
-                % 
-                %         match_system_onset = match_system_onset + interval(1);
-                %         match_system_offset = match_system_offset + interval(2);
-                %     end
-                % end
-                
-                
-
                 % find corresponding timestamps in frame number
                 match_onset_frames = time2frame_num(match_system_onset,subID);
                 match_offset_frames = time2frame_num(match_system_offset,subID);
@@ -239,7 +207,6 @@ function rtr_table = query_csv_speech(expIDs,word_list,output_dir,output_filenam
             end
         end
         % save table to a csv file
-        %%% TODO: change output_filename to handle multi-words case
         writetable(rtr_table,fullfile(output_dir,output_filename),'WriteVariableNames', true);
     end
 end

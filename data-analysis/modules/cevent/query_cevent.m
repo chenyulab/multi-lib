@@ -31,7 +31,7 @@
 % 
 % Example function call: rtr_table = query_csv_cevent([12],'cevent_eye_joint-attend_child-lead-moment_both',[1:24],'M:\event_clips\test','test.csv',args)
 
-function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list,output_dir, output_filename,args)
+function rtr_table = query_cevent(expIDs, cevent_varname, target_obj_list,output_dir, output_filename,args)
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
