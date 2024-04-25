@@ -62,7 +62,7 @@ function extract_basic_demographic()
             if ~exist(directory, 'dir')
                mkdir(directory);
             end
-            filePath = fullfile(directory, 'basic_test.tsv');
+            filePath = fullfile(directory, 'basic.tsv');
             writetable(resultsTable,filePath, 'filetype','text', 'delimiter','\t');
     end
 end
