@@ -16,6 +16,13 @@ path_log = fullfile(dir_matlab, 'space', 'CORE', 'scheduled_tasks', 'exception_l
 diary(path_log);
 
 %%
+% run script to update basic.tsv file
+disp("==============================")
+disp('[*] Updating basic.tsv files...')
+disp("==============================")
+extract_basic_demographic()
+
+%%
 % run vis_hist plots
 % rewritten version of master_vis_hist
 % change from "encounter error-abort" to "ecounter error-skip to next"
