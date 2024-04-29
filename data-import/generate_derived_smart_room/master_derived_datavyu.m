@@ -1,4 +1,4 @@
-function master_derived_datavyu(subexpIDs)
+function master_derived_datavyu(subexpIDs,hasInhand)
 % postfixation
 % all
 %   trial
@@ -17,27 +17,29 @@ function master_derived_datavyu(subexpIDs)
         make_joint_attention_smart_room(sub);
         % make_synched_attention(sub);
         
-        fprintf('\nProcessing inhand for %d\n', sub);
-        for a = 1:2
-            agent = agents{a};
-            cstlh = get_variable(sub, sprintf('cstream_inhand_left-hand_obj-all_%s', agent));
-            cstrh = get_variable(sub, sprintf('cstream_inhand_right-hand_obj-all_%s', agent));
-            cevlh = cstream2cevent(cstlh);
-            cevrh = cstream2cevent(cstrh);
-            cevlh(isnan(cevlh(:,3)),:) = [];
-            cevrh(isnan(cevrh(:,3)),:) = [];
-            cevboth = cat(1, cevlh, cevrh);
-            cevboth = sortrows(cevboth, [1 2 3]);
-        
-            record_variable(sub, sprintf('cevent_inhand_%s', agent), cevboth);
-        end
-        make_both_inhand(sub);
-        
-        fprintf('\nProcessing inhand/roi for %d\n', sub);
-        make_joint_eye_inhand_smart_room(sub);
+        if hasInhand
+            fprintf('\nProcessing inhand for %d\n', sub);
+            for a = 1:2
+                agent = agents{a};
+                cstlh = get_variable(sub, sprintf('cstream_inhand_left-hand_obj-all_%s', agent));
+                cstrh = get_variable(sub, sprintf('cstream_inhand_right-hand_obj-all_%s', agent));
+                cevlh = cstream2cevent(cstlh);
+                cevrh = cstream2cevent(cstrh);
+                cevlh(isnan(cevlh(:,3)),:) = [];
+                cevrh(isnan(cevrh(:,3)),:) = [];
+                cevboth = cat(1, cevlh, cevrh);
+                cevboth = sortrows(cevboth, [1 2 3]);
+            
+                record_variable(sub, sprintf('cevent_inhand_%s', agent), cevboth);
+            end
+            make_both_inhand(sub);
+            
+            fprintf('\nProcessing inhand/roi for %d\n', sub);
+            make_joint_eye_inhand_smart_room(sub);
 
-        % generate new version of inhand-eye variables
-        make_all_inhand_eye(sub);
+            % generate new version of inhand-eye variables
+            make_all_inhand_eye(sub);
+        end
 
         % make CORE variables visualization
         make_experiment_vis(sub, 1);
