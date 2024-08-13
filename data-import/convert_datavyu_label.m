@@ -35,7 +35,7 @@
 % Output: Corresponding .mat variables will be created and saved under
 % derived folder of corresponding subject.
 % 
-% Example function call: convert_datavyu_label(35112,{'eye_roi_fixations_child','eye_roi_fixations_parent','inhand_left-hand_obj-all_child','inhand_right-hand_obj-all_child','inhand_left-hand_obj-all_parent','inhand_right-hand_obj-all_parent'},1,243/30,{1,1,1,1,1})
+% Example function call: convert_datavyu_label(35112,{'eye_roi_child','eye_roi_parent','inhand_left-hand_obj-all_child','inhand_right-hand_obj-all_child','inhand_left-hand_obj-all_parent','inhand_right-hand_obj-all_parent'},1,243/30,{1,1,1,1,1,1})
 %%%
 function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_col,time_offset,mapping_list)
     % system start time
@@ -142,14 +142,15 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
 
         % check if current variable is a fixation variable
         % If so, merge fixations and generate eye ROI variables
-        if contains(var_name,'eye_roi_fixation')
+        if contains(var_name,'eye_roi')
             % merge two consecutive fixations less than 4 frames away
             % from each other, if two instances are on the same object
             cevent_merged = cevent_merge_segments(cevent_mtr, merge_thres/rate);
             cstream_merged = cevent2cstream(cevent_merged,floor(cevent_merged(1,1)),1/rate,0); % convert to cstream
             
             % parse current varname to get the agent field
-            parsed = strsplit(var_name,'_');
+            
+            parsed = strsplit(var_name{1},'_');
             agent = parsed{end};
 
             % generate cevent/cstream_eye_roi_child/parent variable
