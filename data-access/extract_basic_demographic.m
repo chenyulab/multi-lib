@@ -54,7 +54,7 @@ function extract_basic_demographic()
             % Create results table
             resultsTable = table(sub_id_col(match), kid_id_col(match), gender_col, age_at_experiment, ...
                                  birth_year, birth_month, ...
-                                 'VariableNames', {'SubjectID', 'KidID', 'Gender', 'AgeAtExperiment', 'BirthYear', 'BirthMonth'});
+                                 'VariableNames', {'subject','kid_id','gender','age_at_experiment','birth_year','birth_month'});
             
             % Directory setup and output (.tsv)
             exp_dir = get_experiment_dir(experiments(i));
