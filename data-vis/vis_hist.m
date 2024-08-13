@@ -24,21 +24,30 @@ for s = 1:numel(subs)
     fprintf('%d\n', subs(s));
     try
         if has_variable(subs(s), varname)
-            hsubs = cat(1, hsubs, subs(s));
-            data = get_variable_by_trial_cat(subs(s), varname);
-            dim2 = size(data,2);
-            switch dim2
-                case 2
-                    % raw values
-                    values = data(:,2);
-                case 3
-                    % durations
-                    values = data(:,2)-data(:,1);
+            try
+                hsubs = cat(1, hsubs, subs(s));
+                data = get_variable_by_trial_cat(subs(s), varname);
+                dim2 = size(data,2);
+                switch dim2
+                    case 2
+                        % raw values
+                        values = data(:,2);
+                    case 3
+                        % durations
+                        values = data(:,2)-data(:,1);
+                end
+                
+                x = histcounts(values, edges);
+                
+                allx{s,1} = x';
+            catch ME
+                disp(ME.message)
+                values = NaN;
+                x = histcounts(values, edges);
+                x(:) = NaN;
+                allx{s,1} = x';
+                continue
             end
-            
-            x = histcounts(values, edges);
-            
-            allx{s,1} = x';
         end
     catch ME
         disp(ME.message)
@@ -52,11 +61,11 @@ edges = edges(1:end-1)';
 
 headers = sprintf('%d,', subs);
 headers = cat(2, 'binedges,', headers, 'all,');
-towrite = cat(2, edges, allx, sum(allx, 2));
+towrite = cat(2, edges, allx, nansum(allx, 2));
 write2csv(towrite, sprintf('%s/%s_count.csv', directory, nametag), headers);
 countdata = towrite(:,2:end);
 normdata = countdata;
-totals = sum(normdata, 1);
+totals = nansum(normdata, 1);
 normdata = normdata ./ repmat(totals, size(normdata, 1), 1);
 
 ymax = max(max(countdata(:, 1:end-1)));
