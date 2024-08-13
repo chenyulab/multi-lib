@@ -1,27 +1,32 @@
-function out = get_num_obj(subid)
+function rtr_list = get_num_obj(subexpID,varargin)
+% default: return the local number of stimulis
+% get_num_obj([58 59 65 351])
+% 
+% ans =
+% 
+%     27     4    18    27
+% 
+% add optional parameter: return the global number of stimulis
+% get_num_obj([58 59 65 351],1)
+% 
+% ans =
+% 
+%     27    16    18    27
 
-subs = cIDs(subid);
+subs = cIDs(subexpID);
+exp_id = unique(sub2exp(subs));
 
-stim = fullfile(get_multidir_root, 'stimulus_table.txt');
-fid = fopen(stim, 'r');
-if fid > 0
-    data = textscan(fid, '%d %d %d %s %s %d %s %d','Headerlines', 1, 'delimiter', ',', 'EmptyValue', -Inf);
-else
-    error('file did no open correctly');
-end
-fclose(fid);
+stim = fullfile(get_multidir_root, 'stimulus_table_total_n.xlsx');
+stim_data = readtable(stim);
 
-data = horzcat(data{[1 2 3]});
-out = arrayfun(@(a) sum(data(:,1) == a & data(:,3) == 1), sub2exp(subs));
-
-
-
-% out = 0;
-% vars = list_variables(subid);
-% for o = [3 5]
-%     log = strfind(vars, sprintf('obj%d', o));
-%     if sum(cellfun(@(a) ~isempty(a), log)) > 0
-%         out = o;
-%     end
-% end
+rtr_list = [];
+for e = 1:length(exp_id)
+    exp = exp_id(e);
+    row = stim_data(stim_data.experiment_id == exp,:);
+    if isempty(varargin)
+        total_n = row.number_of_objs_local;
+    else
+        total_n = row.number_of_objs_global;
+    end
+    rtr_list = [rtr_list, total_n];
 end
