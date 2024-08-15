@@ -27,8 +27,8 @@
 %
 % Helper function called: speech_trans_to_array.m
 % 
-% Example function call: make_naming_local_id_by_whisper(35101)
-% for Spanish transcriptions: make_naming_local_id_by_whisper(35101,1)
+% Example function call: make_utterance_by_whisper(35101)
+% for Spanish transcriptions: make_utterance_by_whisper(35101,1)
 %%%
 
 function [cevent_naming,cstream_naming] = make_utterance_by_whisper(subID,isSpanishhave_obj)

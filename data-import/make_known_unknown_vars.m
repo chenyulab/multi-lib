@@ -22,6 +22,7 @@
 %%%
 
 function make_known_unknown_vars(subexpIDs, var_list, mapping_file, type)
+
     % hard-coded index for accessing the right tab in the survey excel file
     toyMapIdx = 3;
     formatOut = 'yyyymmdd'; % format template for study session's date
@@ -44,9 +45,9 @@ function make_known_unknown_vars(subexpIDs, var_list, mapping_file, type)
     survey(sum(ism,2)==size(survey,2),:) = []; % remove empty rows
     
     % parse subject mapping info from the survey data
-    copy = rmmissing(survey); % filter out objID header row
-    date = str2num(datestr(copy{:,dateCol},formatOut));
-    kidID = copy{:,kidIDCol};
+    % copy = rmmissing(survey); % filter out objID header row
+    date = str2num(datestr(survey{2:end,dateCol},formatOut));
+    kidID = survey{2:end,kidIDCol};
     subInfo = horzcat(date,kidID);
     
     % split the rest of survey into two matrices: one for toy objects,
@@ -119,9 +120,9 @@ function make_known_unknown_vars(subexpIDs, var_list, mapping_file, type)
                         score0_varname = strcat(var_list{j},score0_varname_base);
                     end
     
-                    record_additional_variable(subID,score2_varname,score2_var);
-                    record_additional_variable(subID,score1_varname,score1_var);
-                    record_additional_variable(subID,score0_varname,score0_var);
+                    record_variable(subID,score2_varname,score2_var);
+                    record_variable(subID,score1_varname,score1_var);
+                    record_variable(subID,score0_varname,score0_var);
                 end
             end
         else

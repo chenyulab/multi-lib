@@ -8,7 +8,7 @@
     % option
     %       -- what type of visualizations (see cases below)
 
-    function make_experiment_vis(sub_expIDs, option)
+function make_experiment_vis(sub_expIDs, option)
     % Variables
     for i = 1:length(sub_expIDs)
         disp(sub_expIDs(i))
@@ -18,7 +18,7 @@
                 vars = {'cevent_eye_roi_child', 'cevent_eye_roi_parent',...
                         'cevent_inhand_left-hand_obj-all_child', 'cevent_inhand_right-hand_obj-all_child',...
                         'cevent_inhand_left-hand_obj-all_parent','cevent_inhand_right-hand_obj-all_parent',...
-                        'cevent_speech_naming_local-id'};
+                        'cevent_speech_utterance'};
                 
                 streamlabels = {'ceye', 'peye', 'c_L_hand', 'c_R_hand', 'p_L_hand', 'p_R_hand','naming'};
                 directory = fullfile(exp_dir, 'included', 'data_vis', 'CORE');

@@ -162,7 +162,7 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
     end
 
     % generate naming variables
-    make_naming_local_id_by_whisper(subID);
+    make_utterance_by_whisper(subID);
 
     % make system-time speech transcription file
     make_system_time_trans(subID);
