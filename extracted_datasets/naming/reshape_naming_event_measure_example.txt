@@ -1,0 +1,27 @@
+  Input: 
+      filename: 'event_and_measure_all_exp12_data.mat'
+      num_obj: 24
+      type: all
+      subexpIDs: 12
+  Output:
+      event_and_measure_all_exp12_data.mat: contains 2 variables
+      <<<naming_events>>>: 
+      36(number of subject) x 24(number of object) cell
+          -- cell entry: n X 7 double
+          -- n(row): number of instance
+          -- 7(column): naming event information
+          -- e.g. naming_event{1, 6}
+              subID   expID   onset   offset  category    trialsID    instanceID
+              1201	12	    87.482	90.482	    6	        1	    5
+              1201	12	    88.858	91.858	    6	        1	    6
+      <<<naming_measure>>>: 
+      36(number of subject) x 24(number of object) cell
+          -- cell entry: n X 144 double
+          -- n(row): number of instance
+          -- 144(column): 6 dependent variable X 24 number of object
+                 -- column 1 - 24 'cevent_eye_roi_child' 
+                 -- column 25 - 48 'cevent_eye_roi_parent' 
+                 -- column 49 - 72 'cevent_inhand_child' 
+                 -- column 73 - 96 'cevent_inhand_parent' 
+                 -- column 97 - 120 'cevent_eye_joint-attend_child-lead-moment_both' 
+                 -- column 121 - 144 'cevent_eye_joint-attend_parent-lead-moment_both' 
