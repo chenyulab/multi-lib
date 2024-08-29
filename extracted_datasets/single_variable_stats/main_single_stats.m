@@ -34,7 +34,7 @@ switch c
         num_roi = [8 8 16];
          for v = 1 : length(var_list)
             for i = 1 : length(exp_ids)
-                extract_basic_stats(var_list{v},exp_ids(i), num_roi);
+                extract_basic_stats(var_list{v},exp_ids(i), num_roi(v));
             end
         end
 
