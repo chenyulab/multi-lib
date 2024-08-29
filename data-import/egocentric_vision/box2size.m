@@ -1,4 +1,4 @@
-function box2size(sID, flag,num_objs)
+function box2size(sID, flag,num_objs,is_face)
 if ~exist('flag', 'var')
     flag = 'child';
 end
@@ -6,11 +6,19 @@ sep = filesep();
 root = get_subject_dir(sID);
 switch flag
     case 'child'
-        boxpath = [root sep 'extra_p' sep num2str(sID) '_child_boxes.mat'];
+        if is_face
+            boxpath = [root sep 'extra_p' sep num2str(sID) '_child_boxes_face.mat'];
+        else
+            boxpath = [root sep 'extra_p' sep num2str(sID) '_child_boxes.mat'];
+        end
         imgpath = [root sep 'cam07_frames_p'];
         parentOrChild = flag;
     case 'parent'
-        boxpath = [root sep 'extra_p' sep num2str(sID) '_parent_boxes.mat'];
+        if is_face
+            boxpath = [root sep 'extra_p' sep num2str(sID) '_parent_boxes_face.mat'];
+        else
+            boxpath = [root sep 'extra_p' sep num2str(sID) '_parent_boxes.mat'];
+        end
         imgpath = [root sep 'cam08_frames_p'];
         parentOrChild = flag;
     otherwise
@@ -41,7 +49,7 @@ for i = 1:numel(boxdata)
     %result(i, 1) = timestamp;
     for j = 1:num_objs
         box = boxes(j,:);
-        if sum(box == 0)
+        if box(3) == 0 || box(4) == 0
             result(i, j+1) = NaN;
         else
             box = trim_box_to_frame(box, n_rows, n_cols);
@@ -62,8 +70,13 @@ function [box] = trim_box_to_frame(box, n_rows, n_cols)
     h = min(max(1,h), n_rows - y);
     box = [x y w h];
 end
-for i = 1:num_objs
-    record_variable(sID, sprintf('cont_vision_size_obj%d_%s', i, parentOrChild), horzcat(result(:, 1), result(:, i+1)));
+
+if is_face
+    record_additional_variable(sID, sprintf('cont_vision_size_face_%s', parentOrChild), horzcat(result(:, 1), result(:, 1+1)));
+else
+    for i = 1:num_objs
+        record_variable(sID, sprintf('cont_vision_size_obj%d_%s', i, parentOrChild), horzcat(result(:, 1), result(:, i+1)));
+    end
 end
 end
 
