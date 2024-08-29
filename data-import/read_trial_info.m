@@ -55,7 +55,8 @@ for i = 1 : 20 % not more than 20 trial
     tline = fgetl(fin);
     if (size(tline,2) > 2) % not empty line
         list = strread(tline, '%d','delimiter',',');
-        trials(list(1),:) = [list(2) list(3)];  
+        % trials(list(1),:) = [list(2) list(3)];  
+        trials(i,:) = [list(2) list(3)]; 
     else
         break;
     end;
