@@ -16,6 +16,9 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
         sync_offset = sync_offset * 1000000000;
     end
 
+    % create saccades csv file in temp backus & multiwork (if exist)
+    parse_neon_saccades(date,kidID,expID,agent);
+
     % read raw fixation file
     raw_fixation = readtable(fullfile(agent_root,'fixations.csv'));
     fixation_onset = raw_fixation{:,4};
@@ -68,6 +71,5 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
         end
     end
     
-    % create saccades csv file in temp backus & multiwork (if exist)
-    parse_neon_saccades(date,kidID,expID,agent);
+
 end
