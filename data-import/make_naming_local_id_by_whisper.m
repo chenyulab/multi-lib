@@ -53,6 +53,8 @@ function [cevent_naming,cstream_naming] = make_naming_local_id_by_whisper(subID,
             map_fileList = dir(fullfile(get_multidir_root,'experiment_77','exp77_object_word_pairs.xlsx'));
         elseif ismember(expID,80)
             map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'exp80_object_word_pairs.xlsx'));
+        elseif ismember(expID,58)
+            map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'exp58_object_word_pairs.xlsx'));
         else
             if ~isSpanishFlag % English transcription
                 map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs.xlsx'));

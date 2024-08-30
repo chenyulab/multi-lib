@@ -1,4 +1,4 @@
-function master_derived_datavyu(subexpIDs,hasInhand)
+function master_derived_datavyu(subexpIDs,hasInhand,hasSaccades)
 % postfixation
 % all
 %   trial
@@ -39,6 +39,14 @@ function master_derived_datavyu(subexpIDs,hasInhand)
 
             % generate new version of inhand-eye variables
             make_all_inhand_eye(sub);
+        end
+        
+        % generate saccades variable
+        if hasSaccades
+            for a = 1:2
+                agent = agents{a};
+                make_saccades(sub,agent);
+            end
         end
 
         % make CORE variables visualization

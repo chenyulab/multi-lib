@@ -67,4 +67,7 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
             writetable(chunked_fixation_table,temp_backus_output_filename);
         end
     end
+    
+    % create saccades csv file in temp backus & multiwork (if exist)
+    parse_neon_saccades(date,kidID,expID,agent);
 end
