@@ -1,6 +1,6 @@
 %%%
 % Author: Jingwen Pang
-% Last Modified: 07/01/2024
+% Last Modified: 09/03/2024
 % This function reads in a speech transcription .txt file and a word-object
 % mapping .csv file, outputting a .csv or .txt file containing instances
 % where a target object referent word was mentioned in the speech utterance.
@@ -89,7 +89,7 @@ function [cevent_naming,cstream_naming] = make_utterance_by_whisper(subID,isSpan
         % get number of object
         word_obj_name = mapping.obj;
         unique_word_obj_name = unique(word_obj_name);
-        n_of_obj = height(unique_word_obj_name);
+        n_of_obj = get_num_obj(expID);
         
         % initialize an array for holding matching naming instances
         cevent_naming = [];
