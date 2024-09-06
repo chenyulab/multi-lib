@@ -20,6 +20,9 @@ for s = 1:numel(subjs)
     log = trials(:,1) ~= -1;
     times = frame_num2time(trials, sid);
     
+    contents = load(get_info_file_path(sid));
+    timing = contents.trialInfo;
+
     %check if trial_type.txt exists
     trial_type_file_name = fullfile(get_subject_dir(sid), 'trial_coding_p', 'trial_type.txt');
     if exist(trial_type_file_name, 'file')
@@ -29,6 +32,10 @@ for s = 1:numel(subjs)
         if ~isequal(check > 0, log)
             error('%d, -1 from get_trials and trial_type.txt do not line up', sid);
         end
+    % check if trial_id exists
+    elseif isfield(timing, 'trials_ids')
+        trials_ids = timing.trials_ids;
+        times(:,3) = trials_ids;
     else
         times(:,3) = (1:size(times,1))';
     end

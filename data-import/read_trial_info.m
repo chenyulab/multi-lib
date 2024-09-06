@@ -57,12 +57,14 @@ for i = 1 : 20 % not more than 20 trial
         list = strread(tline, '%d','delimiter',',');
         % trials(list(1),:) = [list(2) list(3)];  
         trials(i,:) = [list(2) list(3)]; 
+        trials_ids(i,:) = [list(1)];
     else
         break;
     end;
     
 end;
 trialInfo.trials = trials;
+trialInfo.trials_ids = trials_ids;
 
 % get sensor timestamp
 for i = 1 : 3
