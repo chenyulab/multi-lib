@@ -1,7 +1,7 @@
 clear;
 
 
-c = 3; 
+c = 1; 
 
 switch c
     case 1 %

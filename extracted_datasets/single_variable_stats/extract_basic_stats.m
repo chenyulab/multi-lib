@@ -26,6 +26,7 @@
 % Example function call: extract_basic_stats('cevent_eye_roi_child',12,24)
 %%%
 function extract_basic_stats(varname, exp_id, num_obj)
+    % headers = {'subject_id','trial_length'};
     % get a list of subjects that have the input variable
     sub_list = find_subjects(varname, exp_id); 
     
@@ -101,10 +102,29 @@ function extract_basic_stats(varname, exp_id, num_obj)
          for j = 1  : num_obj
               header{2+j+(i-1)*num_obj}=sprintf('%s-cat-%d',prefix_header{i},j);
          end 
-      end
+    end
     t1.Properties.VariableNames  =header; 
     writetable(t1,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',1);
 
+    header ={'subID','total time'};
+    t2 = array2table(results2);
+    prefix_header={'freq','prop'};
+    for i = 1 : length(prefix_header)
+         for j = 1  : num_obj
+              header{2+j+(i-1)*num_obj}=sprintf('%s-cat-%d',prefix_header{i},j);
+         end 
+    end
+    t2.Properties.VariableNames  =header;
+    writetable(t2,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',2);
+
+    header ={'subID','total number'};
+    t3 = array2table(results3);
+    for j = 1  : length(bins)
+         header{2+j}=sprintf('%s',num2str(bins(j)));
+    end 
+
+    t3.Properties.VariableNames  =header;
+    writetable(t3,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',3);
 
     %writematrix(results1,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',1); 
     %writematrix(results2,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',2);
