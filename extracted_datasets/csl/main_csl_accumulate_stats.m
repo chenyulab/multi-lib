@@ -1,7 +1,8 @@
 clear; 
 exp_id = 27; 
 num_objs = 24;
-data  = csvread(sprintf('naming_exp%d.csv',exp_id), 4,0);
+path = 'M:/extracted_datasets/csl';
+data  = csvread(fullfile(path,sprintf('naming_exp%d.csv',exp_id)), 4,0);
 target_col = 5;
 prop_col = 8; 
 
@@ -24,4 +25,4 @@ for s = 1 : length(sub_list)
         results(results_row,4:4+num_objs-1) = sum((sub_data(index1,4)-sub_data(index1,3)) .*sub_data(index1, prop_col:prop_col+num_objs-1),1); 
     end
 end
-csvwrite(sprintf('csl_accumulate_stats_exp%d.csv',exp_id),results); 
+csvwrite(fullfile(path,sprintf('csl_accumulate_stats_exp%d.csv',exp_id)),results); 

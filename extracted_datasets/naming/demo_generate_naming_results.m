@@ -57,7 +57,7 @@ switch option
         % general configration
         exp_id = 12;
         num_obj = 24;
-        output_dir = '../example_1/data';
+        output_dir = 'M:/extracted_datasets/naming/example_1/data';
         % dependent variable list, give us options we want to look
         dep_var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent','cevent_inhand_child', 'cevent_inhand_parent',...
         'cevent_eye_joint-attend_child-lead-moment_both','cevent_eye_joint-attend_parent-lead-moment_both'};
@@ -86,7 +86,7 @@ switch option
         % generate results for the proportion of time the child's gaze is 
         % fixated on the unknown object being named.
         dep_cevent = 'cevent_eye_roi_child';
-        output_dir = '../example_1/result';
+        output_dir = 'M:/extracted_datasets/naming/example_1/result';
         generate_naming_results(exp_id, num_obj,file_name, dep_cevent, output_dir, output_file_type);
 
 
@@ -95,11 +95,11 @@ switch option
         cevent_name = 'cevent_speech_known-words';
         args.cevent_name = cevent_name; 
         output_file_type = 'known_naming';
-        output_dir = '../example_1/data';
+        output_dir = 'M:/extracted_datasets/naming/example_1/data';
         file_name =fullfile(output_dir, sprintf('%s_onset_after3_%s_exp%d.csv',output_file_type,type, exp_id));
         % other cinfigration are the same as unknown one
         extract_multi_measures(dep_var_list, exp_id, file_name, args);
-        output_dir = '../example_1/result';
+        output_dir = 'M:/extracted_datasets/naming/example_1/result';
         generate_naming_results(exp_id, num_obj,file_name, dep_cevent, output_dir, output_file_type);
 
     case 2
@@ -109,7 +109,7 @@ switch option
         % general configration
         exp_id = 12;
         num_obj = 24;
-        output_dir = '../example_2/data';
+        output_dir = 'M:/extracted_datasets/naming/example_2/data';
         % dependent variable list, give us options we want to look
         dep_var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent','cevent_inhand_child', 'cevent_inhand_parent',...
         'cevent_eye_joint-attend_child-lead-moment_both','cevent_eye_joint-attend_parent-lead-moment_both'};
@@ -138,7 +138,7 @@ switch option
         % generate results for the proportion of time the child's gaze is 
         % fixated on the object being named.
         dep_cevent = 'cevent_eye_roi_child';
-        output_dir = '../example_2/result';
+        output_dir = 'M:/extracted_datasets/naming/example_2/result';
         generate_naming_results(exp_id, num_obj,file_name, dep_cevent, output_dir, output_file_type);
 
 

@@ -2,7 +2,8 @@ function extract_individual_naming_measure(exp_id, num_objs)
 %clear;
 %exp_id = 12;
 %num_objs = 24;
-data  = csvread(sprintf('naming_exp%d.csv',exp_id), 4,0);
+path = 'M:/extracted_datasets/csl';
+data  = csvread(fullfile(path,sprintf('naming_exp%d.csv',exp_id)), 4,0);
 target_col = 5;
 col_offset = 8;
 obj_size_col = (num_objs+1)*3+col_offset;
@@ -53,6 +54,6 @@ t.Properties.VariableNames  ={'subject ID','Exp ID','onset','offset','target ROI
     '# of objs in view', 'size of target obj','# of attended objs', '# of obj looks', 'time on the most attended obj'...
     'most attended == target','time on target','# of looks on target','# of attedned distractors','# of looks on distractors'...
     '% of attended objs in view','prop on the competitor','metric'};
-writetable(t,sprintf('individual_stats_exp%d.csv',exp_id));
+writetable(t,fullfile(path,sprintf('individual_stats_exp%d.csv',exp_id)));
 
 

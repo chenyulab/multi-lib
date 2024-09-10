@@ -3,7 +3,8 @@ clear;
 exp_id = 91;
 num_objs = 24; 
 
-data = csvread(sprintf('individual_stats_exp%d.csv',exp_id)); 
+path = 'M:/extracted_datasets/csl';
+data = csvread(fullfile(path,sprintf('individual_stats_exp%d.csv',exp_id)),1,0); 
 
 histogram(data(:,18),"Normalization","probability"); 
 histogram(data(:,14),"Normalization","probability"); 
@@ -22,7 +23,7 @@ histogram(data(:,12),"Normalization","probability");
 
 
 % calculate accumulated results 
-data2 = csvread(sprintf('csl_accumulate_stats_exp%d.csv',exp_id)); 
+data2 = csvread(fullfile(path,sprintf('csl_accumulate_stats_exp%d.csv',exp_id))); 
 header_col = 3; 
 for i = 1 : size(data2,1) 
     results(i,1) = data2(i,1);
@@ -64,6 +65,6 @@ for i = 1 : size(data2,1)
     end 
 end
 
-csvwrite(sprintf('exp%d_cs_agg_stats.csv',exp_id),results)
+csvwrite(fullfile(path,sprintf('exp%d_cs_agg_stats.csv',exp_id)),results)
 
 

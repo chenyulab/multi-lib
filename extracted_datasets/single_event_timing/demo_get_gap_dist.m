@@ -30,7 +30,8 @@ function demo_get_gap_dist(option)
             sub_expID = [1501, 1503, 1504, 1512, 1513];
             num_cats = 11;
             var_name = 'cevent_eye_joint-attend_parent-lead_both';
-            output_filename = 'demo_gen_gap_ex1.csv';
+            filepath = 'M:/extracted_datasets/single_event_timing/data';
+            output_filename = fullfile(filepath,'demo_gen_gap_ex1.csv');
             args = [];
             get_gap_dist(sub_expID, num_cats, var_name, output_filename, args)
         case 2
@@ -38,7 +39,8 @@ function demo_get_gap_dist(option)
             sub_expID = 15;
             num_cats = 11;
             var_name = 'cevent_eye_joint-attend_parent-lead_both';
-            output_filename = 'demo_gen_gap_ex2.csv';
+            filepath = 'M:/extracted_datasets/single_event_timing/data';
+            output_filename = fullfile(filepath,'demo_gen_gap_ex2.csv');
             args = [];
             get_gap_dist(sub_expID, num_cats, var_name, output_filename, args)
         case 3
@@ -46,7 +48,8 @@ function demo_get_gap_dist(option)
             sub_expID = 15;
             num_cats = 11;
             var_name = 'cevent_eye_joint-attend_parent-lead_both';
-            output_filename = 'demo_gen_gap_ex3.csv';
+            filepath = 'M:/extracted_datasets/single_event_timing/data';
+            output_filename = fullfile(filepath,'demo_gen_gap_ex3.csv');
             args.bins_matrix = [0.5 1; 1 1.5; 3 3.5; 5.5 6];
             get_gap_dist(sub_expID, num_cats, var_name, output_filename, args)
         case 4
@@ -54,7 +57,8 @@ function demo_get_gap_dist(option)
             sub_expID = 15;
             num_cats = 11;
             var_name = 'cevent_eye_joint-attend_parent-lead_both';
-            output_filename ='demo_gen_gap_ex4.csv';
+            filepath = 'M:/extracted_datasets/single_event_timing/data';
+            output_filename =fullfile(filepath,'demo_gen_gap_ex4.csv');
             args.bins_matrix = [0.5 1; 1 1.5; 3 3.5; 5.5 realmax('double')];
             get_gap_dist(sub_expID, num_cats, var_name, output_filename, args)
         case 5
@@ -62,7 +66,8 @@ function demo_get_gap_dist(option)
             sub_expID = 15;
             num_cats = 11;
             var_name = 'cevent_eye_joint-attend_parent-lead_both';
-            output_filename = 'demo_gen_gap_ex5.csv';
+            filepath = 'M:/extracted_datasets/single_event_timing/data';
+            output_filename = fullfile(filepath,'demo_gen_gap_ex5.csv');
            args.rois = {1, 3, 5, 7};
             get_gap_dist(sub_expID, num_cats, var_name, output_filename, args)
         case 6
@@ -70,7 +75,8 @@ function demo_get_gap_dist(option)
             sub_expID = 15;
             num_cats = 11;
             var_name = 'cevent_eye_joint-attend_parent-lead_both';
-            output_filename = 'demo_gen_gap_ex6.csv';
+            filepath = 'M:/extracted_datasets/single_event_timing/data';
+            output_filename = fullfile(filepath,'demo_gen_gap_ex6.csv');
             args.bins_matrix = [0.5 1; 1 1.5; 3 3.5; 5.5 6];
             args.rois = {1, 3, 5, 7};
             get_gap_dist(sub_expID, num_cats, var_name, output_filename, args)
@@ -79,7 +85,8 @@ function demo_get_gap_dist(option)
             sub_expID = 15;
             num_cats = 11;
             var_name = 'cevent_eye_joint-attend_parent-lead_both';
-            output_filename = 'demo_gen_gap_ex7.csv';
+            filepath = 'M:/extracted_datasets/single_event_timing/data';
+            output_filename = fullfile(filepath,'demo_gen_gap_ex7.csv');
             args.bins_matrix = [0.5 1; 1 1.5; 3 3.5; 5.5 6];
             args.rois = {1, 3, 5, 7};
             args.gap_def = ['onset', 'onset'];

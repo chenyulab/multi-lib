@@ -2,7 +2,8 @@ function extract_individual_naming_measure(exp_id, num_objs)
 %clear;
 %exp_id = 12; 
 %num_objs = 24; 
-data  = csvread(sprintf('naming_exp%d.csv',exp_id), 4,0);
+path = 'M:/extracted_datasets/csl';
+data  = csvread(fullfile(path,sprintf('naming_exp%d.csv',exp_id)), 4,0);
 target_col = 5;
 col_offset = 8; 
 obj_size_col = (num_objs+1)*3+col_offset; 
@@ -36,5 +37,5 @@ for i = 1 : size(data,1)
    results(i,19)= value;  % prop on the most looked competitor 
 end
 
-csvwrite(sprintf('individual_stats_exp%d.csv',exp_id),results); 
+csvwrite(fullfile(path,sprintf('individual_stats_exp%d.csv',exp_id)),results); 
 

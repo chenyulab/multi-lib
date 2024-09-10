@@ -30,7 +30,8 @@ function extract_accumulate_naming_measure(exp_id, num_objs)
 
 
 % calculate accumulated results 
-data2 = csvread(sprintf('csl_accumulate_stats_exp%d.csv',exp_id)); 
+path = 'M:/extracted_datasets/csl';
+data2 = csvread(fullfile(path,sprintf('csl_accumulate_stats_exp%d.csv',exp_id))); 
 header_col = 3; 
 for i = 1 : size(data2,1) 
     results(i,1) = data2(i,1);
@@ -77,5 +78,5 @@ t = array2table(results);
 t.Properties.VariableNames  ={'subject ID','target ROI','# of events',...
     'time on target', 'most looked == target','target-competitor', 'target-average others',...
     'metric'};
-writetable(t,sprintf('exp%d_cs_agg_stats.csv',exp_id));
+writetable(t,fullfile(path,sprintf('exp%d_cs_agg_stats.csv',exp_id)));
 
