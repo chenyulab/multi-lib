@@ -62,7 +62,9 @@ end
 matrix = zeros(category_num, category_num);
 for i=2:length(data)
     if cevent(i, 1) - cevent(i-1, 2) <= max_gap  % The gap between two events shouldn't be larger than max_gap
-        matrix(data(i-1),data(i)) = matrix(data(i-1),data(i)) + 1;
+        if cevent(i,3) ~= cevent(i-1,3) % avoid all the diagonal case
+            matrix(data(i-1),data(i)) = matrix(data(i-1),data(i)) + 1;
+        end
     end
 end
 

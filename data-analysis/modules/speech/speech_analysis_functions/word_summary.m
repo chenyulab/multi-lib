@@ -91,5 +91,8 @@ function summary_mtr = word_summary(subexpID,target_words,output_filename)
     end
 
     summary_mtr = array2table(summary_mtr,'VariableNames',colNames);
-    writetable(summary_mtr,output_filename);
+
+    if ~strcmp(output_filename,'.') % only write to file if the output file is valid
+        writetable(summary_mtr,output_filename);
+    end
 end

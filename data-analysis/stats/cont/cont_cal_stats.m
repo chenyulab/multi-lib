@@ -111,6 +111,8 @@ results.mean_min = mean(results.individual_min, 1,'omitnan');
 results.max = max(cat_chunks(:,2:end),'omitnan');
 results.individual_max = cat(1,res_max{:});
 results.mean_max = mean(results.individual_max, 1,'omitnan');
+
+
 results.max = max(cat_chunks(:,2:end),'omitnan');
 results.nonnan = sum(~isnan(cat_chunks(:,2)))/size(cat_chunks,1);
 results.individual_nonnan = cat(1,res_nonnan{:});

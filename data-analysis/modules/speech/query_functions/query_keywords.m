@@ -69,6 +69,8 @@ function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,
     % get a list of subjects that has a speech transcription
     subs = list_subjects(expIDs);
     
+    % initialize a keywords return table
+    obj_rtr_table = table();
     % iterate through each target word
     for w = 1:length(word_list)
         % initialize a return table
@@ -207,6 +209,7 @@ function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,
             end
         end
         % save table to a csv file
-        writetable(rtr_table,fullfile(output_dir,output_filename),'WriteVariableNames', true);
+        obj_rtr_table = [obj_rtr_table;rtr_table];
     end
+    writetable(obj_rtr_table,fullfile(output_dir,output_filename),'WriteVariableNames', true);
 end
