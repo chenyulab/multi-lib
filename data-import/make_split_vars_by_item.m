@@ -60,7 +60,12 @@ for s = 1 : length(subs)
                     agent='parent';
                 end
                 var_name_base = sprintf('%s_%s-%d_%s',var_split{1},label,scores(i),agent);
-                record_additional_variable(subs(s),var_name_base,data{i});
+
+                if strcmp(label,'known-words') || strcmp(label,'known-toys')
+                    record_variable(subs(s),var_name_base,data{i});
+                else
+                    record_additional_variable(subs(s),var_name_base,data{i});
+                end
 
             end
         end

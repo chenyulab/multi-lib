@@ -18,6 +18,8 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
 
     % create saccades csv file in temp backus & multiwork (if exist)
     parse_neon_saccades(date,kidID,expID,agent);
+    % create eyegaze file in temp backus & multiwork (if exist)
+    parse_neon_eyegaze(date,kidID,expID,agent);
 
     % read raw fixation file
     raw_fixation = readtable(fullfile(agent_root,'fixations.csv'));

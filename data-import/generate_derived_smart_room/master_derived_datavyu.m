@@ -1,4 +1,4 @@
-function master_derived_datavyu(subexpIDs,hasInhand,hasSaccades)
+function master_derived_datavyu(subexpIDs,hasInhand,hasSaccadesAndEyegaze)
 % postfixation
 % all
 %   trial
@@ -12,6 +12,7 @@ function master_derived_datavyu(subexpIDs,hasInhand,hasSaccades)
     for i = 1:size(full_sub_list,1)
         sub = full_sub_list(i);
         make_trials_vars(sub);
+        exp = sub2exp(sub);
         
         % fprintf('\nProcessing roi for %d\n', sub);
         make_joint_attention_smart_room(sub);
@@ -41,12 +42,28 @@ function master_derived_datavyu(subexpIDs,hasInhand,hasSaccades)
             make_all_inhand_eye(sub);
         end
         
-        % generate saccades variable
-        if hasSaccades
+        % generate saccades & eyegaze variable
+        if hasSaccadesAndEyegaze
             for a = 1:2
                 agent = agents{a};
                 make_saccades(sub,agent);
+                record_eyegaze_datavyu(sub,agent);
             end
+        end
+        
+        % if it is 351, update score tables and generate known variables
+        if exp == 351
+            
+            var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent', 'cevent_speech_naming_local-id'};
+            scores = [0 1 2];
+            label = 'known-words';
+            sub_item_file = 'M:\experiment_351\exp351_scoretable_name.xlsx';
+            if hasInhand
+                var_list = [var_list, {'cevent_inhand_child', 'cevent_inhand_parent'}];
+            end
+            read_home_survey_toys(sub)
+            make_split_vars_by_item(sub, var_list, sub_item_file, scores, label)
+
         end
 
         % make CORE variables visualization

@@ -18,7 +18,7 @@
 %
 % Dependent function calls: kid2sid(kidIDs)
 % 
-% Example function call: make_known_unknown_vars(35125, {'cevent_inhand_child','cevent_inhand_parent','cevent_eye_roi_child','cevent_eye_roi_parent'}, 'M:\HOME_survey.xlsx',{'toys','words'})
+% Example function call: make_known_unknown_vars(35125, {'cevent_inhand_child','cevent_inhand_parent','cevent_eye_roi_child','cevent_eye_roi_parent','cevent_speech_naming_local-id'}, 'M:\HOME_survey.xlsx',{'toys','words'})
 %%%
 
 function make_known_unknown_vars(subexpIDs, var_list, mapping_file, type)

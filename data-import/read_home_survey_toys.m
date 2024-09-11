@@ -66,13 +66,13 @@ function read_home_survey_toys(subexpIDs)
             if isempty(check_obj_row)
                 new_obj_score_data = [new_obj_score_data;obj_row_data];
             else
-                obj_score_data(check_obj_row,:) = obj_row_data;
+                obj_score_data(check_obj_row,:) = array2table(obj_row_data);
             end
             check_word_row = find(word_score_data.subID == subID, 1);
             if isempty(check_word_row)
                 new_word_score_data = [new_word_score_data;word_row_data];
             else
-                word_score_data(check_word_row,:) = word_row_data;
+                word_score_data(check_word_row,:) = array2table(word_row_data);
             end
         else
             empty_data = nan(1, n_obj);
