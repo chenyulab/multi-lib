@@ -117,7 +117,7 @@ function extract_basic_stats(varname, exp_id, num_obj)
     t2.Properties.VariableNames  =header;
     writetable(t2,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',2);
 
-    header ={'subID','total number'};
+    header ={'subID','cat-id'};
     t3 = array2table(results3);
     for j = 1  : length(bins)
          header{2+j}=sprintf('%s',num2str(bins(j)));
