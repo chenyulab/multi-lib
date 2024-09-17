@@ -1,4 +1,4 @@
-function box2dist(sID, flag,num_objs,is_face)
+function box2dist(sID, flag,is_face)
 if ~exist('flag', 'var')
     flag = 'child';
 end
@@ -8,16 +8,20 @@ switch flag
     case 'child'
         if is_face
             boxpath = [root sep 'extra_p' sep num2str(sID) '_child_boxes_face.mat'];
+            num_objs = 1;
         else
             boxpath = [root sep 'extra_p' sep num2str(sID) '_child_boxes.mat'];
+            num_objs = get_num_obj(sID);
         end
         imgpath = [root sep 'cam07_frames_p'];
         parentOrChild = flag;
     case 'parent'
         if is_face
             boxpath = [root sep 'extra_p' sep num2str(sID) '_parent_boxes_face.mat'];
+            num_objs = 1;
         else
             boxpath = [root sep 'extra_p' sep num2str(sID) '_parent_boxes.mat'];
+            num_objs = get_num_obj(sID);
         end
         imgpath = [root sep 'cam08_frames_p'];
         parentOrChild = flag;
