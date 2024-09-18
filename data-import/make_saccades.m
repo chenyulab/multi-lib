@@ -78,7 +78,8 @@ function make_saccades(subID,agent)
     cevent_mtr = [new_onset new_offset label];
     var_name = sprintf('saccades_%s',agent);
     rate = get_rate(subID);
-    cont_mtr = cevent2cstream(cevent_mtr,floor(cevent_mtr(1,1)),1/rate,0);
+    cont_mtr = cevent2cont(cevent_mtr,floor(cevent_mtr(1,1)),1/rate,0);
+
     record_additional_variable(subID,['cont_' char(var_name)],cont_mtr);
 
 

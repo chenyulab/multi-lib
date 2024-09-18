@@ -81,8 +81,8 @@ function record_eyegaze_datavyu(subID,agent)
     cevent_x = [new_onset new_offset pos_x];
     cevent_y = [new_onset new_offset pos_y];
     rate = get_rate(subID);
-    cont_mtr_x = cevent2cstream(cevent_x,floor(cevent_x(1,1)),1/rate,0);
-    cont_mtr_y = cevent2cstream(cevent_y,floor(cevent_y(1,1)),1/rate,0);
+    cont_mtr_x = cevent2cont(cevent_x,floor(cevent_x(1,1)),1/rate,0);
+    cont_mtr_y = cevent2cont(cevent_y,floor(cevent_y(1,1)),1/rate,0);
 
     cont2_mtr = [cont_mtr_x cont_mtr_y(:,2)];
 
