@@ -19,7 +19,11 @@ function make_bbox_struct(subID,agent,is_face)
 
     num_obj = get_num_obj(subID);
 
-    folder_name = sprintf('bbox_annotations_%s',agent);
+    if is_face
+        folder_name = sprintf('bbox_annotations_%s_face',agent);
+    else
+        folder_name = sprintf('bbox_annotations_%s',agent);
+    end
     % bbox prediction folder
     fileDir = fullfile(get_subject_dir(subID),'supporting_files',folder_name);
     % target destination folder

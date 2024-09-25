@@ -1,4 +1,4 @@
-function make_bbox_vars(subexpIDs)
+function make_bbox_vars(subexpIDs,is_face)
 
 subs = cIDs(subexpIDs);
 agents = {'child','parent'};
@@ -8,11 +8,11 @@ for s = 1:length(subs)
         flag = agents{a};
         try
             % make bbox
-            make_bbox_struct(subs(s),flag,0)
+            make_bbox_struct(subs(s),flag,is_face)
             % make obj size vars
-            box2size(subs(s),flag,0);
+            box2size(subs(s),flag,is_face);
             % make obj distance vars
-            box2dist(subs(s),flag,0);
+            box2dist(subs(s),flag,is_face);
         catch ME
             fprintf('unable to generate %s data for %d\n',flag,subs(s));
             disp(ME.message);
