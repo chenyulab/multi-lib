@@ -1,6 +1,7 @@
 %%
 % Author: Jane Yang
-% Last modified: 12/05/2023
+% Eidtor: Jingwen Pang
+% Last modified: 09/27/2024
 % This function takes in a list of subjects, a speech keyword, and optional
 % arguments for manipulating timestamps, outputting a detailed csv 
 % containing instances where the target keyword was found in speech 
@@ -30,6 +31,8 @@
 % Example function call: rtr_table = query_keywords([12],{'babyname'},'M:\event_clips\test','test-babyname.csv',args)
 
 function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,args)
+    speechTime = 30;
+    frame_rate = 30;
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
@@ -85,14 +88,11 @@ function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,
             root = get_subject_dir(subID);
             subInfo = get_subject_info(subID);
             fileID = cellstr(sprintf('__%d_%d',subInfo(3),subInfo(4)));
-            kidID = subInfo(end);
-            speechFile = fullfile(root,'speech_transcription_p',sprintf('speech_%d.txt',kidID));
 
-            % check if the subject has a speech transcription file
-            if ~isfile(speechFile)
-                sprintf('Subject %d does not have a speech transcription file, skipping over subject %d!',subID);
-            else
-                speech = readtable(speechFile); % parse speech transcription file into a table
+            % get all the utterance that is within the trial
+            [~,speech_str] = parse_speech_trans(subID);  % parse speech transcription file into a table
+            if ~isempty(speech_str)
+                speech = struct2table(speech_str);
                 utts = speech{:,3};
                 onset = speech{:,1};
                 offset = speech{:,2};
@@ -105,14 +105,18 @@ function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,
                 % iterate thru each utterance
                 for i = 1:size(utts,1)
                     currUtt = utts(i);
+                    % create a fake utterance to avoid other form of the target word
+                    % e.g 'i am eating' count as 'eating', but 'eat i
+                    % am eating' count eat as 2
+                    fake_currUtt = [curr_target_word,' ',currUtt];
                     % split the string into words
-                    words = split(currUtt,' ');
+                    word_table = wordCloudCounts(fake_currUtt);
 
                     % iterate through target word list and find matches
-                    num_match = sum(strcmp(words,curr_target_word));
-
-                    % check if there's any matching
-                    if num_match ~= 0
+                    idx_match = strcmp(word_table.Word,curr_target_word);
+                    num_match = table2array(word_table(idx_match,"Count"));
+                    % check if there's any matching (exclude the appended keyword)
+                    if num_match > 1
                         % create instances for matching cases
                         index = [index;i];
                     end
@@ -140,30 +144,16 @@ function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,
                     match_offset = modified_offset;
                 end
 
+                % get extract range onset
+                extract_range_file = fullfile(root,'supporting_files','extract_range.txt');
+                range_file = fopen(extract_range_file,'r');
+                extract_range_onset = fscanf(range_file,'[%f]');
+
                 % convert matched utterance timestamps in speech
                 % transcription to system time
-                timingInfo = get_timing(subID);
-                speechTime = timingInfo.speechTime;
-                trial_times = get_trial_times(subID);
-                match_system_onset = match_onset + speechTime;
-                match_system_offset = match_offset + speechTime;
+                match_system_onset = match_onset + speechTime - round(extract_range_onset/frame_rate,3);
+                match_system_offset = match_offset + speechTime - round(extract_range_onset/frame_rate,3);
                 
-                
-                % intialize an empty array to store the combined within
-                % trial indices
-                trial_index_combined = [];
-                % iterate through trials 
-                for i = 1:size(trial_times,1)
-                    trial_index = find(match_system_onset >= trial_times(i,1) & match_system_onset <= trial_times(i,2)); % onset&offset both within trial
-                    trial_index_combined = [trial_index_combined;trial_index];
-                end
-                
-                % filter out-of-trial instances
-                match_onset = match_onset(trial_index_combined);
-                match_offset = match_offset(trial_index_combined);
-                match_utts = match_utts(trial_index_combined);
-                match_system_onset = match_system_onset(trial_index_combined);
-                match_system_offset = match_system_offset(trial_index_combined);
 
                 % find corresponding timestamps in frame number
                 match_onset_frames = time2frame_num(match_system_onset,subID);
@@ -185,10 +175,6 @@ function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,
                 end
                 
 
-                % get extract range onset
-                extract_range_file = fullfile(root,'supporting_files','extract_range.txt');
-                range_file = fopen(extract_range_file,'r');
-                extract_range_onset = fscanf(range_file,'[%f]');
 
                 % setting up subject-level entry table
                 subID_col = repmat(subID,length(match_onset),1);
