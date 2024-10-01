@@ -18,7 +18,7 @@
 % example call:
 %   - basic_subject_stats([77 78 79])
 %%%
-function basic_subject_stats(exp_ids,var_list)
+function cal_basic_subject_stats(exp_ids,var_list)
     % if variable list does not exist, use the default one
     if ~exist("var_list","var")
         var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent','cevent_speech_naming_local-id','cevent_eye_joint-attend_child-lead_both','cevent_eye_joint-attend_parent-lead_both', 'cevent_eye_joint-attend_both', 'cevent_inhand_child', 'cevent_inhand_parent'};
