@@ -108,7 +108,7 @@ function extract_basic_stats(varname, exp_id, num_obj)
 
     header ={'subID','total time'};
     t2 = array2table(results2);
-    prefix_header={'freq','prop'};
+    prefix_header={'freq','normalized freq'};
     for i = 1 : length(prefix_header)
          for j = 1  : num_obj
               header{2+j+(i-1)*num_obj}=sprintf('%s-cat-%d',prefix_header{i},j);

@@ -16,12 +16,12 @@
 %   - basic_subject_stats_exp-%s.csv in M:\extracted_datasets\single_variable_stats\results
 %
 % example call:
-%   - basic_subject_stats([77 78 79])
+%   - cal_basic_subject_stats([77 78 79])
 %%%
 function cal_basic_subject_stats(exp_ids,var_list)
     % if variable list does not exist, use the default one
     if ~exist("var_list","var")
-        var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent','cevent_speech_naming_local-id','cevent_eye_joint-attend_child-lead_both','cevent_eye_joint-attend_parent-lead_both', 'cevent_eye_joint-attend_both', 'cevent_inhand_child', 'cevent_inhand_parent'};
+        var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent','cevent_speech_naming_local-id', 'cevent_eye_joint-attend_both','cevent_eye_joint-attend_child-lead-moment_both','cevent_eye_joint-attend_parent-lead-moment_both', 'cevent_inhand_child', 'cevent_inhand_parent'};
     end
     headers = {'subID','total time'};
     co_headers = {'obj time','face time','obj freq','face freq'};

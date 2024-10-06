@@ -7,7 +7,8 @@
 % Sample function call: create_multipathways_dataset([351 353],[27 22],'..\data')
 %%%
 
-function create_multipathways_dataset(expIDs,num_obj_list,output_dir)
+function create_multipathways_dataset(expIDs,num_obj_list)
+    output_dir = 'M:\extracted_datasets\multipathways\data';
     % check if there's one number of object for each input experiment
     if numel(num_obj_list) ~= numel(expIDs)
         error('Please specify the number of objects in each experiment!');

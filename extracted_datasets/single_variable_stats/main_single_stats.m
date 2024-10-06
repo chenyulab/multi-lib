@@ -1,7 +1,4 @@
-clear;
-
-
-c = 1; 
+function main_single_stats(c)
 
 switch c
     case 1 %
@@ -19,7 +16,7 @@ switch c
 
     case 2
         var_list = {'cevent_eye_joint-attend_child-lead-enter-type_both','cevent_eye_joint-attend_parent-lead-enter-type_both'};
-        exp_ids = [70 71 72 73 74 75 41 44 12 91 58 353 59 96 77 78 79 351 15 65 66];
+        exp_ids = [70 71 72 73 74 75 41 44 12 91 58 353 59 96 77 78 79 351 15 65 66 301];
         num_roi = 6; %  6 pathways to joint attention  
         num_exp = length(exp_ids);
 
@@ -36,13 +33,13 @@ switch c
             for i = 1 : length(exp_ids)
                 extract_basic_stats(var_list{v},exp_ids(i), num_roi(v));
             end
-        end
+         end
 
     case 4 %
 
-        var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent','cevent_speech_naming_local-id','cevent_eye_joint-attend_child-lead_both','cevent_eye_joint-attend_parent-lead_both', 'cevent_eye_joint-attend_both', 'cevent_inhand_child', 'cevent_inhand_parent'};
-        exp_ids = [77 78 79];
-        num_roi = [11 11 11];
+        var_list = {'cevent_eye_roi_child', 'cevent_eye_roi_parent','cevent_speech_naming_local-id','cevent_eye_joint-attend_both', 'cevent_eye_joint-attend_child-lead-moment_both','cevent_eye_joint-attend_parent-lead-moment_both', 'cevent_inhand_child', 'cevent_inhand_parent'};
+        exp_ids = [77 78 79 91 27 96];
+        num_roi = [11 11 11 25 25 7];
         num_exp = length(exp_ids);
 
         for v = 1 : length(var_list)
@@ -51,10 +48,10 @@ switch c
             end
         end
 
-        basic_subject_stats(exp_ids);
+        cal_basic_subject_stats(exp_ids);
 
 end
 
-    
+end
     
      
