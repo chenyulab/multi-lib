@@ -32,7 +32,7 @@ function demo_speech_analysis_functions(option)
             % each column is a subject, each row is a word, and the cells
             % display the total number of times that word appeared in the transcipt(s)
             subexpID = [1201 1205 1209];
-            output_filename = 'Z:\melina\lab_meeting\example1.csv';
+            output_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example1.csv';
             [individuals,common,summary_count] = get_word_count_matrix(subexpID,output_filename);
             
             %individual : a cell array of word count tables for each subject, where each
@@ -48,14 +48,14 @@ function demo_speech_analysis_functions(option)
             % each column is a subject, each row is a word, and the cells
             % display the total count for that word in the transcipt(s)
             subexpID = [12];
-            output_filename = 'Z:\melina\lab_meeting\example2.csv';
+            output_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example2.csv';
             [individuals,common,summary_count] = get_word_count_matrix(subexpID,output_filename);
         case 3
             % generates csv file with a word count matrix across several experiments 
             % each column is a subject, each row is a word, and the cells
             % display the total count for that word in the transcipt(s)
             subexpID = [12 15];
-            output_filename = 'Z:\melina\lab_meeting\example3.csv';
+            output_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example3.csv';
             [individuals,common,summary_count] = get_word_count_matrix(subexpID,output_filename);
         case 4
             % generates csv file with every utterance where a
@@ -63,7 +63,7 @@ function demo_speech_analysis_functions(option)
             % the output file also includes the timestamps and source camera information for each instance
             word_list = ["car","doll","rake","bug"];
             subexpID = [12];
-            output_directory = 'Z:/melina/lab_meeting';
+            output_directory = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis';
             output_filename = 'example4.csv';
             % optional arguments can be included to change the source
             % camera and alter the timestamp of the generated event clips
@@ -78,8 +78,8 @@ function demo_speech_analysis_functions(option)
             % each row is a subject, each column is a target word
             word_list = ["car","doll","rake","bug"];
             subexpID = [12];
-            input_filename = 'example4.csv';
-            output_filename = 'Z:\melina\lab_meeting\example5.csv';
+            input_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example4.csv';
+            output_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example5.csv';
             list_key_words_count(subexpID, word_list, input_filename, output_filename);
         case 6
             % generates a csv file with subID, age, total session time, a word count for each target word
@@ -89,7 +89,7 @@ function demo_speech_analysis_functions(option)
             % type/token ratio, mean utterance length (sec), and mean utterance length (in tokens)
             subexpIDs = [12];
             keywords_list = ["car"];
-            output_filename = 'Z:\melina\lab_meeting\example6.csv';
+            output_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example6.csv';
             rtr_table = make_linguistic_measures(subexpIDs, keywords_list, output_filename);
         case 7
             % generates a wordcloud plot for a single subject or all
@@ -97,7 +97,7 @@ function demo_speech_analysis_functions(option)
             % size of the words reflects number of times that word was
             % referenced in the transcipt(s)
             subexpID = [1201];
-            output_dir = '.';
+            output_dir = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis';
             generate_wordcloud(subexpID,output_dir);
 
     end
