@@ -61,7 +61,8 @@ function demo_speech_analysis_functions(option)
             % generates csv file with every utterance where a
             % keyword was found in the speech transcripts of subjects
             % the output file also includes the timestamps and source camera information for each instance
-            word_list = ["car","doll","rake","bug"];
+            % word_list = ["car","doll","rake","bug"];
+            word_list = ["car"];
             subexpID = [12];
             output_directory = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis';
             output_filename = 'example4.csv';
@@ -99,6 +100,21 @@ function demo_speech_analysis_functions(option)
             subexpID = [1201];
             output_dir = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis';
             generate_wordcloud(subexpID,output_dir);
+        case 8
+            % generates csv file with every utterance where a
+            % keyword was found in the speech transcripts of subjects
+            % the output file also includes the timestamps and source camera information for each instance
+            word_list = {'assemble','cut','close','drink','eat','get','grab','look','make','move','open','put','reach','rip','scoop','screw','spread','try','twist','wipe'};
+            subexpID = [58];
+            output_directory = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis';
+            output_filename = 'example8.csv';
+            % optional arguments can be included to change the source
+            % camera and alter the timestamp of the generated event clips
+            data = query_keywords(subexpID, word_list, output_directory, output_filename);
+            word_ids = [1:length(word_list)];
+            varname = 'cevent_speech_pbj_verbs';
+            make_keywords_events(word_list, word_ids, data, varname);
+
 
     end
 end

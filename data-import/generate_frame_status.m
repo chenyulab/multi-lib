@@ -17,7 +17,7 @@ for s = 1: length(subIDs)
     subID = subIDs(s);
     data = [subID];
     for i = 1:max_cam
-        [number,width,height,~] = inport_frame_status(subID,i);
+        [number,width,height] = import_frame_status(subID,i);
         data = [data,number,width,height];
     end
     group_data = [group_data;data];
@@ -35,7 +35,7 @@ big_table = [big_table; table(~in_big_table, :)];
 writetable(big_table,table_name);
 end
 
-function [number,width,height] =  inport_frame_status(subject_id,cam_id)
+function [number,width,height] =  import_frame_status(subject_id,cam_id)
 % get the frame resolution for specific camera
     frame_folder = sprintf('cam%02d_frames_p',cam_id);
     path = fullfile(get_subject_dir(subject_id),frame_folder);

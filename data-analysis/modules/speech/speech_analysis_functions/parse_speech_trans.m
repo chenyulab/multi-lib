@@ -19,16 +19,25 @@
 function [all_words,utterances] = parse_speech_trans(subID, trial_time_mtr) 
     % Parse a speech transcription file
     speech_starting_time = 30;
+    frame_rate = get_rate(subID);
 
     speech_dir = fullfile(get_subject_dir(subID), 'speech_transcription_p');
     sub_info = get_subject_info(subID);
     speech_entry = dir(fullfile(speech_dir, sprintf('speech_%d.txt',sub_info(4))));
     speech_path = fullfile(speech_dir, speech_entry.name);
 
-    % get extract range onset
+    % get the speech time: if extract range txt file exist, pioritize using
+    % it, if not, using the speech time in trial info
     extract_range_file = fullfile(get_subject_dir(subID),'supporting_files','extract_range.txt');
-    range_file = fopen(extract_range_file,'r');
-    extract_range_onset = fscanf(range_file,'[%f]');
+    if exist(extract_range_file, 'file') == 2
+        range_file = fopen(extract_range_file,'r');
+        extract_range_onset = fscanf(range_file,'[%f]');
+        speechTime = speech_starting_time - extract_range_onset/frame_rate;
+    else
+        trialInfo_path = get_info_file_path(subID);
+        trialInfo = load(trialInfo_path);
+        speechTime = trialInfo.trialInfo.speechTime;
+    end
 
     if isfile(speech_path)
         speech_file = fopen(speech_path);
@@ -53,17 +62,10 @@ function [all_words,utterances] = parse_speech_trans(subID, trial_time_mtr)
                 trial_time_mtr = get_trial_times(subID);
             end
 
-            % load trialInfo
-            trialInfo_path = get_info_file_path(subID);
-            trialInfo = load(trialInfo_path);
-            
-            % obtain speechTime for timing conversion
-            speechTime = trialInfo.trialInfo.speechTime;
-
             % check if an utterance is within trial
             flag = 0;
             for i = 1:size(trial_time_mtr,1)
-                if timestamp(1) - extract_range_onset/30 + speech_starting_time >= trial_time_mtr(i,1) && timestamp(1) - extract_range_onset/30 + speech_starting_time <= trial_time_mtr(i,2)
+                if timestamp(1) + speechTime >= trial_time_mtr(i,1) && timestamp(1) + speechTime <= trial_time_mtr(i,2)
                     flag = 1;
                 end
             end

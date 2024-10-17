@@ -30,10 +30,10 @@ function rtr_table = make_linguistic_measures(subexpIDs, keywords_list, output_f
     colNames = {'subID','age','total_session_time','total_speech_time'};
     % append column names based on the number of keywords
     for i = 1:length(keywords_list)
-        colNames = horzcat(colNames,sprintf('#%s',keywords_list{i}));
+        colNames = horzcat(colNames,sprintf('num_%s',keywords_list{i}));
     end
-    colNames = horzcat(colNames,'#token','#uniqueWord','#utterance',...
-                                '#noun','#verb','#adjective',...
+    colNames = horzcat(colNames,'num_token','num_uniqueWord','num_utterance',...
+                                'num_noun','num_verb','num_adjective',...
                                 'type_token_ratio','mean_utterance_dur','mean_utterance_token_length');
 
     % hard-coding return table column index here

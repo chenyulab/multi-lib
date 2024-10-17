@@ -44,7 +44,7 @@ for s = 1 : length(sub_list)
     end
 end
 
-headers = ['subj_id',word_list];
+headers = ['subID',word_list];
 results = horzcat(sub_list,results);
 
 table = array2table(results);

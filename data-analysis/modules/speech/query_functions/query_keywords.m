@@ -30,7 +30,7 @@
 % 
 % Example function call: rtr_table = query_keywords([12],{'babyname'},'M:\event_clips\test','test-babyname.csv',args)
 
-function rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,args)
+function obj_rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,args)
     speechTime = 30;
     frame_rate = 30;
     % check if optional argument exists

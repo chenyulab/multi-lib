@@ -78,17 +78,18 @@ function record_eyegaze_datavyu(subID,agent)
 
     %% Save variables in derived folder in Multiwork experiment folder
     % save cont var
-    cevent_x = [new_onset new_offset pos_x];
-    cevent_y = [new_onset new_offset pos_y];
-    rate = get_rate(subID);
-    cont_mtr_x = cevent2cont(cevent_x,floor(cevent_x(1,1)),1/rate,0);
-    cont_mtr_y = cevent2cont(cevent_y,floor(cevent_y(1,1)),1/rate,0);
+    % cevent_x = [new_onset new_offset pos_x];
+    % cevent_y = [new_onset new_offset pos_y];
+    % rate = get_rate(subID);
+    % cont_mtr_x = cevent2cont(cevent_x,floor(cevent_x(1,1)),1/rate,0);
+    % cont_mtr_y = cevent2cont(cevent_y,floor(cevent_y(1,1)),1/rate,0);
+    % 
+    % cont2_mtr = [cont_mtr_x cont_mtr_y(:,2)];
+    cevent = [new_onset new_offset pos_x pos_y];
 
-    cont2_mtr = [cont_mtr_x cont_mtr_y(:,2)];
+    var_name = sprintf('eye_fixation_xy_%s',agent);
 
-    var_name = sprintf('eye_xy_%s',agent);
-
-    record_variable(subID,['cont2_' char(var_name)],cont2_mtr);
+    record_additional_variable(subID,['cevent2_' char(var_name)],cevent);
 
 
 end

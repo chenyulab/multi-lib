@@ -76,11 +76,11 @@ function make_saccades(subID,agent)
     %% Save variables in derived folder in Multiwork experiment folder
     % save cont var
     cevent_mtr = [new_onset new_offset label];
-    var_name = sprintf('saccades_%s',agent);
-    rate = get_rate(subID);
-    cont_mtr = cevent2cont(cevent_mtr,floor(cevent_mtr(1,1)),1/rate,0);
+    var_name = sprintf('eye_saccades_angle_%s',agent);
+    % rate = get_rate(subID);
+    % cont_mtr = cevent2cont(cevent_mtr,floor(cevent_mtr(1,1)),1/rate,0);
 
-    record_additional_variable(subID,['cont_' char(var_name)],cont_mtr);
+    record_additional_variable(subID,['cevent1_' char(var_name)],cevent_mtr);
 
 
 end

@@ -50,6 +50,9 @@ function master_derived_datavyu(subexpIDs,hasInhand,hasSaccadesAndEyegaze)
                 record_eyegaze_datavyu(sub,agent);
             end
         end
+
+        % generate sustained attention variables
+        master_make_sustained(sub, [4,7,9])
         
         % if it is 351, update score tables and generate known variables
         if exp == 351

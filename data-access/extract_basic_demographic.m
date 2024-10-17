@@ -46,8 +46,13 @@ function extract_basic_demographic()
             % Calculate age at experiment, extract birth year and month
             date_of_experiment = filtered_survey{:, 1};
             dob = filtered_survey{:, 4}; 
-            age_at_experiment = between(dob, date_of_experiment, 'Months');
-            age_at_experiment = split(age_at_experiment, {'months'});
+
+            age_in_months = calmonths(between(dob, date_of_experiment, 'months'));
+            remaining_days = caldays(between(dob + calmonths(age_in_months), date_of_experiment));
+            fractional_month = remaining_days / 31;
+            age_at_experiment = age_in_months + fractional_month;
+            age_at_experiment = round(age_at_experiment, 1);
+
             birth_year = year(dob);
             birth_month = month(dob);
     
