@@ -55,11 +55,14 @@ for s = 1 : length(subs)
                 if contains(var_list{v},'_child')
                     var_split = strsplit(var_list{v},'_child');
                     agent='child';
+                    var_name_base = sprintf('%s_%s-%d_%s',var_split{1},label,scores(i),agent);
                 elseif contains(var_list{v},'_parent')
                     var_split = strsplit(var_list{v},'_parent');
                     agent='parent';
+                    var_name_base = sprintf('%s_%s-%d_%s',var_split{1},label,scores(i),agent);
+                else
+                    var_name_base = sprintf('%s_%s-%d',var_list{v},label,scores(i));
                 end
-                var_name_base = sprintf('%s_%s-%d_%s',var_split{1},label,scores(i),agent);
 
                 if strcmp(label,'known-words') || strcmp(label,'known-toys')
                     record_variable(subs(s),var_name_base,data{i});
