@@ -23,8 +23,8 @@ function read_home_survey_toys(subexpIDs)
     n_obj = get_num_obj(subexpIDs);
     subIDs = cIDs(subexpIDs);
     
-    survey_data = readtable(survey_filepath, 'Sheet', sheet_name);
-    survey_data = survey_data(~any(ismissing(survey_data(:, 1:2)), 2), :);
+    survey_data_raw = readtable(survey_filepath, 'Sheet', sheet_name);
+    survey_data = survey_data_raw(~any(ismissing(survey_data_raw(:, 1:2)), 2), :);
     obj_score_data = readtable(obj_score_filepath,'Range', range);
     word_score_data = readtable(word_score_filepath,'Range', range);
     
@@ -62,23 +62,31 @@ function read_home_survey_toys(subexpIDs)
             % set a check point, new data will append to
             % the end of the table, if the subject exist in the table,
             % it should replace that row
-            check_obj_row = find(obj_score_data.subID == subID, 1);
+            check_obj_row = find(obj_score_data{:,1} == subID, 1);
             if isempty(check_obj_row)
                 new_obj_score_data = [new_obj_score_data;obj_row_data];
             else
                 obj_score_data(check_obj_row,:) = array2table(obj_row_data);
             end
-            check_word_row = find(word_score_data.subID == subID, 1);
+            check_word_row = find(word_score_data{:,1} == subID, 1);
             if isempty(check_word_row)
                 new_word_score_data = [new_word_score_data;word_row_data];
             else
                 word_score_data(check_word_row,:) = array2table(word_row_data);
             end
         else
+            
             empty_data = nan(1, n_obj);
             empty_row = [subID,empty_data];
-            new_obj_score_data = [new_obj_score_data;empty_row]; 
+
+            check_obj_row = find(obj_score_data{:,1} == subID, 1);
+            if isempty(check_obj_row)
+                new_obj_score_data = [new_obj_score_data;empty_row];
+            end
+            check_word_row = find(word_score_data{:,1} == subID, 1);
+            if isempty(check_word_row)
             new_word_score_data = [new_word_score_data;empty_row];
+            end
         end
     
     end
