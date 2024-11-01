@@ -64,15 +64,14 @@ function demo_speech_analysis_functions(option)
             % word_list = ["car","doll","rake","bug"];
             word_list = ["car"];
             subexpID = [12];
-            output_directory = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis';
-            output_filename = 'example4.csv';
+            output_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example4.csv';
             % optional arguments can be included to change the source
             % camera and alter the timestamp of the generated event clips
             % -- args.cam = [7]
             % -- args.whence = 'start'
             % -- args.interval = [-5 0]
             % returns a table of keywords count
-            rtr_table = query_keywords(subexpID, word_list, output_directory, output_filename);
+            rtr_table = query_keywords(subexpID, word_list, output_filename);
         case 5
             % uses input file from query_keywords (case 4 above) to 
             % generate a csv file with the target word count matrix by experiment or subject 
@@ -105,15 +104,24 @@ function demo_speech_analysis_functions(option)
             % keyword was found in the speech transcripts of subjects
             % the output file also includes the timestamps and source camera information for each instance
             word_list = {'assemble','cut','close','drink','eat','get','grab','look','make','move','open','put','reach','rip','scoop','screw','spread','try','twist','wipe'};
-            subexpID = [58];
-            output_directory = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis';
-            output_filename = 'example8.csv';
+            subexpID = [58 353];
+            output_filename = 'Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example8.csv';
             % optional arguments can be included to change the source
             % camera and alter the timestamp of the generated event clips
-            data = query_keywords(subexpID, word_list, output_directory, output_filename);
+            data = query_keywords(subexpID, word_list, output_filename);
             word_ids = [1:length(word_list)];
-            varname = 'cevent_speech_pbj_verbs';
+            varname = 'cevent_speech_action-verbs';
             make_keywords_events(word_list, word_ids, data, varname);
+        case 9
+            % in some cases we want to use make_keywords_event directly, we
+            % can load the csv data first
+            word_list = {'assemble','cut','close','drink','eat','get','grab','look','make','move','open','put','reach','rip','scoop','screw','spread','try','twist','wipe'};
+            word_ids = [1:length(word_list)];
+            data = readtable('Z:\CORE\scheduled_tasks\multi-lib\demo_results\speech_analysis\example8.csv');
+            varname = 'cevent_speech_action-verbs';
+            make_keywords_events(word_list, word_ids, data, varname);
+
+
 
 
     end

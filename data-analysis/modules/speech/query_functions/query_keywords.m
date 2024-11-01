@@ -30,7 +30,7 @@
 % 
 % Example function call: rtr_table = query_keywords([12],{'babyname'},'M:\event_clips\test','test-babyname.csv',args)
 
-function obj_rtr_table = query_keywords(expIDs,word_list,output_dir,output_filename,args)
+function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
     speechTime = 30;
     frame_rate = 30;
     % check if optional argument exists
@@ -197,5 +197,5 @@ function obj_rtr_table = query_keywords(expIDs,word_list,output_dir,output_filen
         % save table to a csv file
         obj_rtr_table = [obj_rtr_table;rtr_table];
     end
-    writetable(obj_rtr_table,fullfile(output_dir,output_filename),'WriteVariableNames', true);
+    writetable(obj_rtr_table,output_filename,'WriteVariableNames', true);
 end
