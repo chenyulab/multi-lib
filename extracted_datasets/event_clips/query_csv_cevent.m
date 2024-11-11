@@ -1,6 +1,7 @@
 %%
 % Author: Jane Yang
-% Last modified: 12/05/2023
+% Modifier: Jingwen Pang
+% Last modified: 11/11/2024
 % This function takes in a list of subjects, a cevent variable name, and a
 % list of target objIDs, outputting a detailed csv containing instances 
 % where the target ROI was found in the event variable. 
@@ -14,7 +15,7 @@
 %
 %        output_filename            output filename for the returned csv
 %
-%        args.cam                   optional camera ID of the source video,
+%        args.cam                   integer, optional camera ID of the source video,
 %                                   default at cam7 (kid's view)
 %
 %
@@ -29,9 +30,11 @@
 % Output: a csv file containing timestamp and source camera information for
 % instancs found.
 % 
-% Example function call: rtr_table = query_csv_cevent([12],'cevent_eye_joint-attend_child-lead-moment_both',[1:24],'M:\event_clips\test','test.csv',args)
+% Example function call: rtr_table = query_csv_cevent([12],'cevent_eye_joint-attend_child-lead-moment_both',[1:24],'exp12_ja_child_lead.csv')
 
-function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list,output_dir, output_filename,args)
+function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list, output_filename,args)
+    output_dir = get_event_clips_data_dir();
+
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);

@@ -28,7 +28,7 @@
 % Output: a csv file containing timestamp and source camera information for
 % instancs found.
 % 
-% Example function call: rtr_table = query_csv_speech([12],{'babyname'},'speech-babyname.csv')
+% Example function call: rtr_table = query_csv_speech([12],{'babyname'},'test-babyname.csv',args)
 
 function rtr_table = query_csv_speech(expIDs,word_list,output_filename,args)
     
@@ -53,6 +53,13 @@ function rtr_table = query_csv_speech(expIDs,word_list,output_filename,args)
     else
         cam = 7; % default to cam07 --> kid's view
     end
+
+    % %%% TODO: maybe change this name??
+    % if isfield(args,'window')
+    %     window = args.window;
+    % else
+    %     window = 0; % default to window 0 --> words need to be in the same utterance
+    % end
 
     if numel(word_list) == 0
         error('[-] Error: Invalid word input. Please enter at least one word to query.')
