@@ -107,7 +107,8 @@ function [individuals,common,summary_count] = get_word_count_matrix(subexpID,out
 
     % don't write to a CSV file if the function is used as an intermediate
     % helper function
+    output_dir = get_event_clips_data_dir();
     if ~strcmp(output_filename,'')
-        writetable(summary_count,output_filename);
+        writetable(summary_count,fullfile(output_dir, output_filename));
     end
 end

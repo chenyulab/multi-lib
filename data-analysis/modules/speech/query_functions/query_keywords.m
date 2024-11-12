@@ -1,7 +1,7 @@
 %%
 % Author: Jane Yang
 % Eidtor: Jingwen Pang
-% Last modified: 09/27/2024
+% Last modified: 11/11/2024
 % This function takes in a list of subjects, a speech keyword, and optional
 % arguments for manipulating timestamps, outputting a detailed csv 
 % containing instances where the target keyword was found in speech 
@@ -63,8 +63,6 @@ function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
     end
 
     % initialize column names for return table
-    %%% TODO: change to a more flexible way of initializing column names
-    %%% later --> for multiple words
     colNames = {'subID','fileID',...
                 'onset1_transcription_time','onset1_system_time','onset1_frame',...
                 'offset1_transcription_time','offset1_system_time','offset1_frame',...
