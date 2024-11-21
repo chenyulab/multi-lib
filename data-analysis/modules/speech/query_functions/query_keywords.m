@@ -14,7 +14,7 @@
 %
 %        output_filename            output filename for the returned csv      
 %
-%        args.cam                   the source camera the event clips use,
+%        args.cam                   integer, the source camera the event clips use,
 %                                   default is cam07 (kid's view)
 %
 %        args.whence                string, 'start', 'end', or 'startend'
@@ -29,6 +29,7 @@
 % instancs found.
 % 
 % See case 4, 8 in demo_speech_analysis_functions
+%     case 1, 2 in demo_query_csv_speech_or_event
 
 function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
     speechTime = 30;
@@ -64,9 +65,9 @@ function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
 
     % initialize column names for return table
     colNames = {'subID','fileID',...
-                'onset1_transcription_time','onset1_system_time','onset1_frame',...
-                'offset1_transcription_time','offset1_system_time','offset1_frame',...
-                'word1','utterances1','source_video_path','source_audio_path','extract_range_onset'};
+                'onset_transcription_time','onset_system_time','onset_frame',...
+                'offset_transcription_time','offset_system_time','offset_frame',...
+                'word','utterances','source_video_path','source_audio_path','extract_range_onset'};
 
     % get a list of subjects that has a speech transcription
     subs = list_subjects(expIDs);

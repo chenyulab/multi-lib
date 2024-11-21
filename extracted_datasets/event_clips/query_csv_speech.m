@@ -1,4 +1,7 @@
 %%
+% ########################################################################
+% This function is the old version of query_keywords and is obsolete.
+% ########################################################################
 % Author: Jane Yang
 % Modifier: Jingwen Pang
 % Last modified: 11/11/2024

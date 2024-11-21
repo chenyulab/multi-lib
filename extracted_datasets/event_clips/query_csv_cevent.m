@@ -31,6 +31,7 @@
 % instancs found.
 % 
 % Example function call: rtr_table = query_csv_cevent([12],'cevent_eye_joint-attend_child-lead-moment_both',[1:24],'exp12_ja_child_lead.csv')
+% see more examples in demo_query_csv_speech_or_event
 
 function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list, output_filename,args)
     output_dir = get_event_clips_data_dir();
@@ -75,12 +76,11 @@ function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list, o
     % initialize column names for return table
     rtr_table = table();
 
-    %%% TODO: change to a more flexible way of initializing column names
-    %%% later --> for multiple words
+    % initializing column names
     colNames = {'subID','fileID',...
-                'onset1_system_time','onset1_frame',...
-                'offset1_system_time','offset1_frame',...
-                'objID1','source_video_path','source_audio_path','extract_range_onset'};
+                'onset_system_time','onset_frame',...
+                'offset_system_time','offset_frame',...
+                'catID','source_video_path','source_audio_path','extract_range_onset'};
     
     % get a list of subjects that has the target variable
     subs = find_subjects(cevent_varname,expIDs);
