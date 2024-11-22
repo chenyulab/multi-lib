@@ -29,7 +29,7 @@
 % instancs found.
 % 
 % See case 4, 8 in demo_speech_analysis_functions
-%     case 1, 2 in demo_query_csv_speech_or_event
+%     case 1, 2, 6 in demo_query_csv_speech_or_event
 
 function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
     speechTime = 30;

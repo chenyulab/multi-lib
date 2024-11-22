@@ -103,7 +103,7 @@ function demo_query_csv_speech_or_event(option)
         case 6
             expIDs = 12;
             word_list = {'cat'};
-            output_filename = 'test-cat.csv';
+            output_filename = 'exp12_speech_cat.csv';
 
             args.cam = 1; % change source camera to cam01 (kid's view with 
                           % superimposed gaze)
@@ -113,6 +113,6 @@ function demo_query_csv_speech_or_event(option)
             
             % this case finds all speech utterances in exp12 where the
             % keyword "cat" appeared in the utterance
-            query_csv_speech(expIDs,word_list,output_filename,args);
+            query_keywords(expIDs,word_list,output_filename,args);
     end
 end
