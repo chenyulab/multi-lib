@@ -3,10 +3,9 @@ function [profile_data] = temporal_profile_generate_by_cevent(input)
 % or one cstream profile chunked by one cevent variable.
 %
 % For detailed user guide one this function, please go to demo script at:
+%   demo_generate_temporal_profile_by_cevent.m
 % 
-% 
-% Last update by Linger, txu@indiana.edu on 07/21/2016
-
+% Last update by Jingwen, 12/05/2024
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sub_list = input.sub_list;
@@ -164,10 +163,10 @@ for sidx = 1:length(sub_list)
     if is_var_cell
         var_data = cell(1, num_vars);
         for vidx = 1:num_vars
-            var_data{vidx} = get_variable(sub_id, var_name{vidx});
+            var_data{vidx} = get_variable_by_trial_cat(sub_id, var_name{vidx});
         end
     else
-        var_data = get_variable(sub_id, var_name);
+        var_data = get_variable_by_trial_cat(sub_id, var_name);
     end
 
     if isfield(input, 'sample_rate')
@@ -182,7 +181,7 @@ for sidx = 1:length(sub_list)
     time_base_ts = 0:sample_rate:(duration_profile-0.0001);
 
     if isfield(input, 'trial_var_name')
-        trials_one = get_variable(sub_id, input.trial_var_name);
+        trials_one = get_variable_by_trial_cat(sub_id, input.trial_var_name);
         if isfield(input, 'trial_values')
             trials_one = cevent_category_equals(...
                 trials_one, input.trial_values);
@@ -199,7 +198,7 @@ for sidx = 1:length(sub_list)
         end
     end
 
-    cevent_data = get_variable(sub_id, cevent_name);
+    cevent_data = get_variable_by_trial_cat(sub_id, cevent_name);
 
     chunks_cevents = cell(size(trials_one, 1), 1);
     chunks_trialid = cell(size(trials_one, 1), 1);
@@ -272,20 +271,25 @@ for sidx = 1:length(sub_list)
             mat_profile_one = nan(num_cevents, length_profile);
             
             for cnidx = 1:num_cevents
-                range_one = temporal_ranges(cnidx, :);
-
-                chunks_one_new = chunks_var_one{cnidx};
-                chunks_one_new(:, 1) = chunks_one_new(:, 1) - range_one(1);
-                length_one = size(chunks_one_new, 1);
-
-                if length_one ~= length_profile
-                    chunk_ts = timeseries(chunks_one_new(:, 2:end), chunks_one_new(:, 1));
-                    chunk_ts = resample(chunk_ts, time_base_ts, 'zoh');
-                    chunks_one_new = horzcat(get(chunk_ts, 'Time'), get(chunk_ts, 'Data'));
+                try
+                    range_one = temporal_ranges(cnidx, :);
+    
+                    chunks_one_new = chunks_var_one{cnidx};
+                    chunks_one_new(:, 1) = chunks_one_new(:, 1) - range_one(1);
+                    length_one = size(chunks_one_new, 1);
+    
+                    if length_one ~= length_profile
+                        chunk_ts = timeseries(chunks_one_new(:, 2:end), chunks_one_new(:, 1));
+                        chunk_ts = resample(chunk_ts, time_base_ts, 'zoh');
+                        chunks_one_new = horzcat(get(chunk_ts, 'Time'), get(chunk_ts, 'Data'));
+                    end
+    
+                    chunks_one_new(isnan(chunks_one_new(:,2)),2) = 0;
+                    mat_profile_one(cnidx, :) = chunks_one_new(:, 2)';
+                catch
+                    warning('timestamp %.3f might not exist in %s',range_one,input.var_name);
+                    continue
                 end
-
-                chunks_one_new(isnan(chunks_one_new(:,2)),2) = 0;
-                mat_profile_one(cnidx, :) = chunks_one_new(:, 2)';
             end
             
             mat_var_profile(:, :, vidx) = mat_profile_one;
@@ -344,19 +348,24 @@ for sidx = 1:length(sub_list)
             mat_var_profile = nan(num_cevents_value, length_profile);
 
             for cnidx = 1:size(chunks_ranges, 1)
-                range_one = chunks_ranges(cnidx, :);
-
-                chunks_one_new = chunks_var_by_cvalue{cnidx};
-                chunks_one_new(:, 1) = chunks_one_new(:, 1) - range_one(1);
-                length_one = size(chunks_one_new, 1);
-
-                if length_one ~= length_profile
-                    chunk_ts = timeseries(chunks_one_new(:, 2:end), chunks_one_new(:, 1));
-                    chunk_ts = resample(chunk_ts, time_base_ts, 'zoh');
-                    chunks_one_new = horzcat(get(chunk_ts, 'Time'), get(chunk_ts, 'Data'));
+                try
+                    range_one = chunks_ranges(cnidx, :);
+    
+                    chunks_one_new = chunks_var_by_cvalue{cnidx};
+                    chunks_one_new(:, 1) = chunks_one_new(:, 1) - range_one(1);
+                    length_one = size(chunks_one_new, 1);
+    
+                    if length_one ~= length_profile
+                        chunk_ts = timeseries(chunks_one_new(:, 2:end), chunks_one_new(:, 1));
+                        chunk_ts = resample(chunk_ts, time_base_ts, 'zoh');
+                        chunks_one_new = horzcat(get(chunk_ts, 'Time'), get(chunk_ts, 'Data'));
+                    end
+    
+                    mat_var_profile(cnidx, :) = chunks_one_new(:, 2)';
+                catch
+                    warning('timestamp %.3f might not exist in %s',range_one,input.var_name);
+                    continue
                 end
-
-                mat_var_profile(cnidx, :) = chunks_one_new(:, 2)';
             end
 
             mat_origin_profile = mat_var_profile;
