@@ -108,7 +108,11 @@ end
 
 assignin('base', 'result', result);
 if is_face
-    record_additional_variable(sID, sprintf('cont_vision_min-dist_center-to-face_%s', parentOrChild), horzcat(result(:, 1), result(:, 1+1)));
+    % filter the short instance that is smaller than 6 timestamp
+    min_length = 6;
+    cont_data = horzcat(result(:, 1), result(:, 1+1));
+    filtered_data = filter_cont_instance(cont_data,min_length);
+    record_additional_variable(sID, sprintf('cont_vision_min-dist_center-to-face_%s', parentOrChild), filtered_data);
 else
     for i = 1:num_objs
         record_variable(sID, sprintf('cont_vision_min-dist_center-to-obj%d_%s', i, parentOrChild), horzcat(result(:, 1), result(:, i+1)));
