@@ -16,11 +16,15 @@ function obj_labels = get_object_label(exp_id, obj_ids)
         
         data = readtable(fullfile(dir,filename));
 
-        obj_labels = {};
-        for o = 1:length(obj_ids)
-            obj_id = obj_ids(o);
-            obj_label = data{data{:,obj_id_col}==obj_id,obj_name_col}{1};
-            obj_labels = [obj_labels,obj_label];
+        if ismatrix(obj_ids) && length(obj_ids) > 1
+            obj_labels = {};
+            for o = 1:length(obj_ids)
+                obj_id = obj_ids(o);
+                obj_label = data{data{:,obj_id_col}==obj_id,obj_name_col}{1};
+                obj_labels = [obj_labels,obj_label];
+            end
+        else
+            obj_labels = data{data{:,obj_id_col}==obj_ids,obj_name_col}{1};
         end
     
     catch ME
