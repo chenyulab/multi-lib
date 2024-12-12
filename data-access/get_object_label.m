@@ -1,4 +1,4 @@
-function obj_label = get_object_label(exp_id, obj_id)
+function obj_labels = get_object_label(exp_id, obj_ids)
 % Author: Jingwen Pang
 % Date: 11/19/2024
 %
@@ -15,14 +15,19 @@ function obj_label = get_object_label(exp_id, obj_id)
         filename = sprintf('exp_%d_dictionary.xlsx',exp_id);
         
         data = readtable(fullfile(dir,filename));
-        
-        obj_label = data{data{:,obj_id_col}==obj_id,obj_name_col}{1};
+
+        obj_labels = {};
+        for o = 1:length(obj_ids)
+            obj_id = obj_ids(o);
+            obj_label = data{data{:,obj_id_col}==obj_id,obj_name_col}{1};
+            obj_labels = [obj_labels,obj_label];
+        end
     
     catch ME
     
         disp(ME.message)
 
-        obj_label = '';
+        obj_labels = '';
     end
 
 end
