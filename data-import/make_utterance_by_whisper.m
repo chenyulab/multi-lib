@@ -131,14 +131,19 @@ function [cevent_naming,cstream_naming] = make_utterance_by_whisper(subID,isSpan
             end
         end
 
+        % get trial time
+        trial_times = get_trial_times(subID);
+        begin_time = trial_times(1,1);
+        end_time = trial_times(end,2);
+
         rate = get_rate(subID);
         % record naming variable
-        cstream_naming = cevent2cstream(cevent_naming,floor(cevent_naming(1,1)),1/rate,0);
+        cstream_naming = cevent2cstream(cevent_naming,begin_time,1/rate,0,end_time);
         record_variable(subID,'cevent_speech_naming_local-id',cevent_naming);
         record_variable(subID,'cstream_speech_naming_local-id',cstream_naming);
 
         % record utterance variable
-        cstream_utterance = cevent2cstream(cevent_utterance,floor(cevent_utterance(1,1)),1/rate,0);
+        cstream_utterance = cevent2cstream(cevent_utterance,begin_time,1/rate,0,end_time);
         record_variable(subID,'cevent_speech_utterance',cevent_utterance);
         record_variable(subID,'cstream_speech_utterance',cstream_utterance);
     else
