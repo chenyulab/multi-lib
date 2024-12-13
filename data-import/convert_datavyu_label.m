@@ -45,8 +45,13 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
     % frames apart from each other
     merge_thres = 4;
 
-    % generate info.mat file
+    % generate info.mat file and trial variables
     read_trial_info(subID);
+    make_trials_vars(subID)
+    % get trial time
+    trial_times = get_trial_times(subID);
+    begin_time = trial_times(1,1);
+    end_time = trial_times(end,2);
 
     % get Datavyu input_filename from supporting file folder of each
     % subject
@@ -137,7 +142,7 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
         rate = get_rate(subID);
 
         % save cstream var
-        cstream_mtr = cevent2cstream(cevent_mtr,floor(cevent_mtr(1,1)),1/rate,0);
+        cstream_mtr = cevent2cstream(cevent_mtr,begin_time,1/rate,0,end_time);
         record_variable(subID,['cstream_' char(var_name)],cstream_mtr);
 
         % check if current variable is a fixation variable
@@ -146,7 +151,7 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
             % merge two consecutive fixations less than 4 frames away
             % from each other, if two instances are on the same object
             cevent_merged = cevent_merge_segments(cevent_mtr, merge_thres/rate);
-            cstream_merged = cevent2cstream(cevent_merged,floor(cevent_merged(1,1)),1/rate,0); % convert to cstream
+            cstream_merged = cevent2cstream(cevent_merged,begin_time,1/rate,0,end_time); % convert to cstream
             
             % parse current varname to get the agent field
             
