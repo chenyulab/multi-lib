@@ -10,7 +10,7 @@
 %              get_backward_naming_pairs() to get the first forward and
 %              backward pairing instances of expanded naming variable and paired_var.
 %%%
-function demo_run_all(option)
+function demo_speech_contingency_functions(option)
     switch option
         case 1 
             % generate 'cevent_speech_naming_local-id_expanded' variable based
