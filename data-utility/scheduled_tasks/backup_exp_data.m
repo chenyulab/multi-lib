@@ -1,4 +1,5 @@
-function backup_exp_data()
+clear;
+clc;
 
 % Input experiment IDs and folder names
 exp_ids = [12, 15, 351, 353, 361, 362, 363, 70:75, 91, 27, 77:79, 65:69, 58, 59, 96];
@@ -131,5 +132,3 @@ catch ME
 end
 
 disp('Backup process completed.');
-
-end
