@@ -16,7 +16,7 @@ function [cevent] = cevent_subtract(cevent1, cevent2)
 cevent3 = cevent_shared(cevent1, cevent2); 
 
 % convert cevent1 and cevent 3 into two streams 
-timeInterval = 0.005; % this should be high enough 
+timeInterval = 1/30; 
 startTime = 0; % default;
 defaultValue = 0; 
 cstream1 = cevent2cstream(cevent1, startTime, timeInterval, defaultValue);
