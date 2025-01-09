@@ -377,6 +377,20 @@ function make_all_inhand_eye(subexpIDs)
                 sdata = inhand_no_eye(sortIdx,:);
                 var_name = sprintf('cevent_inhand_no-eye_%s',agent);
                 record_additional_variable(subjectID,var_name,sdata);
+
+                % record the cstream variables to make sure they have the
+                % same timestamps
+                timing = get_trial_times(subjectID);
+                start_time = timing(1,1);
+                end_time = timing(end,2);
+                rate = 1/30;
+                cstream_1 = cevent2cstream(eye_off_1,start_time,rate,0,end_time);
+                cstream_2 = cevent2cstream(eye_off_2,start_time,rate,0,end_time);
+                cstream_3 = cevent2cstream(eye_off_3,start_time,rate,0,end_time);
+
+                record_additional_variable(subjectID,sprintf('cstream_inhand-eye_1hand1obj_eye-off_%s-%s',agent,agent),cstream_1)
+                record_additional_variable(subjectID,sprintf('cstream_inhand-eye_2hand1obj_eye-off_%s-%s',agent,agent),cstream_2)
+                record_additional_variable(subjectID,sprintf('cstream_inhand-eye_2hand2obj_eye-off_%s-%s',agent,agent),cstream_3)
     
             catch ME
                 fprintf('%d: %s\n', subjectID, ME.message);
