@@ -1,4 +1,4 @@
-function matrix = cevent_transition_matrix(cevent, max_gap, category_num)
+function matrix = cevent_transition_matrix(cevent, max_gap, category_num, diagonal_case)
 % cevent_transition_matrix   Generate a transition matrix of the input cevent.
 %
 % matrix =  cevent_transition_matrix(cevent, max_gap);
@@ -62,13 +62,13 @@ if ~exist('category_num', 'var')
 end
 
 if ~exist('diagonal_case', 'var')
-    diag_case = 0;
+    diagonal_case = 0;
 end
 
 matrix = zeros(category_num, category_num);
 for i=2:length(data)
     if cevent(i, 1) - cevent(i-1, 2) <= max_gap  % The gap between two events shouldn't be larger than max_gap
-        if diag_case == 0
+        if diagonal_case == 0
             if cevent(i,3) ~= cevent(i-1,3) % avoid all the diagonal case
                 matrix(data(i-1),data(i)) = matrix(data(i-1),data(i)) + 1;
             end
