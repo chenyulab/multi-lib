@@ -9,6 +9,8 @@ function matrix = cevent_transition_matrix(cevent, max_gap, category_num)
 %              counted as a transition. The default value of "max_gap" is Inf.
 %    category_num: The number of category for this cevent. The default
 %                  is the largest event value found in the input "cevent".
+%    diagonal_case: indicate if we should include diagonal case, the
+%                   default is not included. 0 = not include, 1 = included
 % Example :
 % > cevent_data = [69.0280   69.9450    1.0000;
 %                72.5080   73.8050     4.0000;
@@ -59,10 +61,18 @@ if ~exist('category_num', 'var')
     category_num = max(data);
 end
 
+if ~exist('diagonal_case', 'var')
+    diag_case = 0;
+end
+
 matrix = zeros(category_num, category_num);
 for i=2:length(data)
     if cevent(i, 1) - cevent(i-1, 2) <= max_gap  % The gap between two events shouldn't be larger than max_gap
-        if cevent(i,3) ~= cevent(i-1,3) % avoid all the diagonal case
+        if diag_case == 0
+            if cevent(i,3) ~= cevent(i-1,3) % avoid all the diagonal case
+                matrix(data(i-1),data(i)) = matrix(data(i-1),data(i)) + 1;
+            end
+        else
             matrix(data(i-1),data(i)) = matrix(data(i-1),data(i)) + 1;
         end
     end
