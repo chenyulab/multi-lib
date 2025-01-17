@@ -1,6 +1,8 @@
 %%%
 % Author: Jane Yang
 % Last modifier: 2/29/2024 (Leap Day!)
+% modifier: Jingwen Pang
+% Last modifier: 1/17/2025
 % 
 % Description: This function takes in one required argument and three
 % optional arguments (visitIDs, ageRange, and kidID), returning a list of 
@@ -22,15 +24,18 @@
 %                               - ageRange: an array specifying the age
 %                                           range
 %                               - kidID: a list of kidID or one kidID
+%                               - variableList: a list of subjects that
+%                               contains that variable
 %
 % Output: an array of subject IDs
 %%%
-% sub_list = list_home2_subjects(351, 'visitIDs', [2], 'ageRange', [12 24])
+% sub_list = list_home2_subjects(351, 'visitIDs', [2], 'ageRange', [12 24], 'kidID', 0, 'variableList', {'cont_motion_h_head_child'})
 function sub_list = list_home2_subjects(expIDs,varargin)
     % define default values for optional parameters
     ageRange = [0 40];
     visitIDs = [1 2 3 4];
     kidID = 0;
+    variableList = {};
 
     % Parse input arguments: Method 1
     % numArgs = length(varargin);
@@ -53,13 +58,18 @@ function sub_list = list_home2_subjects(expIDs,varargin)
             ageRange = varargin{i+1};
         elseif strcmpi(varargin{i}, 'kidID')
             kidID = varargin{i+1};
+        elseif strcmpi(varargin{i}, 'variableList')
+            variableList = varargin{i+1};
         else
             error('Invalid parameter name: %s', varargin{i});
         end
     end
 
     % read subject table
-    sub_table = table2array(read_home2_subject_table());
+    home_data = read_home2_subject_table();
+    home_data = home_data(:,1:6);
+    sub_table = table2array(home_data);
+    
 
     % if kidID not specified
     if kidID == 0
@@ -67,4 +77,10 @@ function sub_list = list_home2_subjects(expIDs,varargin)
     else % special case: query subIDs for the same kid
         sub_list = sub_table(ismember(sub_table(:,2),expIDs) & ismember(sub_table(:,5),visitIDs) & sub_table(:,6) >= ageRange(1) & sub_table(:,6) <= ageRange(2) & sub_table(:,4) == kidID,[1 5]);
     end
+
+    if ~isempty(variableList)
+        has_var_sub = find_subjects(variableList,expIDs);
+        sub_list = intersect(has_var_sub, sub_list);
+    end
+
 end

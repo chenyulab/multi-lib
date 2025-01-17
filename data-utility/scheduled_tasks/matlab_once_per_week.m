@@ -131,3 +131,15 @@ disp("==============================")
 directory = fullfile(vis_savepath, 'spatial_ja');
 subs = [15];
 vis_spatial_ja(subs, 10, directory)
+
+
+%% 
+% generate exp variable stats table
+disp("==============================")
+disp('[*]Running get_exp_variables_stats...')
+disp("==============================")
+expIDs = unique(sub2exp(cIDs(list_experiments())))';
+var_list = {'cevent_eye_roi_child','cevent_eye_roi_parent', 'cevent_inhand_left-hand_obj-all_child','cevent_inhand_right-hand_obj-all_child','cevent_inhand_left-hand_obj-all_parent', 'cevent_inhand_right-hand_obj-all_parent', 'cevent_eye_joint-attend_both', 'cevent_speech_naming_local-id', 'cevent_speech_utterance', 'cont_vision_size_obj1_child','cont_vision_size_obj1_parent','cont_motion_h_head_child','cont_motion_h_head_parent'};
+output_dir = 'M:';
+output_filename = 'exp_variables_stats';
+get_exp_variables_stats(expIDs,var_list,output_dir,output_filename)
