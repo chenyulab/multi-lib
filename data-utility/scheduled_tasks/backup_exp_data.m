@@ -7,7 +7,7 @@ folders = {'derived', 'reliability', 'speech_transcription_p', 'supporting_files
 
 % Generate a timestamped backup folder name
 timestamp = datestr(datetime('now'), 'yyyymmdd_HHMMSS');
-backup_base_dir = fullfile('C:',sprintf('backup_%s', timestamp));
+backup_base_dir = fullfile('B:',sprintf('backup_%s', timestamp));
 
 % Directory to store the ZIP file
 zip_destination_dir = 'B:\exp_data_backup'; 
