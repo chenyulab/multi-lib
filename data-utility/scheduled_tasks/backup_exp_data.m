@@ -7,10 +7,10 @@ folders = {'derived', 'reliability', 'speech_transcription_p', 'supporting_files
 
 % Generate a timestamped backup folder name
 timestamp = datestr(datetime('now'), 'yyyymmdd_HHMMSS');
-backup_base_dir = fullfile('B:',sprintf('backup_%s', timestamp));
+backup_base_dir = fullfile('T:',sprintf('backup_%s', timestamp));
 
 % Directory to store the ZIP file
-zip_destination_dir = 'B:\exp_data_backup'; 
+zip_destination_dir = 'T:\multiwork_backup'; 
 
 % Create the backup base directory
 if ~exist(backup_base_dir, 'dir')
