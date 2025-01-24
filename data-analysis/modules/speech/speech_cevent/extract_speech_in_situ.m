@@ -132,7 +132,11 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
                 overlap_prop2 = (utt_offset(index4)-bt)./dur(index4);
                 index5 = overlap_prop2 > threshold;
                 index6 = index4(index5);
-                match_idx = union(index3,index6);
+
+                % case 3: naming overlap base cevent --> onset is before
+                % base event onset and the offset is after event offset
+                index7 = find(utt_onset <= bt & utt_offset >= et);
+                match_idx = union(union(index3,index6),index7);
                 disp(match_idx);
     
                 sub_utt = "";
