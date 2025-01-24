@@ -121,7 +121,7 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
                 % overlap --> onset of naming is in between onset/offset of
                 % base cevent
                 index1 = find(utt_onset >= bt & utt_onset <= et);
-                overlap_prop1 = abs(utt_onset(index1) - et)/dur(index1);
+                overlap_prop1 = abs(utt_onset(index1) - et)./dur(index1);
                 index2 = overlap_prop1 > threshold;
                 index3 = index1(index2);
 
@@ -129,7 +129,7 @@ function overall_instance = extract_speech_in_situ(expID,cevent_var,category_lis
                 % overlap --> offset of naming is in between onset/offset of
                 % base cevent
                 index4 = find(utt_offset >= bt & utt_offset <= et);
-                overlap_prop2 = (utt_offset(index4)-bt)/dur(index4);
+                overlap_prop2 = (utt_offset(index4)-bt)./dur(index4);
                 index5 = overlap_prop2 > threshold;
                 index6 = index4(index5);
                 match_idx = union(index3,index6);
