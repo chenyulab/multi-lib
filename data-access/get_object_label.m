@@ -27,11 +27,33 @@ function obj_labels = get_object_label(exp_id, obj_ids)
             obj_labels = {};
             for o = 1:length(obj_ids)
                 obj_id = obj_ids(o);
-                obj_label = data{data{:,obj_id_col}==obj_id,obj_name_col}{1};
+                obj_label = data{data{:,obj_id_col}==obj_id,obj_name_col};
+                if length(obj_label) > 1
+                    combined_obj_labels = '';
+                    for i = 1:length(obj_label)
+                        combined_obj_labels = [combined_obj_labels,obj_label{i},'/'];
+                    end
+                    combined_obj_labels = combined_obj_labels(1:end-1);
+                    obj_label = combined_obj_labels;
+                else
+                    obj_label = obj_label{1};
+                end
                 obj_labels = [obj_labels,obj_label];
             end
         else
-            obj_labels = data{data{:,obj_id_col}==obj_ids,obj_name_col}{1};
+            obj_label = data{data{:,obj_id_col}==obj_ids,obj_name_col};
+            if length(obj_label) > 1
+                combined_obj_labels = '';
+                for i = 1:length(obj_label)
+                    combined_obj_labels = [combined_obj_labels,obj_label{i},'/'];
+                end
+                combined_obj_labels = combined_obj_labels(1:end-1);
+                obj_label = combined_obj_labels;
+            else
+                obj_label = obj_label{1};
+            end
+            obj_labels = obj_label;
+            
         end
     
     catch ME
