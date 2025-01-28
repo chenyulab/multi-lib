@@ -9,6 +9,13 @@ function obj_labels = get_object_label(exp_id, obj_ids)
     obj_id_col = 3;
     obj_name_col = 1;
 
+    % if the exp belong to one of the following experiment, change the
+    % obj_id_col to 5
+    special_exps = [6, 14, 17, 18, 22, 23, 29, 32, 34, 35, 36, 39, 41, 42, 43, 44, 49, 53, 54, 55, 56, 59, 62, 63, 70, 71, 72, 73, 74, 90];
+    if ismember(exp_id,special_exps)
+        obj_id_col = 5;
+    end
+
     try
         dir = fullfile(get_multidir_root,sprintf('experiment_%d',exp_id));
         
