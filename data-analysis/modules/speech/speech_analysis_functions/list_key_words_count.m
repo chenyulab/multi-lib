@@ -24,6 +24,7 @@
 function list_key_words_count(exp_ids,word_list,input_filename,output_filename)
 
     event_data_dir = get_event_clips_data_dir();
+    speech_data_dir = get_speech_data_dir();
     
     data = readtable(fullfile(event_data_dir,input_filename));
     
@@ -54,5 +55,5 @@ function list_key_words_count(exp_ids,word_list,input_filename,output_filename)
     table = array2table(results);
     table.Properties.VariableNames = headers;
     
-    writetable(table,fullfile(event_data_dir,output_filename));
+    writetable(table,fullfile(speech_data_dir,output_filename));
 end

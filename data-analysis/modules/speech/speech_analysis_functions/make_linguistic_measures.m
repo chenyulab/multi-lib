@@ -108,6 +108,6 @@ function rtr_table = make_linguistic_measures(subexpIDs, keywords_list, output_f
 
     % write to the csv file
     rtr_table = array2table(rtr,'VariableNames',colNames);
-    output_dir = get_event_clips_data_dir();
+    output_dir = get_speech_data_dir();
     writetable(rtr_table,fullfile(output_dir,output_filename));
 end
