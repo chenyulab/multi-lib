@@ -147,7 +147,13 @@ function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
                 % get extract range onset
                 extract_range_file = fullfile(root,'supporting_files','extract_range.txt');
                 range_file = fopen(extract_range_file,'r');
-                extract_range_onset = fscanf(range_file,'[%f]');
+
+                if range_file ~= -1
+                    extract_range_onset = fscanf(range_file, '[%f]');
+                    fclose(range_file); % Close the file after reading
+                else
+                    error('Failed to open extract_range.txt');
+                end
 
                 % convert matched utterance timestamps in speech
                 % transcription to system time
