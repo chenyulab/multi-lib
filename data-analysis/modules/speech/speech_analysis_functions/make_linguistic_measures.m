@@ -81,7 +81,7 @@ function rtr_table = make_linguistic_measures(subexpIDs, keywords_list, output_f
         subID = new_subs(s); % current subject
     
         % total speech time
-        speech_trans = read_speech_transcription(subID);
+        [~,speech_trans] = parse_speech_trans(subID);
         total_speech_time = sum([speech_trans.end]' - [speech_trans.start]');
         rtr(s,speechtimeIdx) = total_speech_time;
          
@@ -96,7 +96,7 @@ function rtr_table = make_linguistic_measures(subexpIDs, keywords_list, output_f
         % mean utterance token length
         uttsList = [];
         for i = 1:size(speech_trans, 2)
-            utterance = speech_trans(i).words{1};
+            utterance = speech_trans(i).words;
             numWords = length(strsplit(utterance,' '));
             uttsList = [uttsList;numWords];
         end
