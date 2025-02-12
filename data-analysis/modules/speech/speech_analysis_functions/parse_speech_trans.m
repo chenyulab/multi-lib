@@ -32,6 +32,7 @@ function [all_words,utterances] = parse_speech_trans(subID, trial_time_mtr)
     if exist(extract_range_file, 'file') == 2
         range_file = fopen(extract_range_file,'r');
         extract_range_onset = fscanf(range_file,'[%f]');
+        fclose(range_file);
         speechTime = speech_starting_time - extract_range_onset/frame_rate;
     else
         trialInfo_path = get_info_file_path(subID);

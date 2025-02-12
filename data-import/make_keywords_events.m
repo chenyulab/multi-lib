@@ -47,7 +47,7 @@ for s = 1:length(subList)
     % sort keyword cevent based on onset
     keyword_cev = sortrows(keyword_cev,1);
 
-    % % record variable
+    % record variable
     record_additional_variable(subID,varname,keyword_cev);
 end
 
