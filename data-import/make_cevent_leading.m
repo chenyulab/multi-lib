@@ -2,9 +2,14 @@
 % Author: Jingwen Pang
 % Last modified: 2/20/2024
 %
-% This function split variable A based on variable B. Take variable A onset
-% and determine if variable B occurs, otherwise determine whether variable B 
-% occurs during variable A
+% This function splits variable A based on variable B.
+% The classification is determined as follows:
+% 1. Check the onset of each instance in variable A.
+% 2. If a corresponding instance of variable B occurs at the same time with the same category value, 
+%    classify the A instance as "B-lead."
+% 3. If no such instance occurs, check whether variable B appears *during* the duration of variable A 
+%    with the same category value. If it does, classify the A instance as "A-lead."
+% 4. If no instance of variable B occurs during variable A, classify it as "no-B."
 %
 %   case 1: variable B lead
 %             [-----var A event----]
@@ -15,6 +20,19 @@
 %   case 3: no variable B
 %       [----var A event----]
 %                                    [--var B event--]
+% 
+%   input parameters: 
+%       - subexpIDs
+%       - var 1 (be divided)
+%       - var 2
+%       - type 1
+%       - type 2
+%       - agent 1
+%       - agent 2
+%   output:
+%       cevent_type1-type2_typ2-led_agent1-agent2
+%       cevent_type1-type2_type1-led_agent1-agent2
+%       cevent_type1-type2_no-type2_agent1-agent2
 % 
 % example call:
 %   subexpIDs = 351
