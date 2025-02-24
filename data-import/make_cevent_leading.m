@@ -62,6 +62,8 @@ function make_cevent_leading(subexpIDs,var_1,var_2,type_1,type_2,agent_1,agent_2
             
             var2_led = [];
             var1_led = [];
+            var2_led_lag = [];
+            var1_led_lag = [];
             no_var2_led = [];
             
             for i = 1:size(data_1,1)
@@ -81,11 +83,13 @@ function make_cevent_leading(subexpIDs,var_1,var_2,type_1,type_2,agent_1,agent_2
                     % check if the onset of var 1 is in the var 2
                     if onset_1 >= onset_2 && onset_1 <= offset_2 && value_1 == value_2
                         var2_led = [var2_led;instance_1];
+                        var2_led_lag = [var2_led_lag;onset_2,onset_1,value_2];
                         check_point = 1;
                         break;
                     % check if the onset of var 2 is in the var 1
                     elseif onset_2 >= onset_1 && onset_2 <= offset_1 && value_1 == value_2
                         var1_led = [var1_led;instance_1];
+                        var1_led_lag = [var1_led_lag;onset_1,onset_2,value_1];
                         check_point = 1;
                         break;
                     end
@@ -102,10 +106,18 @@ function make_cevent_leading(subexpIDs,var_1,var_2,type_1,type_2,agent_1,agent_2
             data = var2_led;
             var_name = sprintf('cevent_%s-%s_%s-led_%s-%s',type_1,type_2,type_2,agent_1,agent_2);
             record_additional_variable(sub_id,var_name,data);
+
+            data = var2_led_lag;
+            var_name = sprintf('cevent_%s-%s_%s-led-lag_%s-%s',type_1,type_2,type_2,agent_1,agent_2);
+            record_additional_variable(sub_id,var_name,data);
             
             % var 1 lead 
             data = var1_led;
             var_name = sprintf('cevent_%s-%s_%s-led_%s-%s',type_1,type_2,type_1,agent_1,agent_2);
+            record_additional_variable(sub_id,var_name,data);
+
+            data = var1_led_lag;
+            var_name = sprintf('cevent_%s-%s_%s-led-lag_%s-%s',type_1,type_2,type_1,agent_1,agent_2);
             record_additional_variable(sub_id,var_name,data);
             
             % no var 2
