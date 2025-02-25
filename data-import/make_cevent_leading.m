@@ -82,14 +82,22 @@ function make_cevent_leading(subexpIDs,var_1,var_2,type_1,type_2,agent_1,agent_2
             
                     % check if the onset of var 1 is in the var 2
                     if onset_1 >= onset_2 && onset_1 <= offset_2 && value_1 == value_2
+                        if ~isempty(var2_led)
+                            if var2_led(end,2) > onset_2
+                                var2_led_lag = [var2_led_lag;var2_led(end,2),onset_1,value_2];
+                            elseif var2_led(end,2) <= onset_2
+                                var2_led_lag = [var2_led_lag;onset_2,onset_1,value_2];
+                            end
+                        else
+                            var2_led_lag = [var2_led_lag;onset_2,onset_1,value_2];
+                        end
                         var2_led = [var2_led;instance_1];
-                        var2_led_lag = [var2_led_lag;onset_2,onset_1,value_2];
                         check_point = 1;
                         break;
                     % check if the onset of var 2 is in the var 1
                     elseif onset_2 >= onset_1 && onset_2 <= offset_1 && value_1 == value_2
-                        var1_led = [var1_led;instance_1];
                         var1_led_lag = [var1_led_lag;onset_1,onset_2,value_1];
+                        var1_led = [var1_led;instance_1];
                         check_point = 1;
                         break;
                     end
