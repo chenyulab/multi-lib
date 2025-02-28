@@ -20,6 +20,10 @@ onset_col = 4;
 offset_col = 7;
 keyword_col = 9;
 
+if length(keyword_list) ~= length(keyword_ids)
+    error('keyword list must align with keyword ids');
+end
+
 % parse the subject list from the data
 subList = unique(data{:,1});
 
