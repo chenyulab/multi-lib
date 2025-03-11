@@ -61,7 +61,7 @@ function demo_create_summary_movie(option)
             offset_time = 0.10;
             crop_size = [300 300];
             frame_rate = 3;
-            out_vid_name = '..\demo_results\summary_movie\case1';
+            out_vid_name = 'Z:\CORE\repository_new\multi-lib\demo_results\summary_movie\case1';
 
            create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
                                 reference_point, offset_time, crop_size, frame_rate, out_vid_name)
@@ -83,7 +83,7 @@ function demo_create_summary_movie(option)
             offset_time = 0.10;
             crop_size = [300 300];
             frame_rate = 1;
-            out_vid_name = '..\demo_results\summary_movie\case2';
+            out_vid_name = 'Z:\CORE\repository_new\multi-lib\demo_results\summary_movie\case2';
     
            create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
                                 reference_point, offset_time, crop_size, frame_rate, out_vid_name)
@@ -105,7 +105,7 @@ function demo_create_summary_movie(option)
             offset_time = 0;
             crop_size = [300 300];
             frame_rate = 1;
-            out_vid_name = '..\demo_results\summary_movie\case3';
+            out_vid_name = 'Z:\CORE\repository_new\multi-lib\demo_results\summary_movie\case3';
     
            create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
                                 reference_point, offset_time, crop_size, frame_rate, out_vid_name)
