@@ -1,7 +1,7 @@
 %%%
 % Author: Elton Martinez
-% Modifier: Jingwen Pang
-% Last modified: 12/05/2024
+% Modifier: Elton Martinez
+% Last modified: 1/23/2024
 %
 % This function generate summary videos focused on particular 
 % categories(object/face) during specified events. 
@@ -58,8 +58,9 @@ function create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
     mask = arrayfun(@(x) has_all_variables(x, {cont_eye, cevent_variable}), subexpIDs);
     subexpIDs = subexpIDs(mask);
 
-    expID = num2str(subexpIDs(1));
-    expID = expID(1:2);
+    expID = sub2exp(subexpIDs(1));
+    category_names = get_object_label(expID, 1:get_num_obj(expID));
+    category_names{end+1} = 'face';
         
     % iter through all subjects 
     for z= 1:numel(subexpIDs)
@@ -179,7 +180,7 @@ function create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
             end
             
             % Insert the subject id and cat name to the crop (top)
-            obj_label = get_object_label(str2double(expID), var(i,3));
+            obj_label = category_names{var(i,3)};
             target_string = ['subID: ' num2str(subject_id),'     ','catID: ' obj_label];
             relative_font = round(cF_rows * 0.05);
             RGB = insertText(croppedFrame,[0 0],target_string, FontSize=relative_font, ...
@@ -195,4 +196,5 @@ function create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
         end 
     end
     close(writerObj);
+    fprintf("Movie saved under %s.mp4\n", fullfile(pwd, out_vid_name))
 end
