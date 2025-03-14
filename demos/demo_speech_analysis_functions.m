@@ -1,8 +1,4 @@
 %%%
-% Author: Melina Knabe
-% Last Modifier: 10/07/2024
-% Demo function for a suite of speech analysis functions.
-
 %% Required Arguments (for most functions)
 % word_list
 %                           -- a list of target words that should be queried/counted
