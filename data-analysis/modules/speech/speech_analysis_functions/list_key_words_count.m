@@ -38,7 +38,7 @@ function list_key_words_count(exp_ids,word_list,input_filename,output_filename)
         for w = 1 : length(word_list)
             target_word = word_list{w}; 
     
-            sub_word_data = sub_data(strcmp(sub_data.word1,target_word),:);
+            sub_word_data = sub_data(strcmp(sub_data.word,target_word),:);
             if isempty(sub_word_data)
                   results(s,w) = 0;
             else
