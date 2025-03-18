@@ -43,7 +43,7 @@ function list_key_words_count(exp_ids,word_list,input_filename,output_filename)
                   results(s,w) = 0;
             else
                 for i = 1:size(sub_word_data,1)
-                    results(s,w) = results(s,w)+count(sub_word_data.utterances1(i),target_word);
+                    results(s,w) = results(s,w)+count(sub_word_data.utterances(i),target_word);
                 end
             end
         end
