@@ -23,10 +23,11 @@
 %%%
 function list_key_words_count(exp_ids,word_list,input_filename,output_filename)
 
-    event_data_dir = get_event_clips_data_dir();
+    % event_data_dir = get_event_clips_data_dir();
     speech_data_dir = get_speech_data_dir();
     
-    data = readtable(fullfile(event_data_dir,input_filename));
+    % data = readtable(fullfile(event_data_dir,input_filename));
+    data = readtable(input_filename);
     
     sub_list = list_subjects(exp_ids);
     results = zeros(length(sub_list),length(word_list));
