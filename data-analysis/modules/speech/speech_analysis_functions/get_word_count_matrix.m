@@ -11,7 +11,7 @@
 %         generated based on summary word count table.
 %%%
 
-function [individuals,common,summary_count] = get_word_count_matrix(subexpID,output_filename)
+function [summary_count] = get_word_count_matrix(subexpID,output_filename)
     flattened_list = [];
     common = [];
     
@@ -107,8 +107,7 @@ function [individuals,common,summary_count] = get_word_count_matrix(subexpID,out
 
     % don't write to a CSV file if the function is used as an intermediate
     % helper function
-    output_dir = get_speech_data_dir();
     if ~strcmp(output_filename,'')
-        writetable(summary_count,fullfile(output_dir, output_filename));
+        writetable(summary_count,output_filename);
     end
 end

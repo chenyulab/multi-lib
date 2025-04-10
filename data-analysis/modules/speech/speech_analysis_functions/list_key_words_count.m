@@ -22,11 +22,7 @@
 % example call: list_keyword_count([58 353],{'assemble','reach', 'close','cut','rip','drink','eat','get', 'grab','open', 'screw', 'twist', 'put','spread', 'move','scoop','make','look', 'try', 'wipe'},'pbj_verbs-all.csv','summary_word_count.csv')
 %%%
 function list_key_words_count(exp_ids,word_list,input_filename,output_filename)
-
-    % event_data_dir = get_event_clips_data_dir();
-    speech_data_dir = get_speech_data_dir();
     
-    % data = readtable(fullfile(event_data_dir,input_filename));
     data = readtable(input_filename);
     
     sub_list = list_subjects(exp_ids);
@@ -56,5 +52,5 @@ function list_key_words_count(exp_ids,word_list,input_filename,output_filename)
     table = array2table(results);
     table.Properties.VariableNames = headers;
     
-    writetable(table,fullfile(speech_data_dir,output_filename));
+    writetable(table,output_filename);
 end

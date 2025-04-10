@@ -34,7 +34,6 @@
 function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
     speechTime = 30;
     frame_rate = 30;
-    output_dir = get_event_clips_data_dir();
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
@@ -203,5 +202,5 @@ function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
         % save table to a csv file
         obj_rtr_table = [obj_rtr_table;rtr_table];
     end
-    writetable(obj_rtr_table,fullfile(output_dir,output_filename),'WriteVariableNames', true);
+    writetable(obj_rtr_table,output_filename,'WriteVariableNames', true);
 end
