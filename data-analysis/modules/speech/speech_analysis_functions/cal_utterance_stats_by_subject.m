@@ -18,10 +18,10 @@
 % and, mean utterance token lengh
 %
 %
-% Example function call: rtr_table = make_linguistic_measures(351, ["cup" "kettle"], 'exp351_cup-kettle_linguistic_measures.csv')
+% Example function call: rtr_table = cal_utterance_stats_by_subject(351, ["cup" "kettle"], 'exp351_cup-kettle_linguistic_measures.csv')
 %%%
 
-function rtr_table = make_linguistic_measures(subexpIDs, keywords_list, output_filename)
+function rtr_table = cal_utterance_stats_by_subject(subexpIDs, keywords_list, output_filename)
     % get a list of subjects
     subs = cIDs(subexpIDs);
 
@@ -56,8 +56,8 @@ function rtr_table = make_linguistic_measures(subexpIDs, keywords_list, output_f
 
     
     % obtain keyword list and word summary table
-    word_summary_output_filename = '.';
-    summary_mtr = word_summary(subs,keywords_list,word_summary_output_filename);
+    word_type_filename = '.';
+    summary_mtr = count_words_by_type(subs,keywords_list,word_type_filename);
 
     % prefill the return table with NaNs
     rtr = NaN(size(summary_mtr,1),length(colNames));

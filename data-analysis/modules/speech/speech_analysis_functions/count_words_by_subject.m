@@ -11,7 +11,7 @@
 %         generated based on summary word count table.
 %%%
 
-function [summary_count] = get_word_count_matrix(subexpID,output_filename)
+function [summary_count] = count_words_by_subject(subexpID,output_filename)
     flattened_list = [];
     common = [];
     
