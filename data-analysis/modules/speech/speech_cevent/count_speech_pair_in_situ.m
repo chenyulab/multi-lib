@@ -17,7 +17,7 @@
 %            
 %
  
-function extract_speech_pair_in_situ(file_in, text_col_num, file_out)
+function count_speech_pair_in_situ(file_in, text_col_num, file_out)
     % matlab makes noise when you write to a xlsx sheet
     warning('off', 'MATLAB:xlswrite:AddSheet') ;
     
