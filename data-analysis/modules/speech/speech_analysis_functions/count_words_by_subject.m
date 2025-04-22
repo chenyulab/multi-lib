@@ -11,19 +11,19 @@
 %         generated based on summary word count table.
 %%%
 
-function [summary_count] = count_words_by_subject(subexpID,output_filename)
+function [summary_count] = count_words_by_subject(subexpIDs,output_filename)
     flattened_list = [];
     common = [];
     
     %% generate a list of subjects that have a speech transcription file
-    for i = 1:numel(subexpID)
-        if size(cIDs(subexpID(i)),1) == 1
-            [all_words,utterances] = parse_speech_trans(cIDs(subexpID(i)));
+    for i = 1:numel(subexpIDs)
+        if size(cIDs(subexpIDs(i)),1) == 1
+            [all_words,utterances] = parse_speech_trans(cIDs(subexpIDs(i)));
             if size(all_words,1) ~= 0
-                flattened_list(end+1,1) = cIDs(subexpID(i));
+                flattened_list(end+1,1) = cIDs(subexpIDs(i));
             end
-        elseif size(cIDs(subexpID(i)),1) > 1
-            list = cIDs(subexpID(i));
+        elseif size(cIDs(subexpIDs(i)),1) > 1
+            list = cIDs(subexpIDs(i));
             for j = 1:size(list,1)
                 [all_words,utterances] = parse_speech_trans(list(j));
                 if size(all_words,1) ~= 0
