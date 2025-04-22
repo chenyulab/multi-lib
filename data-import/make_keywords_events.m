@@ -13,12 +13,38 @@
 % see demo_speech_analysis_functions case 8
 %%%
 function make_keywords_events(keyword_list, keyword_ids, data, varname)
+% action_verbs = {'assemble','cut','close','drink','eat','get','grab','look','make','move','open','put','reach','rip','scoop','screw','spread','try','twist','wipe'};
 
-% keywords = {'assemble','cut','close','drink','eat','get','grab','look','make','move','open','put','reach','rip','scoop','screw','spread','try','twist','wipe'};
-subID_col = 1;
-onset_col = 4;
-offset_col = 7;
-keyword_col = 9;
+    % parameter checking
+    % check if 'whence' and 'interval'
+    if ~exist('args', 'var') || isempty(args)
+        args = struct([]);
+    end
+
+    if isfield(args, 'subID_col')
+        subID_col = args.subID_col;
+    else
+        subID_col = 1;
+    end
+
+    if isfield(args, 'onset_col')
+        onset_col = args.onset_col;
+    else
+        onset_col = 4;
+    end
+
+    if isfield(args, 'offset_col')
+        offset_col = args.offset_col;
+    else
+        offset_col = 7;
+    end
+
+    if isfield(args, 'keyword_col')
+        keyword_col = args.keyword_col;
+    else
+        keyword_col = 9;
+    end
+
 
 if length(keyword_list) ~= length(keyword_ids)
     error('keyword list must align with keyword ids');
