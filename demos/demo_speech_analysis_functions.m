@@ -243,7 +243,8 @@ function demo_speech_analysis_functions(option)
             text_col = 5;
             id_col = 2;
             target_words = ["look","car"];
-            count_word_speech_in_situ(input_file, target_words, text_col , id_col, output_file)
+            extraStopWords = [];
+            count_word_speech_in_situ(input_file, target_words, extraStopWords, text_col , id_col, output_file)
     
         case 14
             % given a list of subject ids or exp ids, count the frequency of all the words in
@@ -261,6 +262,34 @@ function demo_speech_analysis_functions(option)
             count_words_by_type(subexpIDs,target_words,output_filename)
 
         case 16
+            % extract utterance when child is attending objects
+            expID = 15;
+            cevent_var = 'cevent_eye_roi_child'; % set speech utterance as the default
+            category_list = 1:get_num_obj(expID);
+            output_filename = fullfile(output_dir,'example_16.csv');
+            extract_speech_in_situ(expID,cevent_var,category_list,output_filename);
+
+            % group data into subject-category level and category level
+            input_file = fullfile(output_dir,'example_16.csv');
+            group_speech_in_situ(input_file)
+
+            % calculate the similarity in subject-category level
+            input_filename = fullfile(output_dir,'example_16_subject-category.csv');
+            output_filename = fullfile(output_dir, 'example_16_sub-cat_similarity.csv');
+            args.catValue_col = 5;
+            args.speechWord_col = 6;
+            cal_word_similarity(input_filename,output_filename,args)
+
+            % calculate the similarity in category level
+            input_filename = fullfile(output_dir,'example_16_category.csv');
+            output_filename = fullfile(output_dir, 'example_16_cat_similarity.csv');
+            args.subID_col = nan; % no subject id for cat level data
+            args.catValue_col = 2;
+            args.speechWord_col = 4;
+            cal_word_similarity(input_filename,output_filename,args)
+
+
+        case 17
             % ## Warning: this case will generate variables in our system,
             % users should not use this unless get approval.
 
@@ -270,14 +299,14 @@ function demo_speech_analysis_functions(option)
             word_list = {'assemble','cut','close','drink'};
             word_ids = [1,2,3,4];
             subexpIDs = [58];
-            output_filename = fullfile(output_dir,'example_16.csv');
+            output_filename = fullfile(output_dir,'example_17.csv');
             % optional arguments can be included to change the source
             % camera and alter the timestamp of the generated event clips
             data = query_keywords(subexpIDs, word_list, output_filename);
             varname = 'cevent_speech_action-verbs_demo';
             make_keywords_events(word_list, word_ids, data, varname);
 
-        case 17
+        case 18
             % generates a wordcloud plot for a single subject or all
             % subjects in an experiment
             % size of the words reflects number of times that word was
