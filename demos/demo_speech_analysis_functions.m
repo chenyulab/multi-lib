@@ -69,8 +69,9 @@
 %	13	    Extract + group by subject/category + count speech words type
 %	14	    Count all word frequencies across experiments
 %	15	    Count specific words and word types
-%   16      Variable generation based on speech data
-%   17      Generate word cloud image
+%   16      Extract + group by subject/category + cal similarity score
+%   17      Variable generation based on speech data
+%   18      Generate word cloud image
 %%%
 function demo_speech_analysis_functions(option)
     % all the demo files are saved into, users can define their own path:
@@ -262,6 +263,8 @@ function demo_speech_analysis_functions(option)
             count_words_by_type(subexpIDs,target_words,output_filename)
 
         case 16
+            % WHEN YOU TRY THIS DEMO, MAKE SURE YOU HAVE INSTALLED MATLAB
+            % TEXT ANALYSIS TOOLBOX
             % extract utterance when child is attending objects
             expID = 15;
             cevent_var = 'cevent_eye_roi_child'; % set speech utterance as the default
