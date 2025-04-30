@@ -43,6 +43,9 @@ function generate_polar_histogram(subexpID, pathname, args)
             direction_varname = sprintf('cevent1_eye_saccade_direction_%s',agents{a});
             saccades_varname = sprintf('cevent1_eye_saccade_direction_%s',agents{a});
 
+            direction_filename = fullfile(pathname, sprintf("direction_data_%s.xlsx",agents{a}));
+            saccade_filename = fullfile(pathname, sprintf("saccade_data_%s.xlsx",agents{a}));
+
             if has_variable(sub_list(i), direction_varname)
 
                 direction_data = get_variable(sub_list(i),direction_varname); 
@@ -67,9 +70,9 @@ function generate_polar_histogram(subexpID, pathname, args)
                 f1 = figure;
                 hps = polaraxes;
                 if ~isfield(args,'direction_bins')
-                    polarhistogram(directions);
+                    h = polarhistogram(directions);
                 else
-                    polarhistogram(directions,args.direction_bins);
+                    h = polarhistogram(directions,args.direction_bins);
                 end
                 hps.ThetaZeroLocation = 'top';                                  
                 hps.ThetaDir = 'clockwise';
@@ -81,6 +84,16 @@ function generate_polar_histogram(subexpID, pathname, args)
                 file = sprintf("polar_histogram_%d_%s_%.1f.png",  sub_list(i), agents{a}, age);
                 filename = fullfile(pathname, file);
                 saveas(gcf, filename);
+
+                dir_edges = h.BinEdges;
+                counts = h.Values;
+
+                sheetName = num2str(sub_list(i));
+
+                close(gcf)
+                T = array2table(counts, 'VariableNames', string(dir_edges(2:end)));
+
+                writetable(T, direction_filename, 'Sheet', sheetName)
             else
                 fprintf('no xy data for subject %d %s!!!\n', sub_list(i), agents{a})
             end
@@ -89,9 +102,9 @@ function generate_polar_histogram(subexpID, pathname, args)
                 %create saccades histogram
                 f2 = figure;
                 if ~isfield(args,'saccade_bins')
-                    histogram(saccades)
+                    h = histogram(saccades);
                 else
-                    histogram(saccades,args.saccade_bins)
+                    h = histogram(saccades,args.saccade_bins);
                 end
                 
                 title_name = sprintf('Histogram of Saccades for %d %s age %.1f', sub_list(i), agents{a}, age);
@@ -101,6 +114,16 @@ function generate_polar_histogram(subexpID, pathname, args)
                 file = sprintf("saccades_histogram_%d_%s_%.1f.png",  sub_list(i), agents{a}, age);
                 filename = fullfile(pathname, file);
                 saveas(gcf, filename);
+
+                dir_edges = h.BinEdges;
+                counts = h.Values;
+
+                sheetName = num2str(sub_list(i));
+
+                close(gcf)
+
+                T = array2table(counts, 'VariableNames', string(dir_edges(2:end)));
+                writetable(T, saccade_filename, 'Sheet', sheetName)
     
             else
                 fprintf('no saccades data for subject %d %s!!!\n', sub_list(i), agents{a})
@@ -111,7 +134,4 @@ function generate_polar_histogram(subexpID, pathname, args)
 
 
 end
-
-
-
 
