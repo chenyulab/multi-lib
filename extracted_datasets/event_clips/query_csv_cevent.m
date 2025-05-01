@@ -34,7 +34,6 @@
 % see more examples in demo_query_csv_speech_or_event
 
 function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list, output_filename,args)
-    output_dir = get_event_clips_data_dir();
 
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
@@ -167,5 +166,5 @@ function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list, o
     end
     % save table to a csv file
     %%% TODO: change output_filename to handle multi-words case
-    writetable(rtr_table,fullfile(output_dir,output_filename),'WriteVariableNames', true);
+    writetable(rtr_table,output_filename,'WriteVariableNames', true);
 end

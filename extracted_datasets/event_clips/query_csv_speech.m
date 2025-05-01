@@ -34,9 +34,6 @@
 % Example function call: rtr_table = query_csv_speech([12],{'babyname'},'speech-babyname.csv')
 
 function rtr_table = query_csv_speech(expIDs,word_list,output_filename,args)
-    
-    output_dir = get_event_clips_data_dir();
-
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
@@ -240,6 +237,6 @@ function rtr_table = query_csv_speech(expIDs,word_list,output_filename,args)
         end
         % save table to a csv file
         %%% TODO: change output_filename to handle multi-words case
-        writetable(rtr_table,fullfile(output_dir,output_filename),'WriteVariableNames', true);
+        writetable(rtr_table,output_filename,'WriteVariableNames', true);
     end
 end

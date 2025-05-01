@@ -81,7 +81,7 @@ function demo_query_csv_speech_or_event(option)
             cevent_varname = 'cevent_eye_joint-attend_parent-lead-moment_both';
             target_obj_list = 1:24; % specify a list of target ROIs that you'd like to query, in this case we are interested in all 24 ROIs in the experiment
 
-            output_filename = 'test_plJA_exp12.csv';
+            output_filename = fullfile(output_dir,'test_plJA_exp12.csv');
             args.cam = 1; % because the event is parent-lead joint attention
                           % moments, we set the source camera to be 
                           % child's view with gaze
