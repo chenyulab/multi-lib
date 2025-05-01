@@ -105,8 +105,8 @@ function demo_query_csv_speech_or_event(option)
             query_csv_cevent(expIDs,cevent_varname,target_obj_list,output_filename,args);
         case 6
             expIDs = 12;
-            word_list = {'cat'};
-            output_filename = fullfile(output_dir,'exp12_speech_cat.csv');
+            word_list = {'bed'};
+            output_filename = fullfile(output_dir,'exp12_speech_bed_3s_before.csv');
 
             args.cam = 1; % change source camera to cam01 (kid's view with 
                           % superimposed gaze)
@@ -115,7 +115,7 @@ function demo_query_csv_speech_or_event(option)
             args.interval = [-3 0]; % set time window to 3 seconds before onset to the original utterance offset
             
             % this case finds all speech utterances in exp12 where the
-            % keyword "cat" appeared in the utterance
+            % keyword "bed" appeared in the utterance
             query_keywords(expIDs,word_list,output_filename,args);
     end
 end
