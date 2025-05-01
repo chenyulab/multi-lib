@@ -89,6 +89,7 @@ function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list, o
     for s = 1:size(subs,1)
         % get subject-level relevant info
         subID = subs(s);
+        disp(subID);
         root = get_subject_dir(subID);
         subInfo = get_subject_info(subID);
         fileID = cellstr(sprintf('__%d_%d',subInfo(3),subInfo(4)));

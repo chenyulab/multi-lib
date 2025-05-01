@@ -31,13 +31,16 @@
 % - extract_range_onset     onset of extract range
 %%%
 function demo_query_csv_speech_or_event(option)
+    % this is the demo output directory, if you want to try functions on your own,
+    % you can modify this to save your output file into your own place
+    output_dir = 'Z:\demo_output_files\query_csv_speech_or_event';
     switch option
         case 1
             % Retrieve all timestamps of speech utterances containing the keyword
             % 'babyname' and save as csv
             expIDs = 12;
             word_list = {'babyname'};
-            output_filename = 'exp12_speech_babyname.csv';
+            output_filename = fullfile(output_dir,'exp12_speech_babyname.csv');
             
             query_keywords(expIDs,word_list,output_filename)
         case 2
@@ -45,7 +48,7 @@ function demo_query_csv_speech_or_event(option)
             % 'car','truck'
             expIDs = 12;
             word_list = {'car','truck'};
-            output_filename = 'exp12_speech_vehicles.csv';
+            output_filename = fullfile(output_dir,'exp12_speech_vehicles.csv');
 
             args.cam = 1; % change source camera to cam01 (kid's view with 
                           % superimposed gaze)
@@ -63,7 +66,7 @@ function demo_query_csv_speech_or_event(option)
             num_objs = get_num_obj(expIDs);
             target_obj_list = 1:num_objs; % all ROIs in exp12
 
-            output_filename = 'test_clJA_exp12.csv';
+            output_filename = fullfile(output_dir,'test_clJA_exp12.csv');
             args.cam = 2; % because the event is child-lead joint attention
                           % moments, we set the source camera to be 
                           % parent's view with gaze
@@ -93,7 +96,7 @@ function demo_query_csv_speech_or_event(option)
             cevent_varname = 'cevent_eye_joint-attend_child-lead-enter-type_both';
             target_obj_list = 4; % one can also just specify one target ROI to query
 
-            output_filename = 'test_clJA-enter-type_exp12.csv';
+            output_filename = fullfile(output_dir,'test_clJA-enter-type_exp12.csv');
             args.cam = 2; % because the event is child-lead joint attention
                           % moments, we set the source camera to be 
                           % parent's view with gaze
@@ -103,7 +106,7 @@ function demo_query_csv_speech_or_event(option)
         case 6
             expIDs = 12;
             word_list = {'cat'};
-            output_filename = 'exp12_speech_cat.csv';
+            output_filename = fullfile(output_dir,'exp12_speech_cat.csv');
 
             args.cam = 1; % change source camera to cam01 (kid's view with 
                           % superimposed gaze)
