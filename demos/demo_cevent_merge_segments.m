@@ -53,7 +53,7 @@
 % 
 % Output:
 %   A new cevent/event variable by merging instances with small gaps in between.
-function[cevent_out] = demo_cevent_merge_segments3(option)
+function[cevent_out] = demo_cevent_merge_segments(option)
 
 
 switch option
@@ -66,7 +66,7 @@ switch option
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1 2]; %only merge categories 1 and 2
         args.is_other_between = 0;
-        cevent_out = cevent_merge_segments3(cevent, maxGap, cat_list, args);
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list, args);
         
     case 2 
         % want to merge across categories only temporally next to each other
@@ -77,7 +77,7 @@ switch option
         cat_list = [1 3]; %only merge categories 1 and 3
         args.is_other_between = 0;
       
-        cevent_out = cevent_merge_segments3(cevent, maxGap, cat_list, args);
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list, args);
 
     case 3 
         % want to merge instances from category 1 and 2 only
@@ -89,7 +89,7 @@ switch option
         cat_list = [1 2];
         args.is_other_between = 1;
         %args.max_other_duration  is not specified,
-        cevent_out = cevent_merge_segments3(cevent, maxGap, cat_list,args);    
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);    
     
     case 4
         % want to merge across other categories if the gap is small enough,
@@ -99,7 +99,7 @@ switch option
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1 2];
         args.is_other_between = 1;
-        cevent_out = cevent_merge_segments3(cevent, maxGap, cat_list,args);
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
 
     case 5 
         % want to merge cevents not temporally next to each other that have a gap less than maxGap, but only
@@ -112,7 +112,7 @@ switch option
         cat_list = [1 3]; % only merge categories 1 and 3
         args.is_other_between = 1;
         args.max_other_duration  = 2; % 2 seconds is the max duration an intervening cevent can have and still be merged over
-        cevent_out = cevent_merge_segments3(cevent, maxGap, cat_list,args); 
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args); 
            
     case 6
         % merge data that has overlapping onsets and offsets (like inhand data)
@@ -128,7 +128,7 @@ switch option
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1:24];
         args.is_other_between = 1;
-        cevent_out = cevent_merge_segments3(cevent, maxGap, cat_list,args);
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
 
 
     case 7 
@@ -148,7 +148,7 @@ switch option
         args.is_other_between = 1;
         args.max_other_duration  = 1;
 
-        cevent_out = cevent_merge_segments3(cevent, maxGap, cat_list,args);
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
      
 end
 end
