@@ -92,5 +92,19 @@ function demo_make_keyword_hist(option)
 
             make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
 
+
+        case 5
+            input_csv = fullfile(global_dir,"speech_in_roi_co_ccur_351.csv");
+            output_dir = fullfile(global_dir,"demo5");
+            expID = 351;
+            keyword_list = get_object_label(expID,1:get_num_obj(expID));
+
+            group_col = 1; %group by subject
+            
+            %args 
+            args.word_display_limit = 20; % max words on each barchart/histogram
+
+            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+
     end
 end
