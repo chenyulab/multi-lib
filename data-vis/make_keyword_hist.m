@@ -28,6 +28,7 @@ function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
 
     %read data
     data = readtable(input_csv);
+
     all_words = data.Properties.VariableNames(start_word_col:end);
 
     group_column = data(:, group_col);
@@ -202,7 +203,13 @@ function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
 
             common_hist = histogram('Categories', disp_words, 'BinCounts', disp_counts);
             % Create a descriptive sheet name
-            sheetName = num2str(group_list(i));
+
+            if width(group_list) >1
+                sheetName = sprintf("%d_%d",group_list(i,1), group_list(i,2));     
+            else
+                sheetName = num2str(group_list(i));
+            end
+            
 
             T = array2table(disp_counts, 'VariableNames', disp_words);
 
@@ -254,7 +261,7 @@ function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
                 common_figure = figure('Position',[0,0,1400,1200]);
                 tiledlayout("flow");
             
-                key_figure = figure('Position',[0,0,1400,1200]);
+                key_figure = figure('Position',[0,0,1600,1200]);
                 tiledlayout("flow");
             end          
         end
@@ -284,7 +291,15 @@ function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
 
     key_cell_results = num2cell(key_results);
 
-    key_output_table = cell2table(key_cell_results, 'VariableNames', ['groupID' disp_key_words]);
+
+    if width(group_list) >1
+        var_labels = ['groupID' 'groupID2' disp_key_words];
+
+    else
+        var_labels = ['groupID' disp_key_words];
+    end
+
+    key_output_table = cell2table(key_cell_results, 'VariableNames', var_labels);
     
     data_file = sprintf("keyword_histogram_data.xlsx");
     data_filename = fullfile(output_dir, data_file);
