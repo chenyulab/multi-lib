@@ -1,4 +1,4 @@
-function master_derived_toy_room(subexpIDs, option, flagReliability)
+function master_derived_toy_room(subexpIDs, option, flagReliability, args)
 % postfixation
 % all
 %   trial
@@ -8,6 +8,15 @@ function master_derived_toy_room(subexpIDs, option, flagReliability)
 %   inhand-roi
 
 % disp(ismember(floor(subexpIDs/100),351:398));
+
+if ~exist('args', 'var') || isempty(args)
+    args = struct([]);
+end
+if ~isfield(args, 'agents')
+    agents = {'child', 'parent'};
+else
+    agents = args.agents;
+end
 
 switch true
     case ismember(floor(subexpIDs/100),351:398)
@@ -34,7 +43,7 @@ for s = 1:numel(subs)
     read_trial_info(sub);
     fs = filesep;
     root = get_subject_dir(sub);
-    agents = {'child', 'parent'};
+    % agents = {'child', 'parent'};
     extract_range_fn = fullfile(root, 'supporting_files', 'extract_range.txt');
     if ~exist(extract_range_fn, 'file')
         movefile(fullfile(root, 'extra_p', 'extract_range.txt'), extract_range_fn);
