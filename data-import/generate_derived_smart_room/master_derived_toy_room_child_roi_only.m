@@ -1,3 +1,6 @@
+% This function is obsolete, to generate roi data from core, use
+% master_derived_toy_room
+
 function master_derived_toy_room_child_roi_only(subexpIDs, option, flagReliability)
 % postfixation
 % all

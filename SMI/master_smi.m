@@ -352,7 +352,8 @@ for i = 1:size(revisedData, 1)
     end
 end
 
-cevent_eye_roi_child = cevent_merge_segments(cevent_remove_small_segments(cstream2cevent(cstream_eye_roi_fixation_child), minDuration), maxGap);
+cat_list = [1:get_num_obj(subID)+1];
+cevent_eye_roi_child = cevent_merge_segments(cevent_remove_small_segments(cstream2cevent(cstream_eye_roi_fixation_child), minDuration), maxGap,cat_list);
 timeBase = cell2mat(revisedData(:, 1));
 cstream_eye_roi_child = cevent2cstreamtb(cevent_eye_roi_child, timeBase);
 

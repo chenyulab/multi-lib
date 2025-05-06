@@ -5,6 +5,7 @@ merge_dur = 0.5;
 mkdir('demo_manip_cevent');
 for s = 1:numel(subs)
      subid = subs(s);
+     cat_list = [1:get_num_obj(subid)+1];
      % check that variables exist
      if has_all_variables(subid, {'cevent_eye_roi_child', 'cevent_eye_roi_parent'})
          
@@ -17,16 +18,16 @@ for s = 1:numel(subs)
          parent_eye = cevent_category_equals(parent_eye_orig, [1 2 3]);
          
          % merge over small gaps
-         child_eye = cevent_merge_segments(child_eye, merge_dur);
-         parent_eye = cevent_merge_segments(parent_eye, merge_dur);
+         child_eye = cevent_merge_segments(child_eye, merge_dur,cat_list);
+         parent_eye = cevent_merge_segments(parent_eye, merge_dur,cat_list);
          
          % remove short events
          child_eye = cevent_remove_small_segments(child_eye, min_dur);
          parent_eye = cevent_remove_small_segments(parent_eye, min_dur);
          
          % merge again, now that new gaps may have appeared
-         child_eye = cevent_merge_segments(child_eye, merge_dur);
-         parent_eye = cevent_merge_segments(parent_eye, merge_dur);
+         child_eye = cevent_merge_segments(child_eye, merge_dur,cat_list);
+         parent_eye = cevent_merge_segments(parent_eye, merge_dur,cat_list);
          
          JA = cevent_shared(child_eye, parent_eye);
          

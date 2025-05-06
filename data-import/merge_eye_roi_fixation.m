@@ -18,12 +18,13 @@ function merge_eye_roi_fixation(subIDs)
     
     % iterate through subjects
     for s = 1:length(subIDs)
+        cat_list = [1:get_num_obj(subIDs(s))+1];
         % iterate through agents
         for a = 1:length(agent)
             cevent = get_variable(subIDs(s),sprintf('cevent_eye_roi_fixation_%s',agent{a})); % load this in just in case
     
             % merge the fixations in the data
-            cevent_merged = cevent_merge_segments(cevent, threshold/rate);
+            cevent_merged = cevent_merge_segments(cevent, threshold/rate, cat_list);
             cstream_merged = cevent2cstream(cevent_merged,floor(cevent_merged(1,1)),1/rate,0); % convert to cstream
     
             % generate cevent/cstream_eye_roi_child/parent variable

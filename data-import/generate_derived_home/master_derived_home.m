@@ -70,8 +70,8 @@ for s = 1:numel(subs)
                     record_variable(sub, ['cstream_eye_roi_fixation_' agent], data);
                     record_variable(sub, ['cevent_eye_roi_fixation_' agent], cev);
                 end
-                
-                cev = cevent_merge_segments(cev, 0.50001);
+                cat_list = [1:get_num_obj(subID)+1];
+                cev = cevent_merge_segments(cev, 0.50001,cat_list);
                 cst = cevent2cstreamtb(cev, data);
                 
                 if flagReliability

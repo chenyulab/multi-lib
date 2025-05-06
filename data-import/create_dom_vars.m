@@ -29,7 +29,7 @@ for p = 1 : numel(person)
                 if isempty(cevent_dom)
                     continue
                 end
-                cevent_dom = cevent_merge_segments(cevent_dom, 0.31);
+                cevent_dom = cevent_merge_segments(cevent_dom, 0.31,unique(cevent_dom(:,3))');
                 cevent_dom = cevent_remove_small_segments(cevent_dom, 0.11);
                 %                 cevent_dom = cevent_merge_segments(cevent_dom, 0.31);
                 %             cevent_dom = cleanup_dom(cevent_dom);
@@ -67,10 +67,10 @@ end
 
     function cevent = cleanup_dom(var)
         cevent_size = size(var, 1);
-        cevent = cevent_merge_segments(var, 0.21);
+        cevent = cevent_merge_segments(var, 0.21, unique(var(:,3))');
         merge_size = size(cevent, 1);
         while cevent_size ~= merge_size
-            cevent = cevent_merge_segments(cevent, 0.21);
+            cevent = cevent_merge_segments(cevent, 0.21, unique(cevent(:,3))');
             cevent_size = merge_size;
             merge_size = size(cevent, 1);
             fprintf('cevent is %d and merge is %d\n', cevent_size, merge_size);
@@ -80,7 +80,7 @@ end
         %filter out small duration events
         dur = cevent(:,2) - cevent(:,1);
         cevent(dur < .15, :) = [];
-        cevent = cevent_merge_segments(cevent, 0.21);
+        cevent = cevent_merge_segments(cevent, 0.21, unique(cevent(:,3))');
     end
 
 

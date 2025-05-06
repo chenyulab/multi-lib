@@ -27,6 +27,7 @@ num_timing = 0.2;
 
 for i = 1 : size(sub_list,1)
     sub_list(i)
+    cat_list = [1:get_num_obj(sub_list(i))+1];
     if has_all_variables(sub_list(i), var_list)
         chunks{1} = get_variable_by_trial(sub_list(i), var_list{1});
         chunks{2} = get_variable_by_trial(sub_list(i), var_list{2});
@@ -73,7 +74,7 @@ for i = 1 : size(sub_list,1)
                 
                 if ~isempty(new_cevents)
                     cevent_final{j} = cevent_merge_segments(new_cevents, ...
-                        merge_gap_single);
+                        merge_gap_single, cat_list);
                 else
                     is_empty = 1;
                     cevent_joint{m} = [];
@@ -87,7 +88,7 @@ for i = 1 : size(sub_list,1)
                 % if two joint events are close enough, merge them into one big
                 % one
                 if ~isempty(cevent_joint{m})
-                    cevent_joint{m} = cevent_merge_segments(cevent_joint{m},merge_gap_joint);
+                    cevent_joint{m} = cevent_merge_segments(cevent_joint{m},merge_gap_joint, cat_list);
                     
                     
                     % remove short ones;
