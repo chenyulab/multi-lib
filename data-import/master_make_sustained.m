@@ -24,6 +24,7 @@ switch option
         
         output_name = 'cevent_vision_size_obj-dominant_sustained-1s_child';
         record_cstream = 1;
+
         
     case 2 % child obj dominance 3s
         min_max_gap = 0.5;
@@ -150,9 +151,14 @@ for s = 1:numel(subs)
         output_name = {output_name};
     end
     for v = 1:numel(variable_name)
+        if strcmp(variable_name{v},'cevent_eye_roi_child') || strcmp(variable_name{v},'cevent_eye_roi_parent')
+            cat_list = [1:get_num_obj(subs(s))+1];
+        else
+            cat_list = [1:get_num_obj(subs(s))];
+        end
         try
             cevent = get_variable(subs(s), variable_name{v});
-            cevent = cevent_merge_segments(cevent,min_max_gap);
+            cevent = cevent_merge_segments(cevent,min_max_gap, cat_list);
             new_cev = cevent(1,:);
             for c = 2:length(cevent)
                 if (cevent(c,2)-cevent(c,1) >= max_max_gap/2 && new_cev(end,2)-new_cev(end,1) >= max_max_gap/2 && cevent(c,1)-new_cev(end,2) <= max_max_gap && cevent(c,3) == new_cev(end,3))

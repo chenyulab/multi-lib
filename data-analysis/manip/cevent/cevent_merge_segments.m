@@ -23,7 +23,6 @@ function [cevent_out] = cevent_merge_segments(cevent, maxGap, cat_list,args)
 %       output: 245.0500 270.6800   28.0000
 %               256.9600  257.7300    2.0000
 %       - defaults to 0
-
 %
 % 
 % Output:

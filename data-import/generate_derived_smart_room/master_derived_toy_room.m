@@ -35,6 +35,10 @@ if ~exist('flagReliability', 'var')
 end
 subs = cIDs(subexpIDs);
 
+if isempty(subs)
+    disp('Can not find subjects in subject table, please check your subject id!')
+end
+
 for s = 1:numel(subs)
     sub = subs(s);
     fprintf('%d\n', sub);
@@ -61,9 +65,11 @@ for s = 1:numel(subs)
     %     e_offset_frame = e_offset.total_sec*30 + 1;
     
     if sum(ismember(option, {'postfixation'})) > 0
+        % generate eye roi
         fprintf('\nProcessing postfixation for %d\n', sub);
+        cat_list = [1:get_num_obj(sub)+1];
         pause(1);
-        for a = 1:2
+        for a = 1:length(agents)
             agent = agents{a};
             if flagReliability
                 fn = [root fs 'reliability' fs sprintf('coding_eye_roi_%s_reliability.mat', agent)];
@@ -89,7 +95,7 @@ for s = 1:numel(subs)
                 data(log,2) = -1;
                 data(data(:,2)==-1,2) = NaN;
                 data(:,1) = (data(:,1) - 1)/30 + 30;
-                %                 data(isnan(data(:,2)), 2) = 0;
+                % data(isnan(data(:,2)), 2) = 0;
                 cev = cstream2cevent(data);
                 if flagReliability
                     record_variable(sub, ['cstream_eye_roi_fixation_' agent '_reliability'], data);
@@ -99,7 +105,7 @@ for s = 1:numel(subs)
                     record_variable(sub, ['cevent_eye_roi_fixation_' agent], cev);
                 end
                 
-                cev = cevent_merge_segments(cev, 0.50001);
+                cev = cevent_merge_segments(cev, 0.50001, cat_list);
                 cst = cevent2cstreamtb(cev, data);
                 
                 if flagReliability
@@ -118,7 +124,7 @@ for s = 1:numel(subs)
     if sum(ismember(option, {'postframebyframe'})) > 0
         fprintf('\nProcessing postframebyframe for %d\n', sub);
         pause(1);
-        for a = 1:2
+        for a = 1:length(agents)
             agent = agents{a};
             cst = get_variable(sub, sprintf('cstream_eye_roi_%s', agent));
             cev = cstream2cevent(cst);
@@ -141,7 +147,7 @@ for s = 1:numel(subs)
     if sum(ismember(option, {'inhand', 'all'})) > 0
         fprintf('\nProcessing inhand for %d\n', sub);
         pause(1);
-        for a = 1:2
+        for a = 1:length(agents)
             agent = agents{a};
             cstlh = get_variable(sub, sprintf('cstream_inhand_left-hand_obj-all_%s', agent));
             cstrh = get_variable(sub, sprintf('cstream_inhand_right-hand_obj-all_%s', agent));
