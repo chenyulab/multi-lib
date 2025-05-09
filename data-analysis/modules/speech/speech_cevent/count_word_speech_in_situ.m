@@ -6,34 +6,39 @@
 %
 % Author: Elton Martinez
 % Modifier: 
-% Last modified: 3/4/2025
+% Last modified: 4/22/2025
 %
 % Input parameters:
 %   - file_in = path the input file
-%
-%   - key_words = array of key words []. If not empty only the count of these
-%   will be computed, else all words will be counted 
-%
-%   - text_col_num = the numeric location of the text column relative to the 
-%              input file, note if just passing one column it will break 
-%   - id_col_num = the numeric location of the instance identification
-%              column. Eg if subject level then the subjects column  
-%
+%   
 %   - file_out = desired name of the output file, csv or txt endings are
 %               valid 
 %
+%   - key_words = array of key words []. If not empty only the count of these
+%               will be computed, else all words will be counted 
+%
+%   - extraStopWords = cell array of words to excluded, if non then just
+%                      pass an empty {}
+%
+%   - text_col_num = the numeric location of the text column relative to the 
+%                    input file, note if just passing one column it will break 
+%
+%   - id_col_num = the numeric location of the instance identification
+%                column. Eg if subject level then the subjects column  
+%
+%
 
-function data = count_word_speech_in_situ(file_in, key_words, text_col_num, id_col_num, file_out)
+function data = count_word_speech_in_situ(file_in, file_out, key_words, extraStopWords, text_col_num, id_col_num)
     
     % read table
-    df = readtable(file_in);
+    df = readtable(file_in, delimiter=",");
 
     % get the vocabulary 
     if isempty(key_words)
         unqWords = {};
 
         for i = 1:height(df)
-            temp_vocab = get_utterance_word_frequency(df{i,text_col_num}{1});
+            temp_vocab = get_utterance_word_frequency(df{i,text_col_num}{1}, extraStopWords);
             unqWords = vertcat(unqWords, keys(temp_vocab));
         end
 
@@ -43,9 +48,9 @@ function data = count_word_speech_in_situ(file_in, key_words, text_col_num, id_c
     end
     
     % prealocate the table 
-    varNames =  string(unique_tokens)';
-    word_summary_vars = {'#Token','#UniqueWord','#Utterance','#Noun','#Verb','#Adjective'};
-    varNames = horzcat('id', word_summary_vars, varNames);
+    varNames =  string(unique_tokens);
+    word_summary_vars = ["#Token","#UniqueWord","#Utterance","#Noun","#Verb","#Adjective"];
+    varNames = horzcat("id", word_summary_vars, varNames);
 
     m = numel(varNames);
     
@@ -96,6 +101,5 @@ function data = count_word_speech_in_situ(file_in, key_words, text_col_num, id_c
     
     % save file 
     writetable(data,file_out);
-    fprintf("Saved data under %s\n", fullfile(pwd, file_out))
+    fprintf("Saved data under %s\n", file_out)
 end
-
