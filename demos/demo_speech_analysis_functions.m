@@ -55,6 +55,14 @@
 %
 % ## 4. Other related Functions
 %
+%   **make_keyword_hist**
+%     - this function takes an input csv containing counts of words
+%       per grouping level, and creates histograms displaying the counts of each
+%       word in rank order and also histograms of keywords - data files for all
+%       plots
+%     - See more in demo_make_keyword_hist
+%   
+%
 %   **make_keywords_event**
 %     - Helps generate structured keyword event files.
 %   
@@ -80,8 +88,9 @@
 %	15	    Count specific words and word types
 %   16      Extract + group by subject/category + cal cat-word similarity score
 %   17      Extract speech data + extract word pairs + cal word-word similarity score
-%   18      Variable generation based on speech data
-%   19      Generate word cloud image
+%   18      Extract all word count + generate word frequency historgram
+%   19      Variable generation based on speech data
+%   20      Generate word cloud image
 %%%
 function demo_speech_analysis_functions(option)
     % all the demo files are saved into, users can define their own path:
@@ -333,6 +342,24 @@ function demo_speech_analysis_functions(option)
 
         %%% other related functions
         case 18
+            % generate histogram of words frequency
+            %  count the frequency of all the words in exp 15 subjects' transcripts
+            subexpIDs = 15;
+            output_filename = fullfile(output_dir,'example_18','example_18.csv');
+            count_words_by_subject(subexpIDs,output_filename)
+
+            input_csv = fullfile(output_dir,'example_18','example_18.csv');
+            output_dir = fullfile(output_dir,'example_18');
+            keyword_list = get_object_label(subexpIDs,1:get_num_obj(subexpIDs));
+ 
+            group_col = 1; %group by subject
+             
+            %args
+            args.word_display_limit = 20; % max words on each barchart/histogram
+            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+
+        
+        case 19
             % ## Warning: this case will generate variables in our system,
             % users should not use this unless get approval.
 
@@ -342,14 +369,14 @@ function demo_speech_analysis_functions(option)
             word_list = {'assemble','cut','close','drink'};
             word_ids = [1,2,3,4];
             subexpIDs = [58];
-            output_filename = fullfile(output_dir,'example_18.csv');
+            output_filename = fullfile(output_dir,'example_19.csv');
             % optional arguments can be included to change the source
             % camera and alter the timestamp of the generated event clips
             data = query_keywords(subexpIDs, word_list, output_filename);
             varname = 'cevent_speech_action-verbs_demo';
             make_keywords_events(word_list, word_ids, data, varname);
 
-        case 19
+        case 20
             % generates a wordcloud plot for a single subject or all
             % subjects in an experiment
             % size of the words reflects number of times that word was
