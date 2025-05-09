@@ -120,31 +120,31 @@ function T_transposed = transpose_table(T)
 %   Helper function, to transpose the row and column for a table
 %   If the input table has no RowNames, numeric indices will be used.
 
-    % Get original variable names and row names (if exist)
-    var_names = T.Properties.VariableNames;
+    % Get variable names and row names
+    var_names = string(T.Properties.VariableNames);
 
     if isempty(T.Properties.RowNames)
-        row_names = strcat('Row', string(1:height(T)));
+        row_names = "Row" + (1:height(T))';  % use string
     else
-        row_names = T.Properties.RowNames;
+        row_names = string(T.Properties.RowNames);
     end
 
-    % Combine headers and data into cell array
-    C = [ {'', var_names}; ...
-          row_names', table2cell(T) ];
+    % Combine into cell array
+    C = [ {""}, var_names; ...
+          row_names, table2cell(T) ]; 
 
     % Transpose the cell array
     C_transposed = C';
 
-    % Extract new variable and row names
+    % Extract variable and row names for the new table
     new_var_names = matlab.lang.makeValidName(C_transposed(1, 2:end));
     new_row_names = C_transposed(2:end, 1);
 
-    % Extract the transposed data
+    % Extract data
     new_data = C_transposed(2:end, 2:end);
 
     % Convert to table
     T_transposed = cell2table(new_data, ...
         'VariableNames', new_var_names, ...
-        'RowNames', new_row_names);
+        'RowNames', cellstr(new_row_names));
 end
