@@ -1,14 +1,13 @@
 %%%
 % Author: Jane Yang
-% Last Modifier: 7/06/2023
+% Editor: Jingwen Pang
+% Last Modifier: 05/09/2025
 % This function returns a CSV file containing the frequency of each word
 % appeared in the subjects.
 % 
 % Input: subID or expID, output_filename
-% Output: a cell array containing word count table of each subject, a
-%         string array containing the common words of subjects, and a table
-%         of summary word count of all subjects. A .CSV file will be
-%         generated based on summary word count table.
+% Output: a table of summary word count of all subjects (used for other function).
+%         A transposed .CSV file will be generated based on summary word count table.
 %%%
 
 function [summary_count] = count_words_by_subject(subexpIDs,output_filename)
@@ -110,41 +109,36 @@ function [summary_count] = count_words_by_subject(subexpIDs,output_filename)
     if ~strcmp(output_filename,'')
         % transpose table if write into a csv file
         summary_count_transposed = transpose_table(summary_count);
-        summary_count_transposed.Properties.VariableNames{1} = 'subject';
         writetable(summary_count_transposed,output_filename);
     end
 end
 
 
 function T_transposed = transpose_table(T)
-%   Helper function, to transpose the row and column for a table
-%   If the input table has no RowNames, numeric indices will be used.
+% Transpose a table, assigning valid and unique headers (e.g., Spanish word cloud)
 
-    % Get variable names and row names
-    var_names = string(T.Properties.VariableNames);
+    % Extract subject IDs (from column names)
+    subject_list = T.Properties.VariableNames(2:end)';
 
-    if isempty(T.Properties.RowNames)
-        row_names = "Row" + (1:height(T))';  % use string
-    else
-        row_names = string(T.Properties.RowNames);
-    end
+    % Get word list from first column
+    word_list_raw = table2cell(T(:,1))';
 
-    % Combine into cell array
-    C = [ {""}, var_names; ...
-          row_names, table2cell(T) ]; 
+    % Convert all to char vectors (in case some are strings)
+    word_list_char = cellfun(@char, word_list_raw, 'UniformOutput', false);
 
-    % Transpose the cell array
-    C_transposed = C';
+    % Ensure valid MATLAB variable names (sanitize accents, symbols, etc.)
+    word_list_valid = matlab.lang.makeValidName(word_list_char, 'ReplacementStyle', 'delete');
 
-    % Extract variable and row names for the new table
-    new_var_names = matlab.lang.makeValidName(C_transposed(1, 2:end));
-    new_row_names = C_transposed(2:end, 1);
+    % Ensure uniqueness (no duplicate column names)
+    word_list_unique = matlab.lang.makeUniqueStrings(word_list_valid, {}, namelengthmax);
 
-    % Extract data
-    new_data = C_transposed(2:end, 2:end);
+    % Create full header row
+    header = [{'subject_id'}, word_list_unique];
 
-    % Convert to table
-    T_transposed = cell2table(new_data, ...
-        'VariableNames', new_var_names, ...
-        'RowNames', cellstr(new_row_names));
+    % Transpose data: subject names become first column, rest is data
+    data = table2cell(T(:,2:end))';
+    full_data = [subject_list, data];
+
+    % Convert to table with cleaned header
+    T_transposed = cell2table(full_data, 'VariableNames', header);
 end
