@@ -3,7 +3,7 @@
 %     input_csv: the csv file you want grouped statistics for 
 %     output_dir: where the visualizations will save to 
 %     group_col: the column number you want grouped by 
-%         - if you want subject level data input the column number that has the subject information
+%         - if you want subject level data, input the column number that has the subject information
 %         - can also be category columns
 %     var_col: the column number of the variable you want to visualize
 % 
@@ -16,12 +16,13 @@
 %                 ex. [0 0.2 0.4 0.6 0.8 1]
 %           for categorical data, all categories (or blank)
 %                 ex. if there are 24 objects in an experiment, bins will be [1:24]
-%                 if left blank, objects not in that specific file will not appear in histogram
-                
+%                 if left blank, it uses categorical values in the data file 
+%               
 % Output:
-%     - a histogram showing overall distribution of variable specified by var_col for every instance in group variable
-%     - n number of histograms organized in 5x5 grids where n is the unique number of instances in the group variabel
-%             ex. one plot for each subject if subject is your group variable
+%     - an overall histogram showing all the data specified by var_col
+%     - n number of histograms organized in 5x5 grids where n is the total group 
+%     number of instances specified in the group variable
+%             ex. one plot for each subject if subject is group variable
 %     - an excel file that is the histogram counts by subject
 %     - the contents of teh excel file also output in output_table
 
@@ -78,10 +79,10 @@ function output_table = demo_extract_subject_vis_data(option)
 
          case 4
              %if you want to group by category instead of subject
-            input_csv = fullfile(output_dir,"JA_child-lead_before_exp12.csv");
+            input_csv = fullfile(output_dir,"naming_onset-after_3s_target_exp91.csv");
             output_dir = fullfile(output_dir,'demo4');
-            group_col = 5; % category
-            var_col = 8; %cevent_eye_roi individual prop target cat-all
+            group_col = 1; % group based on subjects 
+            var_col = 12; %cevent_eye_roi individual prop target cat-all
             data_type = 'num';
             bins = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];
 
@@ -95,6 +96,24 @@ function output_table = demo_extract_subject_vis_data(option)
             %shows the count of times the proportion on the target during
             %the joint attention bout was above 0.9 
      
+        case 5
+             %if you want to group by category instead of subject
+            input_csv = fullfile(output_dir,"naming_onset-after_3s_target_exp91.csv");
+            output_dir = fullfile(output_dir,'demo5');
+            group_col = 5; % group based on object categories 
+            var_col = 12; %cevent_eye_roi individual prop target cat-all
+            data_type = 'num';
+            bins = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];
 
+            output_table = extract_subject_vis_data(input_csv,output_dir, group_col, var_col, data_type, bins);
+
+            %output would show a histogram for every object which shows the
+            %count of each proportion of time the gaze was on the
+            %target object 
+
+            %for example, for the histogram of object 1, the bin 0.9-1
+            %shows the count of times the proportion on the target during
+            %the joint attention bout was above 0.9 
+     
     end
 end

@@ -52,11 +52,22 @@ function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
     keyword_idx = [];
     for i = 1:length(keyword_list)
         idx = find(strcmp(keyword_list{i}, all_words)); 
-        keyword_idx(end+1) = idx;  % Append indices to preserve order
+        if isempty(idx)
+            keyword_idx(end+1) = -1; 
+        else
+            keyword_idx(end+1) = idx;  % Append indices to preserve order
+        end
     end
 
     %keyword histogram overall visualization
-        
+    for i = 1:length(keyword_list)
+        if (keyword_idx(i)>0)
+            keyword_counts(i,:)=all_counts(keyword_idx(i),:);
+        else
+            keyword_counts(i,:) =0; 
+        end
+    end
+
     keyword_counts = all_counts(keyword_idx);
 
     %sort keywords

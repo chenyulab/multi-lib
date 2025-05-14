@@ -1,8 +1,7 @@
 %Description : this function takes an input csv containing counts of words
 %per grouping level, and creates histograms displaying the counts of each
 %word in rank order and also histograms of keywords - data files for all
-%plots
-%are also output
+%plots are also output
 % 
 % Input Arguments:
 % 
@@ -58,7 +57,8 @@ function demo_make_keyword_hist(option)
             %common words for that group only)
             input_csv = fullfile(global_dir,"speech_in_roi_co_ccur_351.csv");
             output_dir = fullfile(global_dir,"demo2");
-            keyword_list = ["is", "babyname", "you"];
+            %keyword_list = ["is", "babyname", "you"];
+            keyword_list = ["i", "you", "they","we", "it","your","their", "them", "me","our"];
 
             group_col = 1; %group by subject
 
@@ -82,15 +82,15 @@ function demo_make_keyword_hist(option)
         case 4
             input_csv = fullfile(global_dir,"speech_in_roi_co_ccur_351.csv");
             output_dir = fullfile(global_dir,"demo4");
-            keyword_list = ["is", "babyname", "you"];
+            keyword_list = ["i", "you", "they","we", "it"];%,"your","their", "them", "me","our","he","she","him","her"];
 
             word_display_limit = 20; % max words on each barchart/histogram
 
-            group_col = [1 2]; %group by subject and object (each row is a histogram)
+            group_col = [1]; %group by subject and object (each row is a histogram)
 
-            args.global_most_common = 1;
+            %args.global_most_common = 1;
 
-            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+            make_keyword_hist(input_csv, output_dir,keyword_list, group_col)
 
 
         case 5
