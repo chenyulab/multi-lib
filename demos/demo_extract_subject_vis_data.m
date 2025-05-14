@@ -34,10 +34,10 @@ function output_table = demo_extract_subject_vis_data(option)
     switch option
 
         case 1
-            input_csv = fullfile(output_dir,"JA_child-lead_before_exp44.csv");
+            input_csv = fullfile(output_dir,"JA_child-lead_before_exp12.csv");
             output_dir = fullfile(output_dir,'demo1');
             group_col = 1; %subject id column
-            var_col = 5; %object label (categories 1-4)
+            var_col = 5; %object label (categories 1-25)
             data_type = 'cat';
             bins = [1:4];
 
@@ -47,7 +47,7 @@ function output_table = demo_extract_subject_vis_data(option)
             %for each subject
 
          case 2
-            input_csv = fullfile(output_dir,"JA_child-lead_before_exp44.csv");
+            input_csv = fullfile(output_dir,"JA_child-lead_before_exp12.csv");
             output_dir = fullfile(output_dir,'demo2');
             group_col = 1; %subject_id column
             var_col = 8; %cevent_eye_roi individual prop target cat-all
@@ -78,7 +78,7 @@ function output_table = demo_extract_subject_vis_data(option)
 
          case 4
              %if you want to group by category instead of subject
-            input_csv = fullfile(output_dir,"JA_child-lead_before_exp44.csv");
+            input_csv = fullfile(output_dir,"JA_child-lead_before_exp12.csv");
             output_dir = fullfile(output_dir,'demo4');
             group_col = 5; % category
             var_col = 8; %cevent_eye_roi individual prop target cat-all
