@@ -60,18 +60,26 @@ switch option
 
     case 1
         % want to merge across categories only temporally next to each other
-
-        cevent = get_variable_by_trial_cat(7002, 'cevent_eye_roi_child');
+        sub_id = 7002;
+        cevent = get_variable_by_trial_cat(sub_id, 'cevent_eye_roi_child');
 
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1 2]; %only merge categories 1 and 2
         args.is_other_between = 0;
         cevent_out = cevent_merge_segments(cevent, maxGap, cat_list, args);
+
+        % visualize data for checking
+        celldata = {};
+        labels = {'orig','merged'};
+        celldata{1} = cevent;
+        celldata{2} = cevent_out;
+        time_window = get_time_window_for_vis(sub_id);
+        h = vis_streams_data(celldata, time_window, labels);
         
     case 2 
         % want to merge across categories only temporally next to each other
-
-        cevent = get_variable_by_trial_cat(7002, 'cevent_eye_roi_child');
+        sub_id = 7002;
+        cevent = get_variable_by_trial_cat(sub_id, 'cevent_eye_roi_child');
 
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1 3]; %only merge categories 1 and 3
@@ -79,40 +87,72 @@ switch option
       
         cevent_out = cevent_merge_segments(cevent, maxGap, cat_list, args);
 
+        % visualize data for checking
+        celldata = {};
+        labels = {'orig','merged'};
+        celldata{1} = cevent;
+        celldata{2} = cevent_out;
+        time_window = get_time_window_for_vis(sub_id);
+        h = vis_streams_data(celldata, time_window, labels);
+
     case 3 
         % want to merge instances from category 1 and 2 only
         % want to merge across other intervening categories if the gap is small enough,
-
-        cevent = get_variable_by_trial_cat(7002, 'cevent_eye_roi_child');
+        sub_id = 7002;
+        cevent = get_variable_by_trial_cat(sub_id, 'cevent_eye_roi_child');
 
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1 2];
         args.is_other_between = 1;
         %args.max_other_duration  is not specified,
-        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);    
+        cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
+
+        % visualize data for checking
+        celldata = {};
+        labels = {'orig','merged'};
+        celldata{1} = cevent;
+        celldata{2} = cevent_out;
+        time_window = get_time_window_for_vis(sub_id);
+        h = vis_streams_data(celldata, time_window, labels);
     
     case 4
         % want to merge across other categories if the gap is small enough,
-
-        cevent = get_variable_by_trial_cat(7002, 'cevent_eye_roi_child');
+        sub_id = 7002;
+        cevent = get_variable_by_trial_cat(sub_id, 'cevent_eye_roi_child');
 
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1 2];
         args.is_other_between = 1;
         cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
 
+        % visualize data for checking
+        celldata = {};
+        labels = {'orig','merged'};
+        celldata{1} = cevent;
+        celldata{2} = cevent_out;
+        time_window = get_time_window_for_vis(sub_id);
+        h = vis_streams_data(celldata, time_window, labels);
+
     case 5 
         % want to merge cevents not temporally next to each other that have a gap less than maxGap, but only
         % if intervening categories have a duration less than
         % max_other_duration 
-
-        cevent = get_variable_by_trial_cat(7002, 'cevent_eye_roi_child');
+        sub_id = 7002;
+        cevent = get_variable_by_trial_cat(sub_id, 'cevent_eye_roi_child');
 
         maxGap = 6; % 6 seconds is the maximum gap two cevents can be merged over
         cat_list = [1 3]; % only merge categories 1 and 3
         args.is_other_between = 1;
         args.max_other_duration  = 2; % 2 seconds is the max duration an intervening cevent can have and still be merged over
         cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args); 
+
+        % visualize data for checking
+        celldata = {};
+        labels = {'orig','merged'};
+        celldata{1} = cevent;
+        celldata{2} = cevent_out;
+        time_window = get_time_window_for_vis(sub_id);
+        h = vis_streams_data(celldata, time_window, labels);
            
     case 6
         % merge data that has overlapping onsets and offsets (like inhand data)
@@ -123,12 +163,20 @@ switch option
 
         %is_other_between is specified, so will also merge over intervening
         %events if they are less than maxGap
-
-        cevent = get_variable_by_trial_cat(1207, 'cevent_inhand_child');
+        sub_id = 1207;
+        cevent = get_variable_by_trial_cat(sub_id, 'cevent_inhand_child');
         maxGap = 3; %3 seconds is the maximum two events can be merged over
         cat_list = [1:24];
         args.is_other_between = 1;
         cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
+
+        % visualize data for checking
+        celldata = {};
+        labels = {'orig','merged'};
+        celldata{1} = cevent;
+        celldata{2} = cevent_out;
+        time_window = get_time_window_for_vis(sub_id);
+        h = vis_streams_data(celldata, time_window, labels);
 
 
     case 7 
@@ -141,7 +189,8 @@ switch option
 
         %events that overlap will always be merged even if intervening
         %event duration > max_other_duration 
-        cevent = get_variable_by_trial_cat(35102, 'cevent_inhand_child');
+        sub_id = 35102;
+        cevent = get_variable_by_trial_cat(sub_id, 'cevent_inhand_child');
 
         maxGap = 3; % 3 seconds is the maximum two events can be merged over
         cat_list = [1:27];
@@ -149,6 +198,28 @@ switch option
         args.max_other_duration  = 1;
 
         cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
+
+        % visualize data for checking
+        celldata = {};
+        labels = {'orig','merged'};
+        celldata{1} = cevent;
+        celldata{2} = cevent_out;
+        time_window = get_time_window_for_vis(sub_id);
+        h = vis_streams_data(celldata, time_window, labels);
      
 end
+end
+
+function time_window = get_time_window_for_vis(sub_id)
+% helper function, divide trial time into 4 chunks
+    trial_time = get_trial_times(sub_id);
+    start_time = trial_time(1,1);
+    end_time = trial_time(end,2);
+    chunk_length = (end_time - start_time)/4;
+    time_window = [
+        start_time,chunk_length+start_time;
+        chunk_length+start_time, 2*chunk_length+start_time;
+        2*chunk_length+start_time, 3*chunk_length+start_time;
+        3*chunk_length+start_time, end_time
+        ];
 end
