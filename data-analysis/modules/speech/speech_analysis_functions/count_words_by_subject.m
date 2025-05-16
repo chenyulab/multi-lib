@@ -10,9 +10,19 @@
 %         A transposed .CSV file will be generated based on summary word count table.
 %%%
 
-function [summary_count] = count_words_by_subject(subexpIDs,output_filename)
+function [summary_count] = count_words_by_subject(subexpIDs,output_filename,args)
     flattened_list = [];
     common = [];
+    if ~exist('args', 'var') || isempty(args)
+        args = struct([]);
+    end
+
+    if isfield(args, 'keep_stopwords')
+        keep_stopwords = args.keep_stopwords;
+    else
+        keep_stopwords = 0;
+    end
+
     
     %% generate a list of subjects that have a speech transcription file
     for i = 1:numel(subexpIDs)
@@ -40,6 +50,28 @@ function [summary_count] = count_words_by_subject(subexpIDs,output_filename)
         % get word frequency
         wordCount_table = wordCloudCounts(all_words);
         wordCount_mtr = table2array(wordCount_table);
+
+        if isstring(all_words) || ischar(all_words)
+            word_list = split(all_words);  % now it's a string array of individual words
+        else
+            word_list = all_words;  % assume it's already a list of words
+        end
+
+        if keep_stopwords
+            stopWords_list = stopWords;
+            % Convert table back to cell for easier comparison
+            existing_words = wordCount_table.Word;
+            for k = 1:length(stopWords_list)
+                stopword = stopWords_list{k};
+                if ~ismember(stopword, existing_words)
+                    count = sum(strcmpi(word_list, stopword));
+                    if count > 0
+                        wordCount_mtr = [wordCount_mtr; {stopword, count}];
+                    end
+                end
+            end
+        end
+    
         
         % sort each word count matrix for easier comparison later
         wordCount_mtr = sortrows(wordCount_mtr);
