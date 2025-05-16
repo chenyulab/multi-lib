@@ -133,7 +133,7 @@ function T_transposed = transpose_table(T)
     word_list_unique = matlab.lang.makeUniqueStrings(word_list_valid, {}, namelengthmax);
 
     % Create full header row
-    header = [{'subject_id'}, word_list_unique];
+    header = [{'subID'}, word_list_unique];
 
     % Transpose data: subject names become first column, rest is data
     data = table2cell(T(:,2:end))';
