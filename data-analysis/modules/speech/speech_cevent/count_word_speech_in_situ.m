@@ -41,7 +41,7 @@ function data = count_word_speech_in_situ(file_in, file_out, key_words, extraSto
             temp_vocab = get_utterance_word_frequency(df{i,text_col_num}{1}, extraStopWords);
             unqWords = vertcat(unqWords, keys(temp_vocab));
         end
-
+        unqWords = unqWords'; % transpose the column to row
         unique_tokens = unique(unqWords);
     else
         unique_tokens = unique(key_words);
