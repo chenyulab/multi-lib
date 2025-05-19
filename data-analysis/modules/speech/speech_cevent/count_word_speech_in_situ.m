@@ -12,11 +12,11 @@
 %   - file_in = path the input file
 %   
 %   - file_out = desired name of the output file, csv or txt endings are
-%               valid 
+%                valid 
 %
 %   - key_words = array of key words []. If not empty only the count of these
-%               will be computed, else all words will be counted. For empty
-%               case, we just pass an empty [];
+%                 will be computed, else all words will be counted. For empty
+%                 case, we just pass an empty [];
 %
 %   - extraStopWords = cell array of words to excluded, if non then just
 %                      pass an empty {}
@@ -24,12 +24,18 @@
 %   - text_col_num = the numeric location of the text column relative to the 
 %                    input file, note if just passing one column it will break 
 %
-%   - id_col_num = the numeric location of the instance identification
-%                column. Eg if subject level then the subjects column  
+%   - id_col_nums = the numeric location of the instance identification
+%                  column. Eg if subject level then the subjects column
+%                  *by default, users can input a single column number can
+%                  it will be assigned to 'id' column at beigining
+%                  *if user want to keep multiple columns and the header names in the sheet,
+%                  they need to define in this way:
+%                  {'header_name_1', column_number_1, 'header_name_2', column_number_2}
+%                  e.g. {'subID', 2, 'objID', 3}
 %
 %
 
-function data = count_word_speech_in_situ(file_in, file_out, key_words, extraStopWords, text_col_num, id_col_num)
+function data = count_word_speech_in_situ(file_in, file_out, key_words, extraStopWords, text_col_num, id_col_nums)
     
     % read table
     df = readtable(file_in, delimiter=",");
@@ -51,7 +57,23 @@ function data = count_word_speech_in_situ(file_in, file_out, key_words, extraSto
     % prealocate the table 
     varNames =  string(unique_tokens);
     word_summary_vars = ["#Token","#UniqueWord","#Utterance","#Noun","#Verb","#Adjective"];
-    varNames = horzcat("id", word_summary_vars, varNames);
+    % check id_col_nums
+    if isnumeric(id_col_nums) && isscalar(id_col_nums)
+        varNames = horzcat("id", word_summary_vars, varNames);
+    elseif iscell(id_col_nums)
+        is_valid = mod(numel(id_col_nums), 2) == 0;
+        orig_headers = {};
+        if is_valid
+            for i = 1:2:length(id_col_nums)
+                orig_headers = [orig_headers,id_col_nums{i}];
+            end
+            varNames = horzcat(orig_headers, word_summary_vars, varNames);
+        else
+            error("check your input formating: {'header_name_1', column_number_1, 'header_name_2', column_number_2}")
+        end
+    else
+        error('please input either a single number or a cell array')
+    end
 
     m = numel(varNames);
     
@@ -62,8 +84,22 @@ function data = count_word_speech_in_situ(file_in, file_out, key_words, extraSto
     n = height(df);
     data = table('Size', [n m], 'VariableTypes',varTypes,'VariableNames', varNames);
     
-    % add data to csv 
-    data.id = df{:,id_col_num};
+    % check id_col_nums
+    if isnumeric(id_col_nums) && isscalar(id_col_nums)
+        % add data to csv 
+        data.id = df{:,id_col_nums};
+    elseif iscell(id_col_nums)
+        is_valid = mod(numel(id_col_nums), 2) == 0;
+        if is_valid
+            for i = 1:2:length(id_col_nums)
+                data.(id_col_nums{i}) = df{:,id_col_nums{i+1}};
+            end
+        else
+            error("check your input formating: {'header_name_1', column_number_1, 'header_name_2', column_number_2}")
+        end
+    else
+        error('please input either a single number or a cell array')
+    end
      
     % get the counts for each instance & update the table 
     for i = 1:n
