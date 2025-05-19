@@ -15,7 +15,8 @@
 %               valid 
 %
 %   - key_words = array of key words []. If not empty only the count of these
-%               will be computed, else all words will be counted 
+%               will be computed, else all words will be counted. For empty
+%               case, we just pass an empty [];
 %
 %   - extraStopWords = cell array of words to excluded, if non then just
 %                      pass an empty {}
