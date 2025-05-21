@@ -1,7 +1,7 @@
 
 % Input:
 %     input_csv: the csv file you want grouped statistics for 
-%     output_dir: where the visualizations will save to 
+%     output_dir: output folder where the visualizations will save to 
 %     group_col: the column number you want grouped by 
 %         - if you want subject level data, input the column number that has the subject information
 %         - can also be category columns
@@ -30,8 +30,7 @@
 
 function output_table = demo_group_num_hist_by_cat(option)
 
-    % output_dir = "Z:\demo_output_files\demo_group_num_hist_by_cat";
-    output_dir = '.';
+    output_dir = "Z:\demo_output_files\demo_group_num_hist_by_cat";
 
     switch option
 
