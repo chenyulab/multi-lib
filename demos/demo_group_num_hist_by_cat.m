@@ -30,7 +30,7 @@
 
 function output_table = demo_group_num_hist_by_cat(option)
 
-    output_dir = "Z:\demo_output_files\demo_group_num_hist_by_cat";
+    output_dir = "Z:\demo_output_files\group_num_hist_by_cat";
 
     switch option
 
