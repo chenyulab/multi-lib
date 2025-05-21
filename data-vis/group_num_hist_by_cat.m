@@ -1,13 +1,13 @@
 % input_csv = "M:\extracted_datasets\multipathways\data\JA_child-lead_before_exp44.csv";
 % 
-%extract_subject_vis_data(input_csv, 'Z:\bryanna\subject_level\results', 1, 5, 'cat')
-%extract_subject_vis_data(input_csv, 'Z:\bryanna\subject_level\results', 1, 13, 'num', 'JA_prop', [0:0.1:1])
-%extract_subject_vis_data(input_csv2, 'Z:\bryanna\subject_level\results', 1, 12, 'num', 'JA_12_prop',[0:0.1:1])
-%extract_subject_vis_data(input_csv3, 'Z:\bryanna\subject_level\results', 1, 9, 'cat', 'query_key')
-%extract_subject_vis_data("M:\extracted_datasets\multipathways\data\JA_child-lead_before_exp58.csv", 'Z:\bryanna\subject_level\results', 1, 5, 'cat', 'JA_58_a_cat')
+%group_num_hist_by_cat(input_csv, 'Z:\bryanna\subject_level\results', 1, 5, 'cat')
+%group_num_hist_by_cat(input_csv, 'Z:\bryanna\subject_level\results', 1, 13, 'num', 'JA_prop', [0:0.1:1])
+%group_num_hist_by_cat(input_csv2, 'Z:\bryanna\subject_level\results', 1, 12, 'num', 'JA_12_prop',[0:0.1:1])
+%group_num_hist_by_cat(input_csv3, 'Z:\bryanna\subject_level\results', 1, 9, 'cat', 'query_key')
+%group_num_hist_by_cat("M:\extracted_datasets\multipathways\data\JA_child-lead_before_exp58.csv", 'Z:\bryanna\subject_level\results', 1, 5, 'cat', 'JA_58_a_cat')
 
 
-function [output_table] = extract_subject_vis_data(input_csv,output_dir, group_col, var_col, data_type, bins)
+function [output_table] = group_num_hist_by_cat(input_csv,output_dir, group_col, var_col, data_type, bins)
     data = readtable(input_csv);
 
     data(all(ismissing(data),2), :) = [];
@@ -131,7 +131,7 @@ function [output_table] = extract_subject_vis_data(input_csv,output_dir, group_c
 
     output_table = cell2table(cell_results, "VariableNames", header);
 
-    filename = 'subject_level_hist.xlsx';
+    filename = 'hist.csv';
 
     writetable(output_table,fullfile(output_dir,filename));
 end
