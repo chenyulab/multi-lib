@@ -382,3 +382,45 @@ function [text_height, text_width] = get_text_dimensions(text, font_size)
     text_height = stats(1).BoundingBox(4);
 end
 
+function transcription = load_speech_transcription(subID)
+    subject_dir = get_subject_dir(subID);
+
+    speech_dir = fullfile(subject_dir, 'speech_transcription_p');
+    sub_info = get_subject_info(subID);
+    speech_entry = dir(fullfile(speech_dir, sprintf('speech_%d.txt',sub_info(4))));
+    speech_path = fullfile(speech_dir, speech_entry.name);
+    
+    transcription = readtable(speech_path);
+    transcription.Properties.VariableNames = ["onset","offset","utterance"];
+    
+    % from extract_speech_in_situ
+    frame_rate = 30;
+    defaultSpeechTime = 30;
+
+    extract_range_file = fullfile(get_subject_dir(subID),'supporting_files','extract_range.txt');
+    range_file = fopen(extract_range_file,'r');
+ 
+    if range_file ~= -1
+        extract_range_onset = fscanf(range_file, '[%f]');
+        fclose(range_file); % Close the file after reading
+    else
+        error('Failed to open extract_range.txt');
+    end
+
+    trials = get_trial_times(subID);
+    trial_length = sum(trials(:,2) - trials(:,1));
+    %
+    
+    trial_lag = defaultSpeechTime - round(extract_range_onset/frame_rate,3);
+    transcription{:,"onset"} = transcription{:,"onset"} + trial_lag; 
+    transcription{:,"offset"} = transcription{:,"offset"} + trial_lag;
+
+end
+
+function overlap = cevents_have_overlap(a1,a2,b1,b2)
+    lower = b1 < a2 & b2 > a1;
+    upper = b1< a2 & b2 > a2;
+    middle = b1 >= a1 & b2 <= a2 & b2 > a1;
+
+    overlap = lower | upper | middle;
+end
