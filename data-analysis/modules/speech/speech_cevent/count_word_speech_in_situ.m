@@ -18,7 +18,7 @@
 %                 will be computed, else all words will be counted. For empty
 %                 case, we just pass an empty [];
 %
-%   - extraStopWords = cell array of words to excluded, if non then just
+%   - excluded_words = cell array of words to excluded, if non then just
 %                      pass an empty {}
 %
 %   - text_col_num = the numeric location of the text column relative to the 
@@ -35,7 +35,7 @@
 %
 %
 
-function data = count_word_speech_in_situ(file_in, file_out, key_words, extraStopWords, text_col_num, id_col_nums)
+function data = count_word_speech_in_situ(file_in, file_out, key_words, excluded_words, text_col_num, id_col_nums)
     
     % read table
     df = readtable(file_in, delimiter=",");
@@ -45,7 +45,7 @@ function data = count_word_speech_in_situ(file_in, file_out, key_words, extraSto
         unqWords = {};
 
         for i = 1:height(df)
-            temp_vocab = get_utterance_word_frequency(df{i,text_col_num}{1}, extraStopWords);
+            temp_vocab = get_utterance_word_frequency(df{i,text_col_num}{1}, excluded_words);
             unqWords = vertcat(unqWords, keys(temp_vocab));
         end
         unqWords = unqWords'; % transpose the column to row

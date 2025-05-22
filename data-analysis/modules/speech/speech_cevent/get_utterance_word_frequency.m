@@ -1,4 +1,4 @@
-function wordFreq =  get_utterance_word_frequency(utterance, extraStopWords)
+function wordFreq =  get_utterance_word_frequency(utterance, excluded_words)
     % takes in cell array containing a string and returns unique counts and
     % word frequency 
     wordFreq = dictionary(string.empty,double.empty);
@@ -13,7 +13,7 @@ function wordFreq =  get_utterance_word_frequency(utterance, extraStopWords)
             % check that it's not empty nor a word 
             if ~isempty(cleaned_words{j}) || numel(cleaned_words{j}) > 1
                 % check that it's not a stop word 
-                if ~ismember(cleaned_words{j}, [stopWords extraStopWords])
+                if ~ismember(cleaned_words{j}, excluded_words)
                     % add to dictionary if not present otherwise update
                     % count 
                     if isKey(wordFreq, cleaned_words{j})
