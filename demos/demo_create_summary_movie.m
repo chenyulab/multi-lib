@@ -1,115 +1,151 @@
 %%%
 % Author: Elton Martinez
-% Modifier: Jingwen Pang
-% Last modified: 12/05/2024
+% Modifier: Elton Martinez
+% Last modified: 5/21/2025
 %
 % This demo function provides several examples of how to use 
 % create_summary_movie to generate summary videos focused on particular 
 % categories(object/face) during specified events. 
 % 
+% Requirements: Computer Vision Toolbox & Image Processing Toolbox
+% 
 % Input parameters:
 %   - subexpIDs
-%       array of integers, subject or exp list
-%   - agent
-%       string, 'child' or 'parent'
-%       indicate the camera view to extract frames from (cam07 or cam08)
+%       array of integers/ integer, subject or exp list
 %   - cevent_variable
-%       string, defines the windows of time to extract frames from
-%   - cat_ids
-%       array of integers, indicating the categories to include from the cevent
-%   - reference_point
-%       string, 'onset', 'middle', or 'offset'
-%       this parameter combined with offset_time, allows you to select the 
-%       cevent_variable window. Reference point can be 
-%       respect to the onset, offset, or middle of the event.
-%   - offset_time
-%       float, can be positive(window length after reference point) or 
-%       negative(window length before reference point)
-%   - crop_size
-%       [width height] crop window size
-%   - frame_rate
-%       integer, frame rate of output video, e.g: 3 means 3 frames per second
-%   - out_vid_name
-%       string, output video name
+%       char/string, defines the windows of time to extract frames from
+%   - output_filename
+%       char/string, output video name
+%   - args (optional)
+%       struct, the default values of the sub-args(fields) are the indicated
+%       next to the name
 %
-%   Output:
-%       .mp4 video
+%       - agent (child)
+%           char/string, 'child' or 'parent'
+%           indicate the camera view to extract frames from (cam07 or cam08)
+%       - cevent_dur_min (-1) 
+%           positive integer, the minimum duration to include a cevent
+%       - cevent_dur_max (10)
+%           positive integer, the maximum duration to include a cevent
+%       
+%       - cat_ids ([])
+%           array of integers, indicating the categories to include from the cevent
+%           if empty it includes all categories from the experiment
+%       - cat_dict ([])
+%           empty double array, or matlab dictionary to map cat_ids to names. If emtpy it
+%           will default to using the local dictionary xlsx file
+%
+%       - whence ('onset')
+%           char/string, 'onset', 'middle', or 'offset'
+%           this parameter combined with interval, allows you to select where in the cevent
+%           you want to extract a frame from. Reference point can be 
+%           respect to the onset, offset, or middle of the event.
+%       - interval (0)
+%           float, can be positive(window length after reference point) or 
+%           negative(window length before reference point)
+%
+%      - crop_size ([600 600])
+%           [width height] as positive integers. The size of the image crop with the 
+%           infants gaze as its geometric center. If the location of the gaze puts the 
+%           image crop outside of the image, then a new image crop will be calculate to
+%           keep it in bounds. In the process gaze will no longer be the geometric center. 
+%       - frame_rate (1)
+%           positive integer, frame rate of output video, e.g: 3 means 3 frames per
+%           second, so each instance will be displayed for 1/3 of a second 
+%
+% Output:
+%  - .mp4 video
 %   
 %%%
-function demo_create_summary_movie(option)
 
+function demo_create_summary_movie(option)
+        
     switch option
         case 1
-
             %{ 
-            The cevent variable is eye_roi_child, we extract it for two 
-            subjects (child's view). However we are interested in frames 0.10
-            secs after the end of the cevent. So offset_time = 0.10 and
-            reference_point = offset. We only include objects 12, 5, and 22 so 
-            all other roi instances will be excluded. Lastly the crop size is
-            300x300. For reference the frame size of exp 12,15 is 640x480.
-            The frame rate here is 3, a longer frame rate will force a
-            longer video duration 
-
+            create_summary_movie conditions frames(centered around gaze) from 
+            either parent or child view based on a cevent variable. A simple 
+            example of this is looking at child's view given cevent_eye_roi_child. 
+            Lets check all the toys. If args is not passed the default
+            values for the sub-args will be used (check above).
             %}
             
-            subexpIDs = [1201 1202];
-            agent = 'child';
+            subexpIDs = [35120];
             cevent_variable = 'cevent_eye_roi_child';
-            cat_ids = [12 5 22];
-            reference_point = 'offset';
-            offset_time = 0.10;
-            crop_size = [300 300];
-            frame_rate = 3;
-            out_vid_name = 'Z:\CORE\repository_new\multi-lib\demo_results\summary_movie\case1';
+            output_filename = 'results_2/case_1';
 
-           create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
-                                reference_point, offset_time, crop_size, frame_rate, out_vid_name)
-         case 2
-
+            create_summary_movie(subexpIDs, cevent_variable, output_filename)
+         
+        case 2
             %{
-            Similary to above we are getting a subset of data. Something
-            unique here is that cat_ids is empty, this will included all
-            rois. Also here we used middle as the reference point. So we
-            will get all the frames 0.10 after the middle point of the
-            cevent. 
+            Let's say we want to see what parent is looking at when child
+            is holding any category. We define the agent as parent and
+            make the parent's gaze dependent on cevent_inhand_child.
+            The reference point is set to onset but in order to give some
+            room for reaction lets shift back -0.1. Lets also adjust the
+            frame rate to speed up the video. We will also decrease the crop
+            window to focus on the attended information. 
             %}
             
-            subexpIDs = [1201 1205];
-            agent = 'parent';
-            cevent_variable = 'cevent_eye_roi_parent';
-            cat_ids = [];
-            reference_point = 'middle';
-            offset_time = 0.10;
-            crop_size = [300 300];
-            frame_rate = 1;
-            out_vid_name = 'Z:\CORE\repository_new\multi-lib\demo_results\summary_movie\case2';
-    
-           create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
-                                reference_point, offset_time, crop_size, frame_rate, out_vid_name)
+            subexpIDs = [35116];
+            cevent_variable = 'cevent_inhand_child';
+            output_filename = 'results_2/case_2';
+            
+            args.agent = 'parent';
+            args.whence = 'middle';
+            args.interval = -0.1;
+            
+            args.frame_rate = 2;
+            args.crop_size = [400 300];
+            
+            create_summary_movie(subexpIDs, cevent_variable, output_filename, args)
 
            case 3
 
             %{
-            Here we are only passing an experiment ID this will include all
-            subjects that have the cevent variable. We do not want to shift 
-            the timeline so set reference point to any valid value and set
-            offset_time = 0
+            Utterances that overlap with the target cevent will be displayed
+            in the bottom left of the frame. Lets use naming to get consistent examples.
+            Here we can check what the child is looking at when the parent
+            labels an object and what the parent is saying. Since we only
+            have timing information for an entire utterance, a very long
+            utterance can overlap with a very small event. One way to avoid
+            is to exclude event instances that last less than x seconds.
             %}
 
-            subexpIDs = [12, 15];
-            agent = 'parent';
-            cevent_variable = 'cevent_eye_roi_parent';
-            cat_ids = [];
-            reference_point = 'middle';
-            offset_time = 0;
-            crop_size = [300 300];
-            frame_rate = 1;
-            out_vid_name = 'Z:\CORE\repository_new\multi-lib\demo_results\summary_movie\case3';
-    
-           create_summary_movie(subexpIDs, agent, cevent_variable, cat_ids, ...
-                                reference_point, offset_time, crop_size, frame_rate, out_vid_name)
+            subexpIDs = [35104];
+            cevent_variable = 'cevent_speech_naming_local-id';
+            output_filename = 'results_2/case_3'; 
+            
+            args.whence = 'middle';
+            args.cevent_dur_min = 0.5;
+            % can also add an upper boundary
+            args.cevent_dur_max = 2;
+            
+            args.crop_size = [300 300];
+            args.frame_rate = 1/2;
+           
+            create_summary_movie(subexpIDs, cevent_variable, output_filename, args)
 
-    
+           case 4 
+           %{
+            The default mapping of category id to category label is based
+            on the object dictionary. If the choosen cevent variable has a
+            different mapping you can change category dict to display the 
+            correct category label. In this example we are using speech
+            words which have their unique cat-label mapping. We will only
+            look at the verbs scoop and cut. 
+           %}
+
+            subexpIDs = 353;
+            cevent_variable = 'cevent_speech_verb_word-id_parent';
+            output_filename = 'results_2/case_4';  
+
+            args.cat_ids = [15 2];
+            args.cat_dict = dictionary(args.cat_ids,["scoop" "cut"]);
+
+            args.whence = 'middle';
+            args.frame_rate = 1/2;
+           
+            create_summary_movie(subexpIDs, cevent_variable, output_filename, args)
     end
 end
