@@ -3,8 +3,9 @@ function wordFreq =  get_utterance_word_frequency(utterance, excluded_words)
     % word frequency 
     wordFreq = dictionary(string.empty,double.empty);
     
-    % split into words 
-    split_words = strsplit(utterance, " ");
+    utterance_clean = regexprep(utterance, '[^\w\s]', '');     % remove punctuation
+    utterance_clean = strtrim(utterance_clean);                % remove leading/trailing spaces
+    split_words = strsplit(utterance_clean);  
     
     for word = split_words
         cleaned_words = strsplit(word{1}, ";");
