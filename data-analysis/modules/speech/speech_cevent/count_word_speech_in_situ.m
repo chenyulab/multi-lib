@@ -105,9 +105,10 @@ function data = count_word_speech_in_situ(file_in, file_out, key_words, excluded
     for i = 1:n
        % preprocess utterance 
        temp_utterance = df{i,text_col_num}{1};
-       % not sure if this line is needed.. might not be most efficient 
-       temp_tokens = regexprep(temp_utterance, ";", " ");
-       temp_tokens = split(temp_utterance, " ");
+       % clean and split utterance
+       utterance_clean = regexprep(temp_utterance, '[^\w\s]', '');     % remove punctuation
+       utterance_clean = strtrim(utterance_clean);                % remove leading/trailing spaces
+       temp_tokens = strsplit(utterance_clean);  
        % get rid of empty tokens 
        mask = cellfun(@(x) ~isempty(x), temp_tokens);
        temp_tokens = temp_tokens(mask);
