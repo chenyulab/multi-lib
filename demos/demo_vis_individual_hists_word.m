@@ -37,8 +37,8 @@
 % 
 
 
-function demo_make_keyword_hist(option)
-    global_dir = "Z:\demo_output_files\make_keyword_hist";
+function demo_vis_individual_hists_word(option)
+    global_dir = "Z:\demo_output_files\vis_individual_hists_word";
 
     switch option 
         case 1
@@ -51,14 +51,14 @@ function demo_make_keyword_hist(option)
             %args 
             args.word_display_limit = 20; % max words on each barchart/histogram
 
-            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+            vis_individual_hists_word(input_csv, output_dir,keyword_list, group_col, args)
         case 2
             %each plot display most common words overall (instead of most
             %common words for that group only)
             input_csv = fullfile(global_dir,"speech_in_roi_co_ccur_351.csv");
             output_dir = fullfile(global_dir,"demo2");
             %keyword_list = ["is", "babyname", "you"];
-            keyword_list = ["i", "you", "they","we", "it","your","their", "them", "me","our"];
+            keyword_list = ["i", "you", "they","we", "it","your","their", "them", "me","our","he","she"];
 
             group_col = 1; %group by subject
 
@@ -67,7 +67,7 @@ function demo_make_keyword_hist(option)
 
             args.global_common_words = 1;
 
-            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+            vis_individual_hists_word(input_csv, output_dir,keyword_list, group_col, args)
         case 3
             input_csv = fullfile(global_dir,"speech_in_roi_co_ccur_351.csv");
             output_dir = fullfile(global_dir,"demo3");
@@ -77,20 +77,20 @@ function demo_make_keyword_hist(option)
 
             args.word_display_limit = 20; % max words on each barchart/histogram
 
-            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+            vis_individual_hists_word(input_csv, output_dir,keyword_list, group_col, args)
         
         case 4
             input_csv = fullfile(global_dir,"speech_in_roi_co_ccur_351.csv");
-            output_dir = fullfile(global_dir,"demo4");
-            keyword_list = ["i", "you", "they","we", "it"];%,"your","their", "them", "me","our","he","she","him","her"];
+            output_dir = fullfile(global_dir,"demo_test");
+            keyword_list = ["i", "you", "they","we", "it", "your","their", "them", "me","our","he","she","him","her"];
 
             word_display_limit = 20; % max words on each barchart/histogram
 
             group_col = [1]; %group by subject and object (each row is a histogram)
 
-            %args.global_most_common = 1;
+            args.global_most_common = 1;
 
-            make_keyword_hist(input_csv, output_dir,keyword_list, group_col)
+            vis_individual_hists_word(input_csv, output_dir,keyword_list, group_col)
 
 
         case 5
@@ -104,7 +104,7 @@ function demo_make_keyword_hist(option)
             %args 
             args.word_display_limit = 20; % max words on each barchart/histogram
 
-            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+            vis_individual_hists_word(input_csv, output_dir,keyword_list, group_col, args)
 
     end
 end

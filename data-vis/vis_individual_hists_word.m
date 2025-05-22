@@ -3,7 +3,7 @@
 % keyword_list = ["is", "babyname", "you"]
 
 
-function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
+function vis_individual_hists_word(input_csv, output_dir, keyword_list, group_col, args)
     if ~exist('args', 'var')|| isempty(args)
         args = struct([]);
     end
@@ -59,16 +59,17 @@ function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
         end
     end
 
+
     %keyword histogram overall visualization
     for i = 1:length(keyword_list)
         if (keyword_idx(i)>0)
-            keyword_counts(i,:)=all_counts(keyword_idx(i),:);
+            keyword_counts(i,:) = all_counts(keyword_idx(i));
         else
             keyword_counts(i,:) =0; 
         end
     end
 
-    keyword_counts = all_counts(keyword_idx);
+    % keyword_counts = all_counts(keyword_idx);
 
     %sort keywords
     [sort_counts_key, sortIdxKey] = sort(keyword_counts, 'descend');
@@ -165,6 +166,7 @@ function make_keyword_hist(input_csv, output_dir, keyword_list, group_col, args)
         if height(sub_data) > 1
             plot_data = sum(sub_data, 1);
             plot_name = num2str(group_list(i));
+            disp(plot_name);
         else
             plot_data = sub_data;
             plot_name = sprintf('%d_%d', data(i,1), data(i,2));
