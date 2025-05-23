@@ -73,7 +73,11 @@ switch option
         labels = {'orig','merged'};
         celldata{1} = cevent;
         celldata{2} = cevent_out;
-        time_window = get_time_window_for_vis(sub_id);
+        time_window = [
+            80, 90; % for cat 1 (blue)
+            35, 45; % for cat 2 (green)
+            255, 260; % for cat 3 (red);
+        ];
         h = vis_streams_data(celldata, time_window, labels);
         
     case 2 
@@ -92,7 +96,11 @@ switch option
         labels = {'orig','merged'};
         celldata{1} = cevent;
         celldata{2} = cevent_out;
-        time_window = get_time_window_for_vis(sub_id);
+        time_window = [
+            80, 90; % for cat 1 (blue)
+            35, 45; % for cat 2 (green)
+            255, 260; % for cat 3 (red);
+        ];
         h = vis_streams_data(celldata, time_window, labels);
 
     case 3 
@@ -112,7 +120,10 @@ switch option
         labels = {'orig','merged'};
         celldata{1} = cevent;
         celldata{2} = cevent_out;
-        time_window = get_time_window_for_vis(sub_id);
+        time_window = [
+            30, 45; % cat 2 merged from 30.5 to 42.7, cat 1 merged from 31.1 to 34.4
+            70, 85; % cat 2 merged from 71.3 to 81.4
+        ];
         h = vis_streams_data(celldata, time_window, labels);
     
     case 4
@@ -120,7 +131,7 @@ switch option
         sub_id = 7002;
         cevent = get_variable_by_trial_cat(sub_id, 'cevent_eye_roi_child');
 
-        maxGap = 3; %3 seconds is the maximum two events can be merged over
+        maxGap = 1; %2 seconds is the maximum two events can be merged over
         cat_list = [1 2];
         args.is_other_between = 1;
         cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
@@ -130,7 +141,10 @@ switch option
         labels = {'orig','merged'};
         celldata{1} = cevent;
         celldata{2} = cevent_out;
-        time_window = get_time_window_for_vis(sub_id);
+        time_window = [
+            35, 45; % cat 2 merged from 37 to 40.2, but not from 40.2 to 41.4 since > 1 second
+            150, 170; % cat 1 merged from 156 to 164.8, but not from 164.8 to 167.2 since > 1 second
+        ];
         h = vis_streams_data(celldata, time_window, labels);
 
     case 5 
@@ -151,7 +165,7 @@ switch option
         labels = {'orig','merged'};
         celldata{1} = cevent;
         celldata{2} = cevent_out;
-        time_window = get_time_window_for_vis(sub_id);
+        time_window = get_time_window_for_vis(sub_id); % overall visual comparsion
         h = vis_streams_data(celldata, time_window, labels);
            
     case 6
@@ -175,7 +189,7 @@ switch option
         labels = {'orig','merged'};
         celldata{1} = cevent;
         celldata{2} = cevent_out;
-        time_window = get_time_window_for_vis(sub_id);
+        time_window = get_time_window_for_vis(sub_id);  % overall visual comparsion
         h = vis_streams_data(celldata, time_window, labels);
 
 
@@ -204,10 +218,39 @@ switch option
         labels = {'orig','merged'};
         celldata{1} = cevent;
         celldata{2} = cevent_out;
-        time_window = get_time_window_for_vis(sub_id);
+        time_window = get_time_window_for_vis(sub_id);  % overall visual comparsion
         h = vis_streams_data(celldata, time_window, labels);
      
-end
+    case 8
+        % Generate merged variables for one experiment
+        exp_id = 351;
+        sub_list = cIDs(exp_id);
+        num_obj = get_num_obj(exp_id);
+
+        % set variable name
+        varname = 'cevent_eye_roi_child';
+        merged_varname = 'cevent_eye_roi_merged_child';
+
+        % config merged variable
+        cat_list = [1:num_obj];
+        maxGap = 3;
+        args.is_other_between = 1;
+        args.max_other_duration  = 1;
+
+        % go through each subject
+        for s = 1:length(sub_list)
+            sub_id = sub_list(s);
+
+            cevent = get_variable_by_trial_cat(sub_id,varname);
+            cevent_out = cevent_merge_segments(cevent, maxGap, cat_list,args);
+
+            % uncomment the following line to record the variable 
+            % *Warning*: to generate variable into our system, you need to get permission form Chen first
+            % record_additional_variable(sub_id,merged_varname,cevent_out);
+
+        end
+        
+    end
 end
 
 function time_window = get_time_window_for_vis(sub_id)
