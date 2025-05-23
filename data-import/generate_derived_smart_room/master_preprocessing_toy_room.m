@@ -1,9 +1,19 @@
-function master_preprocessing_toy_room(kidIDs, expID, option, flagReliability)
+function master_preprocessing_toy_room(kidIDs, expID, option, flagReliability,args)
 % This function reads from info file and eye_txt files after yarbus
 % generates the following list of files:
 %   1. timing.mat
 %   2. fixation_frames_{child|parent}_reliability.mat
 %   3. coding_eye_roi_{child|parent}.mat
+
+if ~exist('args', 'var') || isempty(args)
+   args = struct([]);
+end
+if ~isfield(args, 'agents')
+   agents = {'child', 'parent'};
+else
+   agents = args.agents;
+end
+
 
 switch true
     case ismember(expID,351:398)
@@ -18,7 +28,8 @@ end
 if ~exist('flagReliability', 'var')
     flagReliability = 0;
 end
-agents = {'child', 'parent'};
+
+% agents = {'child', 'parent'};
 for k = 1:numel(kidIDs)
     kid = kidIDs(k);
     fprintf('%d\n', kid);
@@ -35,7 +46,7 @@ for k = 1:numel(kidIDs)
         fclose(fid);
         maxFrame = exr{1}(2)-exr{1}(1) + 1;
         eye_range = dlmread(fullfile(root,'supporting_files','eye_range.txt'), ' ');
-        for a = 1:2
+        for a = 1:length(agents)
             agent = agents{a};
             fn = fullfile(root,'supporting_files',[agent '_eye.txt']);
             if exist(fn, 'file')
