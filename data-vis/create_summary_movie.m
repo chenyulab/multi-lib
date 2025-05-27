@@ -1,7 +1,7 @@
 %%%
 % Author: Elton Martinez
 % Modifier: Elton Martinez
-% Last modified: 5/21/2025
+% Last modified: 5/26/2025
 %
 % This function generates summary videos of frames centered around gaze
 % dependent on particular categories(object/face) during specified events.
@@ -81,7 +81,12 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
     end
 
     % get subjects 
-    subjects = cIDs(subexpID);
+    if width(subexpID) < 2
+        subjects = cIDs(subexpID);
+    else
+        subjects = subexpID;
+    end
+    
     expID = sub2exp(subjects(1));
 
     % create the video object 
@@ -155,14 +160,12 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
         frame_eye = [time2frame_num(eye(:,1),subID), eye];
         
         % convert array to table to do inner join 
-        target_frames_df = array2table(target_frames);
-        target_frames_df.Properties.VariableNames = ["frame","onset","offset","cat"];
+        instances_df = array2table(target_frames);
+        instances_df.Properties.VariableNames = ["frame","onset","offset","cat"];
+        instances_df.dur = instances_df.offset - instances_df.onset;
+
         eye_df = array2table(frame_eye);
         eye_df.Properties.VariableNames = ["frame","cstream","x","y"];
-
-        % get the corresponding gaze values for the target frames 
-        instances_df = innerjoin(target_frames_df, eye_df);
-        instances_df.dur = instances_df.offset - instances_df.onset;
 
         % get subdir and iterate through frames 
         sub_dir = get_subject_dir(subID);
@@ -183,6 +186,9 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             if inst_dur < args.cevent_dur_min || inst_dur > args.cevent_dur_max
                 continue
             end
+
+            curr_onset = instances_df{j, "onset"};
+            curr_offset = instances_df{j, "offset"};
             
             %% Find overlalping utterances 
             % get utterances within t_frames_concat{j}
@@ -190,27 +196,22 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             cumulative_utterance = {};
 
                 while true & k <= height(transcription) 
-                    if j > height(transcription)
-                        break
-                    end
 
-                    a1 = instances_df{j, "onset"};
-                    a2 = instances_df{j, "offset"};
                     b1 = transcription{k, "onset"};
                     b2 = transcription{k, "offset"};
 
-                    if cevents_have_overlap(a1,a2,b1,b2)
+                    if cevents_have_overlap(curr_onset,curr_offset,b1,b2)
                         utterance = transcription{k, "utterance"}{1};
                         cumulative_utterance{end+1} = utterance;
                     end
 
                     % this utterance will not be selected in t+1
-                    if a2 >= b2 
+                    if curr_offset >= b2 
                        k = k + 1;
                     end
                     
                     % there can be no more utterances
-                    if a2 <= b2
+                    if curr_offset <= b2
                         break
                     end
                 end
@@ -235,13 +236,17 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             end
             
             % get and round gaze xy 
-            centerX = round(instances_df{j,"x"});
-            centerY = round(instances_df{j,"y"});
-    
-            if isnan(centerX) || isnan(centerY)
+            coor_candidates = eye_df(eye_df.cstream >= curr_onset - 0.033 | eye_df.cstream <= curr_onset + 0.033,:);
+
+            if height(coor_candidates) > 0
+                coordinates = mean(coor_candidates,"omitmissing");
+                
+                centerX = round(coordinates.x);
+                centerY = round(coordinates.y);
+            else
                 continue
             end
-            
+
             % find the top and bottom corner of the target crop
             top_x = round(centerX - (target_width/2));
             top_y = round(centerY - (target_height/2));
@@ -277,7 +282,8 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             
             %% Add gaze and identifiers 
             % add red dot to indicate gaze 
-            img = insertShape(frame, 'FilledCircle', [centerX, centerY, 10], 'Color', 'red', 'Opacity', 1);
+            img = insertShape(frame, 'FilledCircle', [centerX, centerY, 13], 'Color', [203,203,203], 'Opacity', 1);
+            img = insertShape(img, 'FilledCircle', [centerX, centerY, 10], 'Color', 'red', 'Opacity', 0.7);
             % define valid rect and crop frame based on it's dim and coor
             rect = [top_x top_y, target_width-1, target_height-1];     
             croppedFrame = imcrop(img, rect);   
@@ -305,7 +311,7 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             end
 
             % insert cat_label, subID, onset, and offset at top of frame
-            target_string = sprintf('%s, %d, %.2f, %.2f', obj_label, subID, instances_df{j,"onset"}, instances_df{j,"offset"});
+            target_string = sprintf('%s, %d, %.2f, %.2f', obj_label, subID, curr_onset, curr_offset);
             relative_font = round(cF_rows * 0.05);
             RGB = insertText(croppedFrame,[0 0],target_string, FontSize=relative_font, ...
                 BoxOpacity=0.4,TextColor="white", AnchorPoint="LeftTop",BoxColor="black");
@@ -331,8 +337,8 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
                 % Here we are breaking utterances that are too big to be
                 % displayed 
                 if groups > 1
-                    for k = 1:groups
-                        if k == groups
+                    for w = 1:groups
+                        if w == groups
                             group_utterance{end+1} = target_utterance(idx_i:end);
                         else
                             group_utterance{end+1} = strcat(target_utterance(idx_i:idx_j),'-');
@@ -372,7 +378,7 @@ end
 function [text_height, text_width] = get_text_dimensions(text, font_size)
 
     x = zeros(1000, 1000, 3);
-    y = insertText(x, [0,0], text,'FontSize', font_size, 'BoxColor', 'white', ...
+    y = insertText(x, [0,0], text,'FontSize', ceil(font_size), 'BoxColor', 'white', ...
                      'TextColor', 'white', 'BoxOpacity', 0);
    
     grayY = rgb2gray(y);
