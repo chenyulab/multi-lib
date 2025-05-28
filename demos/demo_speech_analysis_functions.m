@@ -372,7 +372,7 @@ function demo_speech_analysis_functions(option)
             output_filename = fullfile(output_dir,'example_19.csv');
             % optional arguments can be included to change the source
             % camera and alter the timestamp of the generated event clips
-            data = query_keywords(subexpIDs, word_list, output_filename);
+            data = extract_events_by_keyword(subexpIDs, word_list, output_filename);
             varname = 'cevent_speech_action-verbs_demo';
             make_keywords_events(word_list, word_ids, data, varname);
 

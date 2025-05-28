@@ -1,7 +1,7 @@
 %%
 % Author: Jane Yang
 % Eidtor: Jingwen Pang
-% Last modified: 11/11/2024
+% Last modified: 05/28/2025
 % This function takes in a list of subjects, a speech keyword, and optional
 % arguments for manipulating timestamps, outputting a detailed csv 
 % containing instances where the target keyword was found in speech 
@@ -29,9 +29,9 @@
 % instancs found.
 % 
 % See case 4, 8 in demo_speech_analysis_functions
-%     case 1, 2, 6 in demo_query_csv_speech_or_event
+%     case 1, 2, 6 in demo_extract_events_by_keyword
 
-function obj_rtr_table = query_keywords(expIDs,word_list,output_filename,args)
+function obj_rtr_table = extract_events_by_keyword(expIDs,word_list,output_filename,args)
     speechTime = 30;
     frame_rate = 30;
     % check if optional argument exists

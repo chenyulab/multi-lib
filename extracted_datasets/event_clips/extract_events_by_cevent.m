@@ -1,7 +1,7 @@
 %%
 % Author: Jane Yang
 % Modifier: Jingwen Pang
-% Last modified: 11/11/2024
+% Last modified: 05/28/2025
 % This function takes in a list of subjects, a cevent variable name, and a
 % list of target objIDs, outputting a detailed csv containing instances 
 % where the target ROI was found in the event variable. 
@@ -30,10 +30,10 @@
 % Output: a csv file containing timestamp and source camera information for
 % instancs found.
 % 
-% Example function call: rtr_table = query_csv_cevent([12],'cevent_eye_joint-attend_child-lead-moment_both',[1:24],'exp12_ja_child_lead.csv')
-% see more examples in demo_query_csv_speech_or_event
+% Example function call: rtr_table = extract_events_by_cevent([12],'cevent_eye_joint-attend_child-lead-moment_both',[1:24],'exp12_ja_child_lead.csv')
+% see more examples in demo_extract_events_by_cevent
 
-function rtr_table = query_csv_cevent(expIDs, cevent_varname, target_obj_list, output_filename,args)
+function rtr_table = extract_events_by_cevent(expIDs, cevent_varname, target_obj_list, output_filename,args)
 
     % check if optional argument exists
     if ~exist('args', 'var') || isempty(args)
