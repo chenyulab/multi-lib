@@ -100,13 +100,16 @@ function demo_speech_analysis_functions(option)
         %%% extracting functions
         case 1
             % basic usage -- extract all the speech data based on subexpIDs
+            % create an output file containing individual spoken utterances
+            % from all the subjects, one utterance intance per row 
             subexpIDs = [12 15];
             keywords = {};
             output_filename = fullfile(output_dir,'example_1.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
     
         case 2
-            % to extract a utterance that contains multiple keywords
+            % Given a list of keywords specfied (separated by comma), extract spoken utterances that contain any 
+            % of the keywords
             % each word need to be separated by comma, the output will be multiple
             % csv files, each file for one keyword
             % extract the speech data that contains 'try' or 'eat'
