@@ -28,9 +28,9 @@
 
 
 
-function output_table = demo_group_num_hist_by_cat(option)
+function output_table = demo_vis_individual_hists_numerical(option)
 
-    output_dir = "Z:\demo_output_files\group_num_hist_by_cat";
+    output_dir = "Z:\demo_output_files\vis_individual_hists_numerical";
 
     switch option
 
@@ -42,7 +42,7 @@ function output_table = demo_group_num_hist_by_cat(option)
             data_type = 'cat';
             bins = [1:4];
 
-            output_table = group_num_hist_by_cat(input_csv,output_dir, group_col, var_col, data_type, bins);
+            output_table = vis_individual_hists_numerical(input_csv,output_dir, group_col, var_col, data_type, bins);
 
             %output are histograms depicting the counts of each category
             %for each subject
@@ -55,7 +55,7 @@ function output_table = demo_group_num_hist_by_cat(option)
             data_type = 'num';
             bins = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];
 
-            output_table = group_num_hist_by_cat(input_csv,output_dir, group_col, var_col, data_type, bins);
+            output_table = vis_individual_hists_numerical(input_csv,output_dir, group_col, var_col, data_type, bins);
 
             %output is a histogram of the proportions of time spent on the
             %target object - the bin 0.9-1 indicates the number of times a
@@ -75,7 +75,7 @@ function output_table = demo_group_num_hist_by_cat(option)
             data_type = 'cat';
 
 
-            output_table = group_num_hist_by_cat(input_csv,output_dir, group_col, var_col, data_type);
+            output_table = vis_individual_hists_numerical(input_csv,output_dir, group_col, var_col, data_type);
 
          case 4
              %if you want to group by category instead of subject
@@ -86,7 +86,7 @@ function output_table = demo_group_num_hist_by_cat(option)
             data_type = 'num';
             bins = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];
 
-            output_table = group_num_hist_by_cat(input_csv,output_dir, group_col, var_col, data_type, bins);
+            output_table = vis_individual_hists_numerical(input_csv,output_dir, group_col, var_col, data_type, bins);
 
             %output would show a histogram for every object which shows the
             %count of each proportion of time the gaze was on the
@@ -105,7 +105,7 @@ function output_table = demo_group_num_hist_by_cat(option)
             data_type = 'num';
             bins = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1];
 
-            output_table = group_num_hist_by_cat(input_csv,output_dir, group_col, var_col, data_type, bins);
+            output_table = vis_individual_hists_numerical(input_csv,output_dir, group_col, var_col, data_type, bins);
 
             %output would show a histogram for every object which shows the
             %count of each proportion of time the gaze was on the
