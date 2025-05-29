@@ -48,7 +48,7 @@ function record_eyegaze_datavyu(subID,agent)
     input_range_filename = fullfile(root,'supporting_files','extract_range.txt');
     rangeID = fopen(input_range_filename, 'r');
     range_onset = fgetl(rangeID);
-    range_onset = str2double(range_onset(2));
+    range_onset = str2double(range_onset(2:end-1));
     fclose(rangeID);
     time_offset = range_onset/30;
 
