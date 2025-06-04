@@ -1,15 +1,17 @@
 %%%
 % Author: Elton Martinez
 % Modifier: Elton Martinez
-% Last modified: 5/27/2025
+% Last modified: 6/3/2025
 %
-% This demo function provides several examples of how to use 
-% create_summary_movie to generate summary videos focused on particular 
-% categories(object/face) during specified events. 
+% This function generates summary videos of frames centered around gaze
+% dependent on particular categories(object/face) during specified events.
+% It also displays the category label, subID, onset, and offset at the top.
+% Overlapping utterances are displayed at the bottom. 
 % 
 % Requirements: Computer Vision Toolbox & Image Processing Toolbox
+%
 % 
-% Input parameters:
+%% Input parameters:
 %   - subexpIDs
 %       array of integers/ integer, subject or exp list
 %   - cevent_variable
@@ -20,9 +22,9 @@
 %       struct, the default values of the sub-args(fields) are the indicated
 %       next to the name
 %
-%       - agent (child)
-%           char/string, 'child' or 'parent'
-%           indicate the camera view to extract frames from (cam07 or cam08)
+%       - cam_num (7)
+%           integer (1-24), indicate the camera view to extract frames from. E.g.,
+%           10 is cam10. If cameras 1,2,7,and 8 are defined then gaze is included.  
 %       - cevent_dur_min (-1) 
 %           positive integer, the minimum duration to include a cevent
 %       - cevent_dur_max (10)
@@ -44,16 +46,18 @@
 %           float, can be positive(window length after reference point) or 
 %           negative(window length before reference point)
 %
-%      - crop_size ([600 600])
+%      - crop_size (no crop)
 %           [width height] as positive integers. The size of the image crop with the 
-%           infants gaze as its geometric center. If the location of the gaze puts the 
-%           image crop outside of the image, then a new image crop will be calculate to
-%           keep it in bounds. In the process gaze will no longer be the geometric center. 
+%           infants gaze as its geometric center. If cam is not a first
+%           person view, the center of the image will be the center of the
+%           crop. If the location of the gaze puts the image crop outside of the image, 
+%           then a new image crop will be calculate to keep it in bounds. 
+%           In the process gaze will no longer be the geometric center. 
 %       - frame_rate (1)
 %           positive integer, frame rate of output video, e.g: 3 means 3 frames per
 %           second, so each instance will be displayed for 1/3 of a second 
 %
-% Output:
+%% Output:
 %  - .mp4 video
 %   
 %%%
@@ -63,13 +67,14 @@ function demo_create_summary_movie(option)
     switch option
         case 1
 
-            % create_summary_movie conditions frames(centered around gaze) from 
-            % either parent or child view based on a cevent variable. A simple 
-            % example of this is looking at child's view given cevent_eye_roi_child. 
-            % Lets check all the toys. If args is not passed the default
+            % create_summary_movie conditions frames from 
+            % either parent or child view based on a cevent variable.
+            % Since args.crop_size is not defined the regular dimensions of the image
+            % will be kept. A simple example of this is looking at child's view 
+            % given cevent_eye_roi_child. Lets check all the toys. If args is not passed the default
             % values for the sub-args will be used (check above).
             
-            subexpIDs = [35120];
+            subexpIDs = [35122];
             cevent_variable = 'cevent_eye_roi_child';
             output_filename = 'Z:/demo_output_files/create_summary_movie/case_1';
 
@@ -89,7 +94,7 @@ function demo_create_summary_movie(option)
             cevent_variable = 'cevent_inhand_child';
             output_filename = 'Z:/demo_output_files/create_summary_movie/case_2';
             
-            args.agent = 'parent';
+            args.cam_num = 8;
             args.whence = 'middle';
             args.interval = -0.1;
             
@@ -118,7 +123,7 @@ function demo_create_summary_movie(option)
             args.cevent_dur_max = 2;
             
             % you can think of the crop_size as zooming in or out
-            args.crop_size = [720 800];
+            args.crop_size = [800 500];
             args.frame_rate = 1/2;
            
             create_summary_movie(subexpIDs, cevent_variable, output_filename, args)

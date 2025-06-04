@@ -1,7 +1,7 @@
 %%%
 % Author: Elton Martinez
 % Modifier: Elton Martinez
-% Last modified: 5/26/2025
+% Last modified: 6/3/2025
 %
 % This function generates summary videos of frames centered around gaze
 % dependent on particular categories(object/face) during specified events.
@@ -11,7 +11,7 @@
 % Requirements: Computer Vision Toolbox & Image Processing Toolbox
 %
 % 
-% Input parameters:
+%% Input parameters:
 %   - subexpIDs
 %       array of integers/ integer, subject or exp list
 %   - cevent_variable
@@ -22,9 +22,9 @@
 %       struct, the default values of the sub-args(fields) are the indicated
 %       next to the name
 %
-%       - agent (child)
-%           char/string, 'child' or 'parent'
-%           indicate the camera view to extract frames from (cam07 or cam08)
+%       - cam_num (7)
+%           integer (1-24), indicate the camera view to extract frames from. E.g.,
+%           10 is cam10. If cameras 1,2,7,and 8 are defined then gaze is included.  
 %       - cevent_dur_min (-1) 
 %           positive integer, the minimum duration to include a cevent
 %       - cevent_dur_max (10)
@@ -46,21 +46,24 @@
 %           float, can be positive(window length after reference point) or 
 %           negative(window length before reference point)
 %
-%      - crop_size ([600 600])
+%      - crop_size (no crop)
 %           [width height] as positive integers. The size of the image crop with the 
-%           infants gaze as its geometric center. If the location of the gaze puts the 
-%           image crop outside of the image, then a new image crop will be calculate to
-%           keep it in bounds. In the process gaze will no longer be the geometric center. 
+%           infants gaze as its geometric center. If cam is not a first
+%           person view, the center of the image will be the center of the
+%           crop. If the location of the gaze puts the image crop outside of the image, 
+%           then a new image crop will be calculate to keep it in bounds. 
+%           In the process gaze will no longer be the geometric center. 
 %       - frame_rate (1)
 %           positive integer, frame rate of output video, e.g: 3 means 3 frames per
 %           second, so each instance will be displayed for 1/3 of a second 
 %
-% Output:
+%% Output:
 %  - .mp4 video
 %   
 %%%
 
 function create_summary_movie(subexpID, cevent_variable, output_filename, varargin)
+    warning('off','MATLAB:table:ModifiedAndSavedVarnames')
     %% Define constants 
     % set default args if emtpy and if field is not present 
     if isempty(varargin)
@@ -69,10 +72,10 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
         args = varargin{1};
     end
 
-    valid_args = {"agent", "cevent_dur_min","cevent_dur_max","cat_ids","cat_dict",...
+    valid_args = {"cam_num", "cevent_dur_min","cevent_dur_max","cat_ids","cat_dict",...
                   "whence","interval","crop_size","frame_rate"};
 
-    default_args = {'child',-1,10,[],[],"onset",0,[600 600],1};
+    default_args = {7,-1,10,[],[],"onset",0,[0 0],1};
 
     for i = 1:numel(valid_args)
         if ~isfield(args, valid_args{i})
@@ -81,37 +84,72 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
     end
 
     % get subjects 
-    if width(subexpID) < 2
-        subjects = cIDs(subexpID);
-    else
-        subjects = subexpID;
-    end
-    
+    subjects = cIDs(subexpID);
     expID = sub2exp(subjects(1));
 
     % create the video object 
     writerObj = VideoWriter(output_filename, "MPEG-4");
     writerObj.FrameRate = args.frame_rate;
     writerObj.Quality = 100;
-    open(writerObj);
     
     % unpack crop size 
-    target_height = args.crop_size(1);
-    target_width = args.crop_size(2);
+    crop_height = args.crop_size(2);
+    crop_width = args.crop_size(1);
 
-    % set frame path constants based on the agent 
-    if strcmp(args.agent,'child')
-        cam = 'cam07_frames_p';
-    elseif strcmp(args.agent,'parent')
-        cam = 'cam08_frames_p';
+    if crop_width + crop_height == 0      
+        no_crop = true;
+    else
+        no_crop = false;
     end
-    cont_eye = ['cont2_eye_xy_' args.agent];
-    
+
+    % create relative cam path and include gaze depending on 
+    % the target camera 
+    if args.cam_num < 10
+       cam_folder = "cam0" + int2str(args.cam_num);
+    else
+        cam_folder = "cam" + int2str(args.cam_num);
+    end
+
+    cam = sprintf('%s_frames_p',cam_folder);
+    include_gaze = true;
+    variables = {cevent_variable};
+
+    if ismember(cam_folder, ["cam07","cam08","cam01","cam02"])
+        if ismember(cam_folder, ["cam07", "cam01"])
+            cont_eye = 'cont2_eye_xy_child';
+        else
+            cont_eye = 'cont2_eye_xy_parent';
+        end
+        variables{end+1} = cont_eye;
+    else
+        include_gaze = false;
+    end
+   
     % get mask of subjects with target vars
+    % display if subject is missing var
     mask = false(1,numel(subjects));
 
     for i = 1:numel(subjects)
-        mask(i) = logical(has_all_variables(subjects(i), {cevent_variable, cont_eye}));
+        has_both = true;
+        has_target = has_variable(subjects(i), variables{1});
+
+        if length(variables) == 2
+            has_gaze = has_variable(subjects(i), variables{2});
+
+            if ~has_gaze
+                fprintf("Subject %d is missing %s\n",subjects(i),variables{2})
+                has_both = has_both & has_gaze;
+            end
+        end
+
+        if ~has_target 
+            fprintf("Subject %d is missing %s\n",subjects(i),variables{1})
+        end
+
+        if ~has_both
+            continue
+        end
+        mask(i) = has_both & has_target;
     end
     
     % handle 1D case? 
@@ -130,15 +168,30 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
         args.cat_dict = dictionary(categories, labels);
         args.cat_dict(numel(categories)+1) = 'face';
     end
+
+    % progress bar 
+    f = waitbar(0,'Loading, please wait..','Name','writting to video..');
+    open(writerObj);
    
     % iter through all subjects 
     for i = 1:numel(subjects)
         subID = subjects(i);
+        sub_dir = get_subject_dir(subID);
+        sub_dir_cam = fullfile(sub_dir, cam);
+
+        if sum([dir(sub_dir_cam).bytes]) == 0
+           fprintf("folder %s for subject %d is empty.. skipping subject\n", cam, subID)
+           continue
+        end
         
-        %% Match cont_eye with cevent timing window
-        % get only within trial gaze(xy) and target cevent times
+        %% Load cevent variable 
+        % get only within cevent times 
         var = get_variable_by_trial_cat(subID, cevent_variable);
-        eye = get_variable_by_trial_cat(subID, cont_eye);
+
+        if isempty(var)
+            disp("Error has_variable is true but get_variable_by_trail_cat returned empty")
+            continue
+        end
         
         % if cat_ids is empty include all rois otherwise filter
         if ~isempty(args.cat_ids)
@@ -157,18 +210,20 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
         
         % convert secs to frames 
         target_frames = [time2frame_num(var(:,4),subID), var(:,1), var(:,2), var(:,3)];
-        frame_eye = [time2frame_num(eye(:,1),subID), eye];
         
-        % convert array to table to do inner join 
+        % convert array to table
         instances_df = array2table(target_frames);
         instances_df.Properties.VariableNames = ["frame","onset","offset","cat"];
         instances_df.dur = instances_df.offset - instances_df.onset;
 
-        eye_df = array2table(frame_eye);
-        eye_df.Properties.VariableNames = ["frame","cstream","x","y"];
-
-        % get subdir and iterate through frames 
-        sub_dir = get_subject_dir(subID);
+        %% load eye var if valid 
+        if include_gaze
+            eye = get_variable_by_trial_cat(subID, cont_eye);
+            frame_eye = [time2frame_num(eye(:,1),subID), eye];
+    
+            eye_df = array2table(frame_eye);
+            eye_df.Properties.VariableNames = ["frame","cstream","x","y"];
+        end
         
         % Load subject transcription
         try
@@ -180,6 +235,8 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
         k = 1;
 
         for j = 1:height(instances_df)
+            % update process bar
+            waitbar(i/numel(subjects), f, sprintf(' %d/%d subject %d: frame %d/%d',i,numel(subjects),subID,j,height(instances_df)))
             % if this instaces is too long or too short skip it
             inst_dur = instances_df{j,"dur"};
 
@@ -192,9 +249,8 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             
             %% Find overlalping utterances 
             % get utterances within t_frames_concat{j}
-            if ~isempty(transcription)
             cumulative_utterance = {};
-
+            if ~isempty(transcription)
                 while true & k <= height(transcription) 
 
                     b1 = transcription{k, "onset"};
@@ -218,89 +274,122 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             end
 
             % define subject frame path constants 
-            frame_name = sprintf('img_%d.jpg', instances_df{j,"frame"});
-            rel_frame_path = fullfile(sub_dir, cam, frame_name);
+            frame_number = instances_df{j,"frame"};
+            frame_name = sprintf('img_%d.jpg', frame_number);
+            rel_frame_path = fullfile(sub_dir_cam, frame_name);
             
             % get frame constants
-            frame = imread(rel_frame_path);
-            [fHeight, fWidth, ~] = size(frame);
-
-            % check if the frame dim of the sub is less than the dim of the
-            % crop
-
-            if fWidth < target_width || fHeight < target_height
-                dim_string = sprintf('  sub:%d img:%dx%d crop:%dx%d\n',subID, fHeight, fWidth, target_height, target_width);
-                error_string = ['crop size is greater than img size:' newline dim_string 'skipping subject'];
-                disp(error_string)
-                break
-            end
-            
-            % get and round gaze xy 
-            coor_candidates = eye_df(eye_df.cstream >= curr_onset - 0.033 | eye_df.cstream <= curr_onset + 0.033,:);
-
-            if height(coor_candidates) > 0
-                coordinates = mean(coor_candidates,"omitmissing");
+            try
+                img = imread(rel_frame_path);
+            catch ME
+                disp(ME.message)
                 
-                centerX = round(coordinates.x);
-                centerY = round(coordinates.y);
-            else
                 continue
             end
 
-            % find the top and bottom corner of the target crop
-            top_x = round(centerX - (target_width/2));
-            top_y = round(centerY - (target_height/2));
-        
-            low_x = round(centerX + (target_width/2));
-            low_y = round(centerY + (target_height/2));
-            
-            %% If target crop is out of bounds 
+            % check if crop is indicated or not 
+            [frame_height, frame_width, ~] = size(img);
+     
+            % get and round gaze xy 
+            if include_gaze
+                % try to find an extact timing match between cstream &
+                % cevent
+                coordinates = eye_df(eye_df.frame == frame_number,:);
 
-            % if the x location of the crop is right-out of bounds
-            if (fWidth - low_x) < 0
-                top_x = top_x - abs(fWidth - low_x);
-                %low_x = low_x - abs(fWidth - low_x);
+                if height(coordinates) > 0
+                    % if not then look for cstream values within the 8 frame
+                    % boundary and average 
+                    if isnan(coordinates.x) || isnan(coordinates.y)
+                        coor_candidates = eye_df(eye_df.frame >= frame_number - 4 & eye_df.frame <= frame_number + 4,:);
+                        coordinates = mean(coor_candidates,"omitmissing");
+    
+                        if isnan(coordinates.x) || isnan(coordinates.y)
+                            continue
+                        end
+                    end
+                    % need to be integers 
+                    centerX = round(coordinates.x);
+                    centerY = round(coordinates.y);
+    
+                    % add red dot to indicate gaze 
+                    if no_crop
+                        relative_radius = round(frame_height * 0.02);
+                    else
+                        relative_radius = round(crop_width * 0.02);
+                    end
+    
+                    img = insertShape(img, 'FilledCircle', [centerX, centerY, relative_radius], 'Color', [203,203,203], 'Opacity', 1);
+                    img = insertShape(img, 'FilledCircle', [centerX, centerY, round(relative_radius*.7)], 'Color', 'red', 'Opacity', 0.7);
+                end
+
+            else
+                centerX = round(frame_width/2);
+                centerY = round(frame_height/2);
             end
+                
+            % crop if indicated
+            % NOTE: if gaze is not used then it crops around the middle
+            % of the frame
+            if ~no_crop
             
-            % if the x location of the crop is left-out of bounds 
-            if top_x < 0
-                top_x = top_x + abs(top_x) + 1;
-                %low_x = low_x + abs(top_x);
+                if frame_width < crop_width || frame_height < crop_height
+                    dim_string = sprintf('  sub:%d img:%dx%d crop:%dx%d\n',subID, frame_height, frame_width, crop_height, crop_width);
+                    error_string = ['crop size is greater than img size:' newline dim_string 'skipping subject'];
+                    disp(error_string)
+                    break
+                end
+
+                % find the top and bottom corner of the target crop
+                top_x = round(centerX - (crop_width/2));
+                top_y = round(centerY - (crop_height/2));
+    
+                low_x = round(centerX + (crop_width/2));
+                low_y = round(centerY + (crop_height/2));
+                
+                %% If target crop is out of bounds 
+    
+                % if the x location of the crop is right-out of bounds
+                if (frame_width - low_x) < 0
+                    top_x = top_x - abs(frame_width - low_x);
+                    %low_x = low_x - abs(fWidth - low_x);
+                end
+                
+                % if the x location of the crop is left-out of bounds 
+                if top_x < 0
+                    top_x = top_x + abs(top_x) + 1;
+                    %low_x = low_x + abs(top_x);
+                end
+            
+                % if the y location of the crop is bottom-out of bounds 
+                if (frame_height - low_y) < 0
+                    top_y = top_y - abs(frame_height - low_y);
+                    %low_y = low_y - abs(fHeight - low_y);
+                end
+            
+                % if the y location of the crop is top-out of bounds 
+                if top_y < 0
+                    top_y = top_y + abs(top_y) + 1;
+                    %low_y = low_y + abs(top_y);
+                end
+    
+                % This deals with the dim requirements of the H.264 code, must
+                % be even 
+                if mod(crop_height, 2)
+                   img = padarray(img, [1 0], 'replicate', 'post');
+                end
+       
+                if mod(crop_width, 2)
+                   img = padarray(img, [0 1], 'replicate', 'post');
+                end
+            
+                % define valid rect and crop frame based on it's dim and coor
+                % -1 because imcrop adds a 1 for some reason
+                rect = [top_x top_y, crop_width-1, crop_height-1];     
+                img = imcrop(img, rect);
+
+                [frame_height, frame_width, ~] = size(img);
             end
-        
-            % if the y location of the crop is bottom-out of bounds 
-            if (fHeight - low_y) < 0
-                top_y = top_y - abs(fHeight - low_y);
-                %low_y = low_y - abs(fHeight - low_y);
-            end
-        
-            % if the y location of the crop is top-out of bounds 
-            if top_y < 0
-                top_y = top_y + abs(top_y) + 1;
-                %low_y = low_y + abs(top_y);
-            end
-            
-            %% Add gaze and identifiers 
-            % add red dot to indicate gaze 
-            img = insertShape(frame, 'FilledCircle', [centerX, centerY, 13], 'Color', [203,203,203], 'Opacity', 1);
-            img = insertShape(img, 'FilledCircle', [centerX, centerY, 10], 'Color', 'red', 'Opacity', 0.7);
-            % define valid rect and crop frame based on it's dim and coor
-            rect = [top_x top_y, target_width-1, target_height-1];     
-            croppedFrame = imcrop(img, rect);   
-            
-            % target crop constants 
-            [cF_rows, cF_col, ~] = size(croppedFrame);
-            
-            % This deals with the dim requirements of the H.264 code, must
-            % be even 
-            if mod(cF_rows, 2)
-                croppedFrame = padarray(croppedFrame, [1 0], 'replicate', 'post');
-            end
-            
-            if mod(cF_col, 2)
-                croppedFrame = padarray(croppedFrame, [0 1], 'replicate', 'post');
-            end
-            
+
             % Insert the subject id and cat name to the crop (top)
             target_label = instances_df{j,"cat"};
 
@@ -309,17 +398,19 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             else
                 obj_label = "other";
             end
-
+           
             % insert cat_label, subID, onset, and offset at top of frame
             target_string = sprintf('%s, %d, %.2f, %.2f', obj_label, subID, curr_onset, curr_offset);
-            relative_font = round(cF_rows * 0.05);
-            RGB = insertText(croppedFrame,[0 0],target_string, FontSize=relative_font, ...
+            relative_font = round(frame_width * 0.05);
+            RGB = insertText(img,[0 0],target_string, FontSize=relative_font, ...
                 BoxOpacity=0.4,TextColor="white", AnchorPoint="LeftTop",BoxColor="black");
             
+            % find length of insertText (need to write to empty image
+            % and isolate) suggested by the one and only chatgpt
             [rF_height, rF_width] = get_text_dimensions('a', relative_font * 0.8); 
-            px_to_ch = floor(cF_col / rF_width);
+            px_to_ch = floor(frame_width / rF_width);
             
-
+            
             %% Insert utterances into frame
             % step one is to make sure every utterance fits within the crop
             % if it doesn't then break it and add it as an new utterance
@@ -327,9 +418,9 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             
             for v = 1:numel(cumulative_utterance)
                 target_utterance = cumulative_utterance{v};
-                % find length of insertText (need to write to empty image
-                % and isolate) suggested by the one and only chatgpt
-                groups  = ceil((rF_width * numel(target_utterance)) / cF_col);
+                % estimate how long the string sequence is in pixels 
+                % and separate
+                groups  = ceil((rF_width * numel(target_utterance)) / frame_width);
                 idx_i = 1;
                 idx_j = px_to_ch;
                 group_utterance = {};
@@ -357,20 +448,37 @@ function create_summary_movie(subexpID, cevent_variable, output_filename, vararg
             % more than 1/4 of the space stop adding them 
             cumulative_height = 0;
             for v = numel(cumulative_utter_cut):-1:1
-                if cumulative_height + (3 * rF_height) >= cF_rows * 0.25
+                if cumulative_height + (3 * rF_height) >= frame_height * 0.25
                         break
                 end
                 % image writting operation
-                RGB = insertText(RGB, [0, cF_rows - cumulative_height], cumulative_utter_cut{v}, FontSize=floor(relative_font * 0.7), ...
+                RGB = insertText(RGB, [0, frame_height - cumulative_height], cumulative_utter_cut{v}, FontSize=floor(relative_font * 0.7), ...
                     BoxOpacity=0.4,TextColor="white", AnchorPoint="LeftBottom", BoxColor="black"); 
                 cumulative_height = cumulative_height + (3 * rF_height);
             end
-            writeVideo(writerObj, RGB);
+            try
+                writeVideo(writerObj, RGB);
+            catch ME
+                disp(ME.message)
+                fprintf("%d, %s\n",subID, frame_name)
+                break
+            end
         end
     end 
     % close object 
+    lastwarn('')
     close(writerObj);
-    fprintf("Movie saved under %s.mp4\n",  output_filename)
+
+    [~, warnId] = lastwarn;
+
+    if ~strcmp(warnId, 'MATLAB:audiovideo:VideoWriter:noFramesWritten')
+        fprintf("Movie saved under %s.mp4\n",  output_filename)
+    end
+    
+    F = findall(0,'type','figure','tag','TMWWaitbar');
+    delete(F);
+
+
 end
 
 % helper function for create_summary_movie
@@ -388,6 +496,7 @@ function [text_height, text_width] = get_text_dimensions(text, font_size)
     text_height = stats(1).BoundingBox(4);
 end
 
+% reads a transcription with trail timing 
 function transcription = load_speech_transcription(subID)
     subject_dir = get_subject_dir(subID);
 
@@ -415,7 +524,7 @@ function transcription = load_speech_transcription(subID)
 
     trials = get_trial_times(subID);
     trial_length = sum(trials(:,2) - trials(:,1));
-    %
+    
     
     trial_lag = defaultSpeechTime - round(extract_range_onset/frame_rate,3);
     transcription{:,"onset"} = transcription{:,"onset"} + trial_lag; 
@@ -423,6 +532,7 @@ function transcription = load_speech_transcription(subID)
 
 end
 
+% finds if two timeseries overlap
 function overlap = cevents_have_overlap(a1,a2,b1,b2)
     lower = b1 < a2 & b2 > a1;
     upper = b1< a2 & b2 > a2;
