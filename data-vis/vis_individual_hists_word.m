@@ -48,6 +48,7 @@ function vis_individual_hists_word(input_csv, output_dir, keyword_list, group_co
     % %get overall visualization
 
     all_counts = sum(data(:,start_word_col:end), 1);
+
     
     keyword_idx = [];
     for i = 1:length(keyword_list)
@@ -69,21 +70,28 @@ function vis_individual_hists_word(input_csv, output_dir, keyword_list, group_co
         end
     end
 
+    disp(keyword_idx);
+    disp(keyword_counts);
+
     % keyword_counts = all_counts(keyword_idx);
 
-    %sort keywords
-    [sort_counts_key, sortIdxKey] = sort(keyword_counts, 'descend');
-    sort_words_key = keyword_list(sortIdxKey);
+    % %sort keywords
+    % [sort_counts_key, sortIdxKey] = sort(keyword_counts, 'descend');
+    % sort_words_key = keyword_list(sortIdxKey);
     
     %display words up to word display limit - if there are less keywords
     %than word limit, display all 
-    if length(keyword_list) <= word_display_limit
-        disp_key_words = sort_words_key;
-        disp_key_counts = sort_counts_key;
-    else
-        disp_key_words = sort_words_key(1:word_display_limit);
-        disp_key_counts = sort_counts_key(1:word_display_limit);
-    end
+    % if length(keyword_list) <= word_display_limit
+    %     disp_key_words = sort_words_key;
+    %     disp_key_counts = sort_counts_key;
+    % else
+    %     disp_key_words = sort_words_key(1:word_display_limit);
+    %     disp_key_counts = sort_counts_key(1:word_display_limit);
+    % end
+
+    disp_key_words = keyword_list;           % keep original order
+    disp_key_counts = keyword_counts;        % also in original order
+
 
     histogram('Categories', disp_key_words, 'BinCounts', disp_key_counts);
 
@@ -152,6 +160,7 @@ function vis_individual_hists_word(input_csv, output_dir, keyword_list, group_co
 
     key_figure = figure('Position',[0,0,1400,1200]);
     tiledlayout(5,5);
+    
     for i = 1:height(group_list)
 
         idx = group_column == group_list(i, :);
@@ -181,16 +190,31 @@ function vis_individual_hists_word(input_csv, output_dir, keyword_list, group_co
 
         %plots keywords in the same order as they appear in the overall
         %visualization
-        keyword_counts = plot_data(sortIdxKey);
+        % keyword_counts = plot_data(sortIdxKey);
+        % 
+        % 
+        % if length(keyword_list) <= word_display_limit
+        %     disp_key_counts = keyword_counts;
+        % else
+        %     disp_key_counts = keyword_counts(1:word_display_limit);
+        % end
+        % 
+        % %create keyword histogram here 
+        % key_mtr(1+i,:) = disp_key_counts;
 
-        
-        if length(keyword_list) <= word_display_limit
-            disp_key_counts = keyword_counts;
-        else
-            disp_key_counts = keyword_counts(1:word_display_limit);
+
+        % Get keyword counts in original order
+        keyword_counts = zeros(1, length(keyword_list));
+        for k = 1:length(keyword_list)
+            idx = keyword_idx(k);
+            if idx > 0
+                keyword_counts(k) = plot_data(idx);
+            else
+                keyword_counts(k) = 0;
+            end
         end
-
-        %create keyword histogram here 
+        
+        disp_key_counts = keyword_counts;
         key_mtr(1+i,:) = disp_key_counts;
         key_hist = histogram('Categories', disp_key_words, 'BinCounts', disp_key_counts);
         
