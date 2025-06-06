@@ -1,7 +1,7 @@
 %%%
 % Author: Jingwen Pang
-% last edited: 08/30/2024
-% this function reads the saccades.csv from raw neon recording data,
+% last edited: 06/04/2025
+% this function reads the child/parent_eye.csv from raw neon recording data,
 % extract the time based on extract_range.txt and transfer the extracted
 % data into multi-work.
 % grey_screen_offset: for the subjects has grey screen issue 
@@ -9,6 +9,7 @@
 % Example function call: make_saccades(35321,'child')
 %%%
 function record_eyegaze_datavyu(subID,agent)
+
 
     %% check if the subjects contains grey screen
     % grey screen issue subjects' data
@@ -24,6 +25,8 @@ function record_eyegaze_datavyu(subID,agent)
     0,2198.345,2498,2895.587,2259.588,1879.582,2084.99,912.882,1185.83,2198.345,40.013,2259.588,1879.582,2198.345...
     2498,2895.587,2259.588,0,2198.345,2259.588,1879.582,2198.345 ...
     2498,2895.587,2259.588,1879.582,912.882,0,2198.345];
+
+    sample_rate_raw = 200;
     
     idx = find (subID == grey_screen_subject);
 
@@ -56,31 +59,24 @@ function record_eyegaze_datavyu(subID,agent)
     data = readtable(input_filename);
 
     % get column data
-    onset = data.onset;
-    offset = data.offset;
+    timestamp = data.timestamp;
+    fixation = data.fixation;
     pos_x = data.gazex;
     pos_y = data.gazey;
 
 
    % get rid of trailing NaN values
-    onset = onset(~isnan(onset));
-    offset = offset(~isnan(offset));
+    timestamp = timestamp(~isnan(timestamp));
+    fixation = fixation(~isnan(fixation));
     pos_x = pos_x(~isnan(pos_x));
     pos_y = pos_y(~isnan(pos_y));
 
-    new_onset = zeros(size(onset));
-    new_offset = zeros(size(offset));
     pos_x = round(pos_x);
     pos_y = round(pos_y);
 
-    for j = 1:size(pos_x,1)
-        % convert raw timestamps to system time
-        new_onset(j) = onset(j)/1000;
-        new_offset(j) = offset(j)/1000;
-        new_onset(j) = new_onset(j) - time_offset + system_start - grey_screen_offset/1000;
-        new_offset(j) = new_offset(j) - time_offset + system_start - grey_screen_offset/1000;
+    converted_timestamp = timestamp/1000 - time_offset + system_start - grey_screen_offset/1000;
+    
 
-   end
 
     %% Save variables in derived folder in Multiwork experiment folder
     % save cont var
@@ -91,11 +87,72 @@ function record_eyegaze_datavyu(subID,agent)
     % cont_mtr_y = cevent2cont(cevent_y,floor(cevent_y(1,1)),1/rate,0);
     % 
     % cont2_mtr = [cont_mtr_x cont_mtr_y(:,2)];
-    cevent = [new_onset new_offset pos_x pos_y];
+
+    % record raw sample rate eye gaze data
+    cont2_raw = [converted_timestamp pos_x pos_y];
+
+    var_name = sprintf('eye_xy_%dhz_%s',sample_rate_raw, agent);
+
+    % record_additional_variable(subID,['cont2_' char(var_name)],cont2_raw);
+
+
+    % convert data to 30 hz, align with system sample rate
+    target_rate = 30;
+    dt = 1/target_rate;
+    start_time = round(converted_timestamp(1) * target_rate) / target_rate;
+    end_time = round(converted_timestamp(end) * target_rate) / target_rate;
+
+    new_timestamp = (start_time:dt:end_time);
+
+    new_pos_x = zeros(size(new_timestamp));
+    new_pos_y = zeros(size(new_timestamp));
+
+    for i = 1:length(new_timestamp)
+        t0 = new_timestamp(i);
+        t1 = t0 + dt;
+        idx = converted_timestamp >= t0 & converted_timestamp < t1;
+
+        if any(idx)
+            x_diff = max(pos_x(idx)) - min(pos_x(idx));
+            disp(x_diff)
+            new_pos_x(i) = mean(pos_x(idx));
+            new_pos_y(i) = mean(pos_y(idx));
+        else
+            new_pos_x(i) = NaN;
+            new_pos_y(i) = NaN;
+        end
+    end
+
+    cont2 = [new_timestamp' new_pos_x' new_pos_y'];
+
+    var_name = sprintf('eye_xy_%s',agent);
+
+    % record_variable(subID,['cont2_' char(var_name)],cont2);
+
+    %disp(cont2);
+
+
+    % convert data into event base, using fixation
+    change_idx = [1; find(diff(fixation) ~= 0) + 1; length(fixation) + 1];
+
+    fixation_events = [];
+
+    for i = 1:length(change_idx)-1
+        start_idx = change_idx(i);
+        end_idx = change_idx(i+1) - 1;
+
+        if fixation(start_idx) == 1
+            onset = converted_timestamp(start_idx);
+            offset = converted_timestamp(end_idx);
+            avg_pos_x = round(mean(pos_x(start_idx:end_idx)));
+            avg_pos_y = round(mean(pos_y(start_idx:end_idx)));
+
+            fixation_events = [fixation_events; onset, offset, avg_pos_x, avg_pos_y];
+        end
+    end
 
     var_name = sprintf('eye_fixation_xy_%s',agent);
 
-    record_additional_variable(subID,['cevent2_' char(var_name)],cevent);
-
+    % record_additional_variable(subID,['cevent2_' char(var_name)],fixation_events);
 
 end
