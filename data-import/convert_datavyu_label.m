@@ -96,6 +96,7 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
 
         label_map = string(table2array(mapping(:,1)));
         ROI_map = table2array(mapping(:,2));
+        ROI_num = size(mapping,1);
 
         % parse current variable
         var_name = var_list(i);
@@ -148,7 +149,7 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
         % check if current variable is a fixation variable
         % If so, merge fixations and generate eye ROI variables
         if contains(var_name,'eye_roi')
-            cat_list = [1:get_num_obj(subID)+1];
+            cat_list = [1:ROI_num];
             % merge two consecutive fixations less than 4 frames away
             % from each other, if two instances are on the same object
             cevent_merged = cevent_merge_segments(cevent_mtr, merge_thres/rate,cat_list);
