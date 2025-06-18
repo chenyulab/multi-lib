@@ -21,7 +21,7 @@
 %   args.overlap_percentage (int)
 %       -- overlap_percentage define the overlap proportion between cevent data and
 %          speech utterance, keep the utterance that is 
-%          (overlap between cevent and utterance)/(utterance_length) > threhold
+%          (overlap between cevent and utterance)/(cevent_length) > threhold
 %
 %   args.whence
 %       -- string, 'start', 'end', or 'startend'
@@ -79,10 +79,16 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
 
 
     % threshold for filtering cevent instances overlap
-    if isfield(args, 'threshold')
-        threshold = args.threshold;
+    if isfield(args, 'min_dur')
+        min_dur = args.min_dur;
     else
-        threshold = 0;
+        min_dur = 0;
+    end
+
+    if isfield(args, 'max_dur')
+        max_dur = args.max_dur;
+    else
+        max_dur = inf;
     end
 
     if isfield(args, 'overlap_percentage')
@@ -189,7 +195,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                     overlap_prop2 = [];
                     bt = onset(k);
                     et = offset(k);
-                    
+
         
                     % find utterance timestamps that falls within bt-et range
                     utt_onset = [speech_var.start];
@@ -281,6 +287,12 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                     overlap_prop2 = [];
                     bt = onset(k);
                     et = offset(k);
+
+                    % check cevent duration
+                    cevent_dur = et - bt;
+                    if cevent_dur < min_dur || cevent_dur > max_dur
+                        continue
+                    end
                     
         
                     % find utterance timestamps that falls within bt-et range
