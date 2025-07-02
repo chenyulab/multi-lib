@@ -1,96 +1,67 @@
 %%%
 % # Speech Analysis Demo Functions
 %
-% This demo demonstrates how to analyze speech data across different situations using a set of modular functions. 
-% The analysis generally follows 3 stages:
+% This demo showcases how to extract, organize, and analyze speech transcripts 
+% in behavioral experiments using a modular, research-oriented pipeline.
+%
+% The demo is organized into 4 stages:
 %
 % ## 1. Extraction Functions
-% Extract utterances from transcripts based on cevent or keyword matches.
-%
-%   **extract_speech_in_situ**
-%     - Extracts speech data within a time window around cevent based on one experiment or a list of same-exp subjects.
-%     - Windows can be adjusted relative to the start, end, or entire event duration.
-%     - Can extract based on keywords
-%
-%   **extract_speech_by_keywords**
-%     - Finds speech containing specific keywords across one or more experiments/subjects.
-%     - Flexible keyword input: simple, combined (A+B), or sequential (A B).
+% Extract utterances based on cevent context (e.g., gaze, in-hand) or keyword patterns.
+% Demonstrates keyword logic (individual, combined, sequence), timing alignment,
+% and content-based filtering (e.g., object-specific or min-duration looks).
 %
 % ## 2. Grouping and Mapping Functions
-% Organize or recategorize extracted data.
-%
-%   **remap_cat_values**
-%     - Maps original category values to new ones using a user-defined mapping table.
-%
-%   **group_speech_in_situ**
-%     - Groups speech by subject, category (e.g., object), or their combination.
+% Group extracted speech by subject or category, and remap categorical values 
+% using a mapping table for custom grouping (e.g., toy types, animate/inanimate).
 %
 % ## 3. Analysis and Calculation Functions
-% Analyze word usage patterns, count statistics, and compute similarities.
+% Perform frequency analysis (word, word pair, category-word), lexical profiling,
+% and word similarity computations to understand language use in context.
 %
-%   **count_words_by_subject**
-%     - Counts word frequencies for each subject/experiment.
+% ## 4. Other Utility Functions
+% Create word frequency histograms, structured cevent variables, and wordcloud visualizations.
 %
-%   **count_words_by_type**
-%     - Returns keyword frequencies and lexical properties (e.g., number of unique words, verbs).
 %
-%   **count_words_speech_in_situ**
-%     - Performs detailed analysis of extracted speech including:
-%       count total tokens, utterance length, word types, etc.
+% ## Run Instructions
+% To execute a specific demo case, call:
 %
-%   **create_word-word-pair_in_situ**
-%     - Finds local/global speech pairs and calculates word frequency and word pair frequency.
+%   `demo_speech_analysis_functions(CASE_ID)`
 %
-%   **cal_category_word_similarity**
-%     - Calculates semantic similarity between **utterance words** and their **associated category labels** (e.g., object names).
-%     - Input: one column with utterance text, one column with category values.
+% Each case below demonstrates a real use scenario and is tied to an analytical function:
 %
-%   **cal_word_word_similarity**
-%     - Computes semantic similarity between **pairs of individual words**.
-%     - Input: two columns of words (e.g., word1 and word2).
+% -----------------------------------------------------------------------
+% CASE ID    FUNCTIONALITY                           RESEARCH INTENTION
+% --------   --------------------------------------  ----------------------
+% 1          Extract all utterances by subject IDs   Get the complete transcript per subject
+% 2          Keyword matching modes (A, A+B, A B)     Test keyword logic and syntax flexibility
+% 3          Speech during child gaze                What’s said when child looks at objects
+% 4          Speech before child gaze                Do parents anticipate child gaze?
+% 5          Partial speech overlap with gaze        Capture loosely co-occurring speech
+% 6          Keyword use during gaze                 Does parent say ‘look’ when child looks?
+% 7          Rabbit-specific analysis                Is ‘rabbit’ named when child looks at it?
+% 8          Gaze longer than threshold (1s)         Filter short events to study sustained looks
+% 9          Naming structure (a/the/none + label)   Compare different naming conventions
 %
-%   NOTE: These two similarity functions require different input formats.*
-%     - `cal_category_word_similarity` → [category value column, utterance column]  
-%     - `cal_word_word_similarity` → [word1 column, word2 column]
+% 10         Category remapping after extraction     Merge fine-grained categories into types
+% 11         Grouping speech by subject/category     Prepare for subject-level or category-level analysis
 %
-% ## 4. Other related Functions
+% 12         Count all words per subject             Compute word frequency distribution
+% 13         Count specific words + types            Track verbs, keywords, and lexical richness
+% 14         In-hand context + group + count         Link action context to spoken words
+% 15         Word pair frequency by group            Get subject-level co-occurrence patterns
+% 16         Word pair frequency by group            Get subject-level co-occurrence patterns
+% 17         Cat-word frequency matrix               See which words map to which categories
+% 18         Cat-word + similarity matrix            Are similar words used for similar objects?
 %
-%   **make_keyword_hist**
-%     - this function takes an input csv containing counts of words
-%       per grouping level, and creates histograms displaying the counts of each
-%       word in rank order and also histograms of keywords - data files for all
-%       plots
-%     - See more in demo_make_keyword_hist
-%   
+% 19         Generate structured cevent variables    Create event-based labels from transcript
+% 20         Generate wordclouds                     Visualize lexical frequency in transcripts
 %
-%   **make_keywords_event**
-%     - Helps generate structured keyword event files.
-%   
-%   **generate_wordcloud**
-%     - Generate wordcloud images from subject's transcripts.
+% -----------------------------------------------------------------------
 %
-% Run `demo_speech_analysis_functions(CASE_ID)` with one of the cases below to try each demo.
-%	Case	Functionality Description
-%	1	    Extract all speech by subject IDs
-%	2	    Extract speech containing any of several keywords
-%	3	    Extract speech containing multiple keywords together (+ syntax)
-%	4	    Extract speech with keywords in sequence (A B)
-%	5	    Extract speech during cevent window
-%	6	    Extract speech before a cevent (e.g., 3 seconds prior)
-%	7	    Extract speech with partial overlap to cevent (50%)
-%	8	    Extract speech with keyword within a cevent window
-%	9	    Extract speech around a specific category object (e.g., rabbit)
-%	10	    Extract + map categories + export
-%	11	    Extract + group by subject/category
-%	12	    Extract + count speech word pairs
-%	13	    Extract + group by subject/category + count speech words type
-%	14	    Count all word frequencies across experiments
-%	15	    Count specific words and word types
-%   16      Extract + group by subject/category + cal cat-word similarity score
-%   17      Extract speech data + extract word pairs + cal word-word similarity score
-%   18      Extract all word count + generate word frequency historgram
-%   19      Variable generation based on speech data
-%   20      Generate word cloud image
+% Output CSV and Excel files are stored in:
+%   `Z:\demo_output_files\speech_analysis`
+%
 %%%
 function demo_speech_analysis_functions(option)
     % all the demo files are saved into, users can define their own path:
@@ -104,96 +75,127 @@ function demo_speech_analysis_functions(option)
             % from all the subjects, one utterance intance per row 
             subexpIDs = [12 15];
             keywords = {};
-            output_filename = fullfile(output_dir,'example_1.csv');
+            output_filename = fullfile(output_dir,'case1_all_utterance.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
     
         case 2
-            % Given a list of keywords specfied (separated by comma), extract spoken utterances that contain any 
-            % of the keywords
-            % each word need to be separated by comma, the output will be multiple
-            % csv files, each file for one keyword
-            % extract the speech data that contains 'try' or 'eat'
+            % extracting keywords in 3 different ways:
+            % individual words {'A', 'B'}
             subexpIDs = [12 15];
-            keywords = {'try','eat'};
-            output_filename = fullfile(output_dir,'example_2.csv');
+            keywords = {'look','this'};
+            output_filename = fullfile(output_dir,'case2_individual_words.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
-    
-        case 3
-            % to extract a utterance that contains mutliple words, use
-            % the format: 'A+B+C'
-            % extract the speech data that contains 'look' and 'this' or 'look' and 'that' 
-            subexpIDs = [12 15];
-            keywords = {'look+this','look+that'};
-            output_filename = fullfile(output_dir,'example_3.csv');
+
+            % combine {'A+B'}
+            keywords = {'look+this'};
+            output_filename = fullfile(output_dir,'case2_combine_words.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
-            
-        case 4
-            % to extract a utterance that contains mutliple words in sequence, use
-            % the format: 'A B C'
-            % extract the speech data that contains 'yummy' and 'mango' in sequence
-            subexpIDs = [12 15];
-            keywords = {'yummy mango'};
-            output_filename = fullfile(output_dir,'example_4.csv');
+
+            % sequence {'A B'}
+            keywords = {'look this'};
+            output_filename = fullfile(output_dir,'case2_sequence_words.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
         
-        case 5    
-            % basic usage -- extract speech utterance within cevent child roi time
-            % window
+        case 3
+            % Extract Speech Within Child Gaze
             expID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            num_obj = get_num_obj(expID);
-            category_list = 1:num_obj+1; % list all the category: objects + face for eye roi data
-            output_filename = fullfile(output_dir,'example_5.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename);
-            
-        case 6
-            % extract the utterance in 3 seconds window before child roi
+            category_list = 1:get_num_obj(expID)+1;
+            output_filename = fullfile(output_dir,'case3_speech_during_gaze.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename);
+    
+        case 4
+            % Extract Speech Before Child Gaze
             expID = 12;
-            cevent_var = 'cevent_eye_roi_child'; 
-            num_obj = get_num_obj(expID);
-            category_list = 1:num_obj+1;
-            output_filename = fullfile(output_dir,'example_6.csv');
+            cevent_var = 'cevent_eye_roi_child';
+            category_list = 1:get_num_obj(expID)+1;
             args.whence = 'start';
             args.interval = [-3 0];
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
+            output_filename = fullfile(output_dir,'case4_speech_before_gaze.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+    
+        case 5
+            % Speech Partially Overlapping with Gaze
+            % Capture speech that overlaps 50% with gaze event
+            expID = 12;
+            cevent_var = 'cevent_eye_roi_child';
+            category_list = 1:get_num_obj(expID)+1;
+            args.threshold = 0.5;
+            output_filename = fullfile(output_dir,'case5_partial_overlap.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+    
+        case 6
+            % Keyword Matching During Gaze
+            % Does parent say 'look' when the child looks at an object?
+            expID = 12;
+            cevent_var = 'cevent_eye_roi_child';
+            category_list = 1:get_num_obj(expID)+1;
+            args.target_words = {'look'};
+            output_filename = fullfile(output_dir,'case6_keyword_during_gaze.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
     
         case 7
-            % extract speech utterance that have 50% overlap with cevent data
-            % window
+            % Rabbit-Specific Attention Window
+            % extract 3 sec before and 1 sec after child looks at rabbit,
+            % see how many times parent is naming rabbit
             expID = 12;
-            cevent_var = 'cevent_eye_roi_child'; 
-            num_obj = get_num_obj(expID);
-            category_list = 1:num_obj+1;
-            args.threshold = 0.5;
-            output_filename = fullfile(output_dir,'example_7.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);        
-    
-        case 8
-            % extract speech utterance that contains keyword 'look' within cevent child roi time
-            expID = 12;
-            cevent_var = 'cevent_eye_roi_child'; % set speech utterance as the default
-            num_obj = get_num_obj(expID);
-            category_list = 1:num_obj+1;
-            % target_words inputing format is the same as 'keywords' from extract_speech_by_keywords
-            % see case 2 - case 4
-            args.target_words = {'look'}; 
-            output_filename = fullfile(output_dir,'example_8.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
-    
-        case 9
-            % extract speech utterance that contains keyword 'rabbit' 3 seconds
-            % before and 1 second after child attending to rabbit
-            expID = 12;
-            cevent_var = 'cevent_eye_roi_child'; % set speech utterance as the default
-            num_obj = get_num_obj(expID);
+            cevent_var = 'cevent_eye_roi_child';
             category_list = 7;
             args.whence = 'start';
             args.interval = [-3 1];
-            args.target_words = {'rabbit','bunny'}; 
-            output_filename = fullfile(output_dir,'example_9.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
+            args.target_words = {'rabbit','bunny'};
+            output_filename = fullfile(output_dir,'case7_rabbit.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
 
-    
+        case 8
+            % Looking longer Than 1 second
+            % filter out short looking, only extract the looking that is
+            % longer than 1 sec
+            expID = 12;
+            cevent_var = 'cevent_eye_roi_child';
+            category_list = 1:get_num_obj(expID)+1;
+            args.min_dur = 1;
+            output_filename = fullfile(output_dir,'case8_long_look.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+
+
+        case 9
+            % grab object names from dictionary for expID, put names into keywords, 
+            % and then run; extract three naming situations 
+            % 1) the + name, 2) a + name, 3) just name
+            expID = 12;
+            cevent_var = 'cevent_speech_naming_local-id';
+            category_list = 1:get_num_obj(expID);
+            obj_labels = get_object_label(expID,category_list);
+
+            % the + name
+            keyword_list1 = {};
+            for i = 1:length(obj_labels)
+                keyword = ['the+',obj_labels{i}];
+                keyword_list1 = [keyword_list1,keyword];
+            end
+            args.target_words = keyword_list1;
+            output_filename = fullfile(output_dir,'case9_the+name.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+
+            % a + name
+            keyword_list2 = {};
+            for i = 1:length(obj_labels)
+                keyword = ['a+',obj_labels{i}];
+                keyword_list2 = [keyword_list2,keyword];
+            end
+            args.target_words = keyword_list2;
+            output_filename = fullfile(output_dir,'case9_a+name.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+
+            % just name
+            keyword_list3 = obj_labels;
+            args.target_words = keyword_list3;
+            output_filename = fullfile(output_dir,'case9_name.csv');
+            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            
+
+
         %%% grouping functions
         case 10
             % extract speech data that within child roi time window
@@ -201,7 +203,7 @@ function demo_speech_analysis_functions(option)
             cevent_var = 'cevent_eye_roi_child'; 
             num_obj = get_num_obj(expID);
             category_list = 1:num_obj+1; % list all the category: objects + face for eye roi data
-            output_filename = fullfile(output_dir,'example_10_extracted.csv');
+            output_filename = fullfile(output_dir,'case10_extracted.csv');
             extract_speech_in_situ(expID,cevent_var,category_list,output_filename);
     
             % remap the data with mapping table
@@ -209,7 +211,7 @@ function demo_speech_analysis_functions(option)
             mapping_table = [1,1;12,1;14,1;24,1;3,1;11,1;18,1;19,1;22,1;2,2;7,2;...
                 8,2;10,2;15,2;16,2;23,2;26,2;27,2;4,3;5,3;6,3;9,3;13,3;17,3;20,3;21,3;25,3;28,4];
             categoryColumn = 6;
-            output_csv = fullfile(output_dir,'example_10_mapped.csv');
+            output_csv = fullfile(output_dir,'case10_mapped.csv');
             remap_cat_values(input_csv, categoryColumn, mapping_table, output_csv)
     
         case 11
@@ -218,7 +220,7 @@ function demo_speech_analysis_functions(option)
             cevent_var = 'cevent_inhand_child'; 
             num_obj = get_num_obj(expID);
             category_list = 1:num_obj+1; % list all the category: objects + face for eye roi data
-            output_filename = fullfile(output_dir,'example_11_extracted.csv');
+            output_filename = fullfile(output_dir,'case11_extracted.csv');
             extract_speech_in_situ(expID,cevent_var,category_list,output_filename);
             
             % group the output file into subject level, category level,
@@ -227,164 +229,175 @@ function demo_speech_analysis_functions(option)
             group_speech_in_situ(input_csv_dir)
     
     
-        %%% calculation functions
+        %%% analysis functions
         case 12
-            % extract speech utterance that contains keyword 'lemon' 3 seconds
-            % before and 1 second after child attending to lemon
-            expID = 15;
-            cevent_var = 'cevent_eye_roi_child'; % set speech utterance as the default
-            category_list = 6;
-            args.whence = 'start';
-            args.interval = [-3 1];
-            args.target_words = {'lemon'}; 
-            output_filename = fullfile(output_dir,'example_12.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
-    
-            % extarct the speech pairs and count the frequency of words
-            input_file = fullfile(output_dir,'example_12_lemon.csv');
-            output_file = fullfile(output_dir,'example_12_lemon_speech_pair.xlsx');
-            text_col = 8;
-            extra_stopwords = {'foreignx','langplayx','speechx','vocplayx'};
-            create_word_word_pair_in_situ(input_file, text_col, extra_stopwords, output_file)
-            
+            % given a list of subject ids or exp ids, count the frequency of all the words in
+            % these subjects' transcripts
+            subexpIDs = [351, 353];
+            output_filename = fullfile(output_dir,'case12_count_all_words.csv');
+            count_words_by_subject(subexpIDs,output_filename)
+
+
         case 13
+            % given a list of subject ids or exp ids, count the number of keywords
+            % and types of words (e.g. number of verb, number of unique token .etc)
+            subexpIDs = [12, 15];
+            target_words = {'eat','bite'};
+            output_filename = fullfile(output_dir,'case15.csv');
+            count_words_by_type(subexpIDs,target_words,output_filename)
+
+        case 14
             % extract speech utterance that contains 'car' when parent holding a car/truck
             expID = 351;
             cevent_var = 'cevent_inhand_parent'; % set speech utterance as the default
             category_list = [6,9];
             args.target_words = {'car'}; 
-            output_filename = fullfile(output_dir,'example_13.csv');
+            output_filename = fullfile(output_dir,'case14_extracted.csv');
             extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
 
             % group in subject level
-            input_file = fullfile(output_dir,'example_13_car.csv');
+            input_file = fullfile(output_dir,'case14_extracted.csv');
             group_speech_in_situ(input_file)
 
             % count the 'look' and 'car' occurance in subject level
-            input_file = fullfile(output_dir,'example_13_car_subject.csv');
-            output_file = fullfile(output_dir,'example_13_car_word_count.csv');
+            input_file = fullfile(output_dir,'case14_extracted_subject.csv');
+            output_file = fullfile(output_dir,'case14_extracted_word_count.csv');
             text_col = 5;
             id_col = 2;
             target_words = ["look","car"];
             extraStopWords = {};
             count_word_speech_in_situ(input_file, output_file, target_words, extraStopWords, text_col , id_col)
-    
-        case 14
-            % given a list of subject ids or exp ids, count the frequency of all the words in
-            % these subjects' transcripts
-            subexpIDs = [351, 353];
-            output_filename = fullfile(output_dir,'example_14.csv');
-            count_words_by_subject(subexpIDs,output_filename)
-    
+
+
         case 15
-            % given a list of subject ids or exp ids, count the number of keywords
-            % and types of words (e.g. number of verb, number of unique token .etc)
-            subexpIDs = [12, 15];
-            target_words = {'eat','bite'};
-            output_filename = fullfile(output_dir,'example_15.csv');
-            count_words_by_type(subexpIDs,target_words,output_filename)
+            % extract all the words from exp 12
+            subexpIDs = [12];
+            cevent_var = '';
+            category_list = NaN; 
+            output_filename = fullfile(output_dir,'case15_all_words.csv');
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
 
-        case 16
-            % category - word similarity
-            % WHEN YOU TRY THIS DEMO, MAKE SURE YOU HAVE INSTALLED MATLAB
-            % TEXT ANALYSIS TOOLBOX (The error message from first run provide the link)
-            % extract utterance when child is attending objects
-            expID = 15;
-            cevent_var = 'cevent_eye_roi_child'; % set speech utterance as the default
-            category_list = 1:get_num_obj(expID);
-            output_filename = fullfile(output_dir,'example_16.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename);
+            % count word - word pair frequency in subject level
+            input_csv = fullfile(output_dir,'case15_all_words.csv');
+            utt_col = 8;
+            group_col = 2;
+            group_label = 'subject';
+            output_folder = fullfile(output_dir,'case15_all_words_word-word_subject');
+            count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
 
-            % group data into subject-category level and category level
-            input_file = fullfile(output_dir,'example_16.csv');
-            group_speech_in_situ(input_file)
+        case 16 
+            % extract the words when child is attending to toys from exp 12
+            subexpIDs = [12];
+            cevent_var = 'cevent_eye_roi_child';
+            category_list = 1:get_num_obj(subexpIDs);
+            output_filename = fullfile(output_dir,'case16_child_looking.csv');
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
+            
+            % count word - word pair frequency in subject level
+            input_csv = fullfile(output_dir,'case16_child_looking.csv');
+            utt_col = 8;
+            group_col = 2;
+            group_label = 'subject';
+            output_folder = fullfile(output_dir,'case16_child_looking_word-word_subject');
+            count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
 
-            % calculate the similarity in subject-category level
-            input_filename = fullfile(output_dir,'example_16_subject-category.csv');
-            output_filename = fullfile(output_dir, 'example_16_sub-cat_similarity.csv');
-            args.catValue_col = 3;
-            args.speechWord_col = 6;
-            args.extaStopWords = {'foreignx','langplayx','speechx','vocplayx'};
-            cal_category_word_similarity(input_filename,output_filename,args)
-
-            % calculate the similarity in category level
-            input_filename = fullfile(output_dir,'example_16_category.csv');
-            output_filename = fullfile(output_dir, 'example_16_cat_similarity.csv');
-            args.subID_col = nan; % no subject id for cat level data
-            args.catValue_col = 2;
-            args.speechWord_col = 4;
-            args.extaStopWords = {'foreignx','langplayx','speechx','vocplayx'};
-            cal_category_word_similarity(input_filename,output_filename,args)
+            % count word - word pair frequency in object level
+            input_csv = fullfile(output_dir,'case16_child_looking.csv');
+            utt_col = 8;
+            group_col = 6;
+            group_label = 'category';
+            output_folder = fullfile(output_dir,'case16_child_looking_word-word_category');
+            count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
 
         case 17
-            % word - word similarity
-            % extract speech utterance that contains keyword 'bed' 3 seconds
-            % before and 1 second after child attending to bed
-            expID = 12;
-            cevent_var = 'cevent_eye_roi_child'; % set speech utterance as the default
-            category_list = 23;
-            args.whence = 'start';
-            args.interval = [-3 1];
-            args.target_words = {'bed'}; 
-            output_filename = fullfile(output_dir,'example_17.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
-    
-            % extarct the speech pairs and count the frequency of words
-            input_file = fullfile(output_dir,'example_17_bed.csv');
-            output_file = fullfile(output_dir,'example_17_bed_speech_pair.xlsx');
-            text_col = 8;
-            extra_stopwords = {'foreignx','langplayx','speechx','vocplayx'};
-            create_word_word_pair_in_situ(input_file, text_col, extra_stopwords, output_file)
+            % extract the speech when child is holding objects
+            subexpIDs = [12];
+            cevent_var = 'cevent_inhand_child'; 
+            num_obj = get_num_obj(subexpIDs);
+            category_list = 1:num_obj;
+            output_filename = fullfile(output_dir,'case17_speech_in_child_inhand.csv');
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
             
-            % append similarity score to each pair of words
-            input_file = fullfile(output_dir,'example_17_bed_speech_pair.xlsx');
-            output_file = fullfile(output_dir,'example_17_bed_speech_pair_similarity.xlsx');
-            word_col1 = 1;
-            word_col2 = 2;
-            cal_word_word_similarity(input_file,word_col1,word_col2,output_file)
-
-        %%% other related functions
-        case 18
-            % generate histogram of words frequency
-            %  count the frequency of all the words in exp 15 subjects' transcripts
-            subexpIDs = 15;
-            output_filename = fullfile(output_dir,'example_18','example_18.csv');
-            count_words_by_subject(subexpIDs,output_filename)
-
-            input_csv = fullfile(output_dir,'example_18','example_18.csv');
-            output_dir = fullfile(output_dir,'example_18');
-            keyword_list = get_object_label(subexpIDs,1:get_num_obj(subexpIDs));
- 
-            group_col = 1; %group by subject
-             
-            %args
-            args.word_display_limit = 20; % max words on each barchart/histogram
-            make_keyword_hist(input_csv, output_dir,keyword_list, group_col, args)
+            % count cat - word pair frequency in subject level
+            input_csv = output_filename;
+            sub_col = 2;
+            cat_col = 6;
+            utt_col = 8;
+            output_excel = fullfile(output_dir,'case17_speech_in_child_inhand_cat_word.xlsx');
+            count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
 
         
-        case 19
-            % ## Warning: this case will generate variables in our system,
-            % users should not use this unless get approval.
+        case 18
+            % extract the speech when parent is naming objects
+            subexpIDs = [15];
+            cevent_var = 'cevent_speech_naming_local-id'; 
+            num_obj = get_num_obj(subexpIDs);
+            category_list = 1:num_obj;
+            output_filename = fullfile(output_dir,'case18_parent_naming.csv');
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
 
-            % generates csv file with every utterance where a
-            % keyword was found in the speech transcripts of subjects
-            % the output file also includes the timestamps and source camera information for each instance
-            word_list = {'assemble','cut','close','drink'};
-            word_ids = [1,2,3,4];
-            subexpIDs = [58];
-            output_filename = fullfile(output_dir,'example_19.csv');
-            % optional arguments can be included to change the source
-            % camera and alter the timestamp of the generated event clips
-            data = extract_events_by_keyword(subexpIDs, word_list, output_filename);
-            varname = 'cevent_speech_action-verbs_demo';
-            make_keywords_events(word_list, word_ids, data, varname);
+            % count cat - word pair frequency in subject level
+            input_csv = output_filename;
+            sub_col = 2;
+            cat_col = 6;
+            utt_col = 8;
+            output_excel = fullfile(output_dir,'case18_parent_naming_cat_word.xlsx');
+            count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
 
-        case 20
-            % generates a wordcloud plot for a single subject or all
-            % subjects in an experiment
-            % size of the words reflects number of times that word was
-            % referenced in the transcipt(s)
-            subexpID = [1201];
-            generate_wordcloud(subexpID,output_dir);
+            % % calculate similarity score
+            % input_excel = output_excel;
+            % output_csv = fullfile(output_dir,'case18_parent_naming_cat_word_simailarity.csv');
+            % cal_word_similarity(input_excel, output_csv)
+        % 
+        % case 19
+        %     % extract the words when child is attending to toys from exp 12
+        %     subexpIDs = [12];
+        %     cevent_var = 'cevent_eye_roi_child';
+        %     category_list = 1:get_num_obj(subexpIDs);
+        %     output_filename = fullfile(output_dir,'case19_child_looking.csv');
+        %     extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
+        % 
+        %     % group the data into subject level & object level
+        %     input_csv = output_filename;
+        %     group_speech_in_situ(input_csv);
+        % 
+        %     % count word - word pair frequency in object level
+        %     input_csv = fullfile(output_dir,'case19_child_looking_category.csv');
+        %     utt_col = 4;
+        %     output_excel = fullfile(output_dir,'case19_child_looking_word_word_category.xlsx');
+        %     count_word_word_pair_freq(input_csv, utt_col, output_excel)
+        % 
+        %     % calculate similarity score
+        %     input_excel = output_excel;
+        %     output_csv = fullfile(output_dir,'case19_child_looking_word_word_simailarity.csv');
+        %     cal_word_similarity(input_excel, output_csv)           
+            
+
+
+        % %%% other related functions        
+        % case 19
+        %     % ## Warning: this case will generate variables in our system,
+        %     % users should not use this unless get approval.
+        % 
+        %     % generates csv file with every utterance where a
+        %     % keyword was found in the speech transcripts of subjects
+        %     % the output file also includes the timestamps and source camera information for each instance
+        %     word_list = {'assemble','cut','close','drink'};
+        %     word_ids = [1,2,3,4];
+        %     subexpIDs = [58];
+        %     output_filename = fullfile(output_dir,'example_19.csv');
+        %     % optional arguments can be included to change the source
+        %     % camera and alter the timestamp of the generated event clips
+        %     data = extract_events_by_keyword(subexpIDs, word_list, output_filename);
+        %     varname = 'cevent_speech_action-verbs_demo';
+        %     make_keywords_events(word_list, word_ids, data, varname);
+        % 
+        % case 20
+        %     % generates a wordcloud plot for a single subject or all
+        %     % subjects in an experiment
+        %     % size of the words reflects number of times that word was
+        %     % referenced in the transcipt(s)
+        %     subexpID = [1201];
+        %     generate_wordcloud(subexpID,output_dir);
     end
 end

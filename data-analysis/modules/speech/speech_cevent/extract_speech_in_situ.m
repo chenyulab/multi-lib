@@ -253,7 +253,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
             % get timestamps of cevent variable
             cevent = get_variable_by_trial_cat(sub_list(i),cevent_var);
             if isempty(cevent)
-                warning('%d variable data is empty!')
+                warning('%d variable data is empty!',sub_list(i))
                 continue
             end
             
