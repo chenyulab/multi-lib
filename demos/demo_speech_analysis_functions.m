@@ -73,7 +73,7 @@ function demo_speech_analysis_functions(option)
             % basic usage -- extract all the speech data based on subexpIDs
             % create an output file containing individual spoken utterances
             % from all the subjects, one utterance intance per row 
-            subexpIDs = [12 15];
+            subexpIDs = [12];
             keywords = {};
             output_filename = fullfile(output_dir,'case1_all_utterance.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
@@ -81,31 +81,31 @@ function demo_speech_analysis_functions(option)
         case 2
             % extracting keywords in 3 different ways:
             % individual words {'A', 'B'}
-            subexpIDs = [12 15];
-            keywords = {'look','this'};
+            subexpIDs = [351];
+            keywords = {'car','firetruck','bulldozer','motorcycle','helicopter'};
             output_filename = fullfile(output_dir,'case2_individual_words.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
 
             % combine {'A+B'}
-            keywords = {'look+this'};
+            keywords = {'like+car','like+truck','play+car','play+truck'};
             output_filename = fullfile(output_dir,'case2_combine_words.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
 
             % sequence {'A B'}
-            keywords = {'look this'};
+            keywords = {'this car', 'that car','the car','a car'};
             output_filename = fullfile(output_dir,'case2_sequence_words.csv');
             extract_speech_by_keywords(subexpIDs,keywords,output_filename);
         
         case 3
-            % Extract Speech Within Child Gaze
+            % Extract all of the spoken utterances that temporally overlap with a look 
             expID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 1:get_num_obj(expID)+1;
+            category_list = 1:get_num_obj(expID)+1; % include face looks as a category value 
             output_filename = fullfile(output_dir,'case3_speech_during_gaze.csv');
             extract_speech_in_situ(expID, cevent_var, category_list, output_filename);
     
         case 4
-            % Extract Speech Before Child Gaze
+            % Extract Speech using a different temporal window defined as from 3 secs before a spoken utterance onset
             expID = 12;
             cevent_var = 'cevent_eye_roi_child';
             category_list = 1:get_num_obj(expID)+1;
@@ -120,27 +120,28 @@ function demo_speech_analysis_functions(option)
             expID = 12;
             cevent_var = 'cevent_eye_roi_child';
             category_list = 1:get_num_obj(expID)+1;
-            args.threshold = 0.5;
+            args.threshold = 0.5; % to be included, 50% of an utterance is within the temporal window 
             output_filename = fullfile(output_dir,'case5_partial_overlap.csv');
             extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
     
         case 6
             % Keyword Matching During Gaze
-            % Does parent say 'look' when the child looks at an object?
-            expID = 12;
+            % when attending to an object and hearing a list of keywords specified  
+            expID = 351;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 1:get_num_obj(expID)+1;
-            args.target_words = {'look'};
+            category_list = [6 9 11]; % visual attention: 6-car 9 - truck 11 - carrot; 
+            args.target_words = {'car','truck','motorcycle'};
             output_filename = fullfile(output_dir,'case6_keyword_during_gaze.csv');
             extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
     
         case 7
+            % simialr to case 6, with a specified time window 
             % Rabbit-Specific Attention Window
             % extract 3 sec before and 1 sec after child looks at rabbit,
             % see how many times parent is naming rabbit
             expID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 7;
+            category_list = 7; % 7 - rabbit 
             args.whence = 'start';
             args.interval = [-3 1];
             args.target_words = {'rabbit','bunny'};
@@ -148,7 +149,7 @@ function demo_speech_analysis_functions(option)
             extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
 
         case 8
-            % Looking longer Than 1 second
+            % only when looking longer Than 1 second
             % filter out short looking, only extract the looking that is
             % longer than 1 sec
             expID = 12;
@@ -188,7 +189,7 @@ function demo_speech_analysis_functions(option)
             output_filename = fullfile(output_dir,'case9_a+name.csv');
             extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
 
-            % just name
+            % any name with or w/o a or the
             keyword_list3 = obj_labels;
             args.target_words = keyword_list3;
             output_filename = fullfile(output_dir,'case9_name.csv');
@@ -196,7 +197,6 @@ function demo_speech_analysis_functions(option)
             
 
 
-        %%% grouping functions
         case 10
             % extract speech data that within child roi time window
             expID = 351;
@@ -209,11 +209,13 @@ function demo_speech_analysis_functions(option)
             % remap the data with mapping table
             input_csv = output_filename;
             mapping_table = [1,1;12,1;14,1;24,1;3,1;11,1;18,1;19,1;22,1;2,2;7,2;...
-                8,2;10,2;15,2;16,2;23,2;26,2;27,2;4,3;5,3;6,3;9,3;13,3;17,3;20,3;21,3;25,3;28,4];
+                8,2;10,2;15,2;16,2;23,2;26,2;27,2;4,3;5,3;6,3;9,3;13,3;17,3;20,3;21,3;25,3;28,4]; % organize items based on semantic categories 
             categoryColumn = 6;
             output_csv = fullfile(output_dir,'case10_mapped.csv');
             remap_cat_values(input_csv, categoryColumn, mapping_table, output_csv)
-    
+
+        %%% grouping functions
+
         case 11
             % extract speech data that within child holding object time window
             expID = 351;
@@ -231,7 +233,7 @@ function demo_speech_analysis_functions(option)
     
         %%% analysis functions
         case 12
-            % given a list of subject ids or exp ids, count the frequency of all the words in
+            % count the frequency of all the words in
             % these subjects' transcripts
             subexpIDs = [351, 353];
             output_filename = fullfile(output_dir,'case12_count_all_words.csv');
@@ -239,24 +241,24 @@ function demo_speech_analysis_functions(option)
 
 
         case 13
-            % given a list of subject ids or exp ids, count the number of keywords
-            % and types of words (e.g. number of verb, number of unique token .etc)
-            subexpIDs = [12, 15];
+            % extract statistics (e.g. # of types, # of tokens, #s of nouns, verbs,...) 
+            % and count # of keywords 
+            subexpIDs = [12];
             target_words = {'eat','bite'};
-            output_filename = fullfile(output_dir,'case15.csv');
+            output_filename = fullfile(output_dir,'case13.csv');
             count_words_by_type(subexpIDs,target_words,output_filename)
 
         case 14
-            % extract speech utterance that contains 'car' when parent holding a car/truck
+            % extract speech utterance that contains 'car' when parent holding a car or truck
             expID = 351;
             cevent_var = 'cevent_inhand_parent'; % set speech utterance as the default
-            category_list = [6,9];
+            category_list = [6,9];% 6 - car; 9 - truck 
             args.target_words = {'car'}; 
             output_filename = fullfile(output_dir,'case14_extracted.csv');
             extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
 
             % group in subject level
-            input_file = fullfile(output_dir,'case14_extracted.csv');
+            input_file = output_filename; %fullfile(output_dir,'case14_extracted.csv');
             group_speech_in_situ(input_file)
 
             % count the 'look' and 'car' occurance in subject level
