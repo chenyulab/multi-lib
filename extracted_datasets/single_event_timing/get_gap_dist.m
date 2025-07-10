@@ -86,6 +86,17 @@ function get_gap_dist(subexpid, num_cats, var_name, output_filename, args)
             trials = unique(sub_var_data(:, end));
         catch
             disp(['ERROR: subject ' num2str(subIDs(i)) ' does not have variable.']);
+
+            % Fill with NaNs for missing subject
+            mat(i, :) = NaN;
+            start_index = (i - 1) * num_cats + 1;
+            end_index = start_index + num_cats - 1;
+            mat_category_wise(start_index:end_index, :) = NaN;
+            
+            for cat = 1:num_cats
+                sub_cat_col{end+1} = subIDs(i);
+            end
+
             continue;
         end
         
@@ -240,20 +251,19 @@ function [data] = key_roi_data(sub_var_data, rois)
     data = sub_var_data(match, :);
 end
 
-
 function get_gap_by_trial(sub_expID, num_cats, var_name, output_filename, args)
     % Set defaults
     if ~exist('args','var') || isempty(args)
         args = struct();
     end
-    if ~isfield(args, 'bins_matrix')
+    if ~isfield(args, 'time_bins')
         defined_bins = [0    0.5;
                         0.5  1;
                         1    1.5;
                         1.5  2;
                         2    Inf];
     else
-        defined_bins = args.bins_matrix;
+        defined_bins = args.time_bins;
     end
     if isfield(args, 'rois')
         rois = args.rois;
