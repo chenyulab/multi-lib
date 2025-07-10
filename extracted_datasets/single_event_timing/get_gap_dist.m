@@ -239,3 +239,203 @@ function [data] = key_roi_data(sub_var_data, rois)
 
     data = sub_var_data(match, :);
 end
+
+
+function get_gap_by_trial(sub_expID, num_cats, var_name, output_filename, args)
+    % Set defaults
+    if ~exist('args','var') || isempty(args)
+        args = struct();
+    end
+    if ~isfield(args, 'bins_matrix')
+        defined_bins = [0    0.5;
+                        0.5  1;
+                        1    1.5;
+                        1.5  2;
+                        2    Inf];
+    else
+        defined_bins = args.bins_matrix;
+    end
+    if isfield(args, 'rois')
+        rois = args.rois;
+        num_cats = length(rois);
+    else
+        rois = {-1};
+    end
+    if isfield(args, 'gap_def') && isequal(args.gap_def, ['onset','onset'])
+        gap_def = [1 1];
+    else
+        gap_def = [2 1];
+    end
+    
+    subIDs = cIDs(sub_expID);
+    if isempty(subIDs)
+        disp('ERROR: experiment does not exist or there are no subjects.');
+        return;
+    end
+    
+    num_bins = size(defined_bins,1);
+    bin_names = cell(1,num_bins);
+    for i = 1:num_bins
+        bin_names{i} = strcat('(', num2str(defined_bins(i,1)), '-', num2str(defined_bins(i,2)), ')');
+    end
+
+    overall_rows = {};
+    category_rows = {};
+    
+    % Loop through subjects
+    for s = 1:length(subIDs)
+        sub_id = subIDs(s);
+        try
+            sub_var_data = get_variable_by_trial_cat(sub_id, var_name, 1);
+            trials = unique(sub_var_data(:, end));
+
+        catch
+            disp(['ERROR: subject ' num2str(sub_id) ' does not have variable.']);
+            continue;
+        end
+        % Get trial from the last column.
+        % across ROIs
+        all_data = key_roi_data(sub_var_data, rois);
+        
+        % Process each trial separately.
+        for t = 1:length(trials)
+            trial_num = trials(t);
+            
+            % Overall gap counts for this trial.
+            trial_all_data = all_data(all_data(:, end) == trial_num, :);
+            overall_gap_counts = zeros(1, num_bins);
+            if size(trial_all_data,1) >= 2
+                subTimes = cell(size(trial_all_data,1), 1);
+                for j = 1:size(trial_all_data,1)
+                    tdata = trial_all_data(j, :);
+                    subTimes{j} = [tdata(1), tdata(2)];
+                end
+                for j = 1:(length(subTimes)-1)
+                    gap = subTimes{j+1}(gap_def(2)) - subTimes{j}(gap_def(1));
+                    for k = 1:num_bins
+                        if gap > defined_bins(k,1) && gap <= defined_bins(k,2)
+                            overall_gap_counts(k) = overall_gap_counts(k) + 1;
+                            break;
+                        end
+                    end
+                end
+            end
+            newRow = cell(1, 2+num_bins);
+            newRow{1} = sub_id;
+            newRow{2} = trial_num;
+            for b = 1:num_bins
+                newRow{2+b} = overall_gap_counts(b);
+            end
+            overall_rows = [overall_rows; newRow];  
+            
+            % Category-wise gap counts for this trial.
+            for cat = 1:num_cats
+                if rois{1} == -1
+                    category = {cat};
+                else
+                    category = {rois{cat}};
+                end
+                data_cat = key_roi_data(sub_var_data, category);
+                trial_cat_data = data_cat(data_cat(:, end) == trial_num, :);
+                cat_gap_counts = zeros(1, num_bins);
+                if size(trial_cat_data,1) >= 2
+                    subTimes = cell(size(trial_cat_data,1), 1);
+                    for j = 1:size(trial_cat_data,1)
+                        tdata = trial_cat_data(j, :);
+                        subTimes{j} = [tdata(1), tdata(2)];
+                    end
+                    for j = 1:(length(subTimes)-1)
+                        gap = subTimes{j+1}(gap_def(2)) - subTimes{j}(gap_def(1));
+                        for k = 1:num_bins
+                            if gap > defined_bins(k,1) && gap <= defined_bins(k,2)
+                                cat_gap_counts(k) = cat_gap_counts(k) + 1;
+                                break;
+                            end
+                        end
+                    end
+                end
+                newRow = cell(1, 3+num_bins);
+                newRow{1} = sub_id;
+                newRow{2} = trial_num;
+                if rois{1} == -1
+                    newRow{3} = cat;
+                else
+                    newRow{3} = rois{cat};
+                end
+                for b = 1:num_bins
+                    newRow{3+b} = cat_gap_counts(b);
+                end
+                category_rows = [category_rows; newRow]; 
+            end
+        end
+    end
+
+    %  --- Trial-Level Files --- 
+    % Overall Trial-Level
+    [filepath, name, ~] = fileparts(output_filename);
+    overall_header = [{'subID','trial'}, bin_names];
+    T_overall = cell2table(overall_rows, 'VariableNames', overall_header);
+    trial_overall_filename = fullfile(filepath, [name, '_trial_overall.csv']);
+    
+    % Category-wise Trial-Level
+    category_header = [{'subID','trial','cat'}, bin_names];
+    T_category = cell2table(category_rows, 'VariableNames', category_header);
+    trial_cat_filename = fullfile(filepath, [name, '_trial_cat_wise.csv']);
+
+    % Summed Category-wise Trial-Level 
+    T_category_sum = varfun(@sum, T_category, 'InputVariables', bin_names, 'GroupingVariables', {'subID','trial'});
+    if ismember('GroupCount', T_category_sum.Properties.VariableNames)
+        T_category_sum.GroupCount = [];
+    end
+
+    for k = 1:num_bins
+        T_category_sum.Properties.VariableNames{end - num_bins + k} = bin_names{k};
+    end
+    trial_summed_filename = fullfile(filepath, [name, '_trial_summed.csv']);
+
+    if isfield(args, 'by_trial') && (args.by_trial)
+        writetable(T_overall, trial_overall_filename);
+        disp(['Overall trial-level file written to: ' trial_overall_filename]);
+        writetable(T_category, trial_cat_filename);
+        disp(['Category-wise trial-level file written to: ' trial_cat_filename]);
+        writetable(T_category_sum, trial_summed_filename);
+        disp(['Summed trial-level file written to: ' trial_summed_filename]);
+    end
+    
+    % --- Without Trial Information ---
+    % % Overall  
+    % T_agg_overall = varfun(@sum, T_overall, 'InputVariables', bin_names, 'GroupingVariables', 'subID');
+    % if ismember('GroupCount', T_agg_overall.Properties.VariableNames)
+    %     T_agg_overall.GroupCount = [];
+    % end
+    % for k = 1:num_bins
+    %     T_agg_overall.Properties.VariableNames{end - num_bins + k} = bin_names{k};
+    % end
+    % agg_overall_filename = fullfile(filepath, [name, '_agg_overall.csv']);
+    % writetable(T_agg_overall, agg_overall_filename);
+    % disp(['Overall aggregated file written to: ' agg_overall_filename]);
+    % 
+    % % Category-wise
+    % T_agg_cat = varfun(@sum, T_category, 'InputVariables', bin_names, 'GroupingVariables', {'subID','cat'});
+    % if ismember('GroupCount', T_agg_cat.Properties.VariableNames)
+    %     T_agg_cat.GroupCount = [];
+    % end
+    % for k = 1:num_bins
+    %     T_agg_cat.Properties.VariableNames{end - num_bins + k} = bin_names{k};
+    % end
+    % agg_cat_filename = fullfile(filepath, [name, '_agg_cat_wise.csv']);
+    % writetable(T_agg_cat, agg_cat_filename);
+    % disp(['Category-wise aggregated file written to: ' agg_cat_filename]);
+    % 
+    % % Summed Category-wise 
+    % T_agg_summed = varfun(@sum, T_category_sum, 'InputVariables', bin_names, 'GroupingVariables', 'subID');
+    % if ismember('GroupCount', T_agg_summed.Properties.VariableNames)
+    %     T_agg_summed.GroupCount = [];
+    % end
+    % for k = 1:num_bins
+    %     T_agg_summed.Properties.VariableNames{end - num_bins + k} = bin_names{k};
+    % end
+    % agg_summed_filename = fullfile(filepath, [name, '_agg_summed.csv']);
+    % writetable(T_agg_summed, agg_summed_filename);
+    % disp(['Summed aggregated file written to: ' agg_summed_filename]);
+end
