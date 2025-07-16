@@ -98,76 +98,76 @@ function demo_speech_analysis_functions(option)
         
         case 3
             % Extract all of the spoken utterances that temporally overlap with a look 
-            expID = 12;
+            subexpID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 1:get_num_obj(expID)+1; % include face looks as a category value 
+            category_list = 1:get_num_obj(subexpID)+1; % include face looks as a category value 
             output_filename = fullfile(output_dir,'case3_speech_during_gaze.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename);
     
         case 4
             % Extract Speech using a different temporal window defined as from 3 secs before a spoken utterance onset
-            expID = 12;
+            subexpID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 1:get_num_obj(expID)+1;
+            category_list = 1:get_num_obj(subexpID)+1;
             args.whence = 'start';
             args.interval = [-3 0];
             output_filename = fullfile(output_dir,'case4_speech_before_gaze.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
     
         case 5
             % Speech Partially Overlapping with Gaze
             % Capture speech that overlaps 50% with gaze event
-            expID = 12;
+            subexpID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 1:get_num_obj(expID)+1;
+            category_list = 1:get_num_obj(subexpID)+1;
             args.threshold = 0.5; % to be included, 50% of an utterance is within the temporal window 
             output_filename = fullfile(output_dir,'case5_partial_overlap.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
     
         case 6
             % Keyword Matching During Gaze
             % when attending to an object and hearing a list of keywords specified  
-            expID = 351;
+            subexpID = 351;
             cevent_var = 'cevent_eye_roi_child';
             category_list = [6 9 11]; % visual attention: 6-car 9 - truck 11 - carrot; 
             args.target_words = {'car','truck','motorcycle'};
             output_filename = fullfile(output_dir,'case6_keyword_during_gaze.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
     
         case 7
             % simialr to case 6, with a specified time window 
             % Rabbit-Specific Attention Window
             % extract 3 sec before and 1 sec after child looks at rabbit,
             % see how many times parent is naming rabbit
-            expID = 12;
+            subexpID = 12;
             cevent_var = 'cevent_eye_roi_child';
             category_list = 7; % 7 - rabbit 
             args.whence = 'start';
             args.interval = [-3 1];
             args.target_words = {'rabbit','bunny'};
             output_filename = fullfile(output_dir,'case7_rabbit.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
 
         case 8
             % only when looking longer Than 1 second
             % filter out short looking, only extract the looking that is
             % longer than 1 sec
-            expID = 12;
+            subexpID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 1:get_num_obj(expID)+1;
+            category_list = 1:get_num_obj(subexpID)+1;
             args.min_dur = 1;
             output_filename = fullfile(output_dir,'case8_long_look.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
 
 
         case 9
-            % grab object names from dictionary for expID, put names into keywords, 
+            % grab object names from dictionary for subexpID, put names into keywords, 
             % and then run; extract three naming situations 
             % 1) the + name, 2) a + name, 3) just name
-            expID = 12;
+            subexpID = 12;
             cevent_var = 'cevent_speech_naming_local-id';
-            category_list = 1:get_num_obj(expID);
-            obj_labels = get_object_label(expID,category_list);
+            category_list = 1:get_num_obj(subexpID);
+            obj_labels = get_object_label(subexpID,category_list);
 
             % the + name
             keyword_list1 = {};
@@ -177,7 +177,7 @@ function demo_speech_analysis_functions(option)
             end
             args.target_words = keyword_list1;
             output_filename = fullfile(output_dir,'case9_the+name.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
 
             % a + name
             keyword_list2 = {};
@@ -187,24 +187,24 @@ function demo_speech_analysis_functions(option)
             end
             args.target_words = keyword_list2;
             output_filename = fullfile(output_dir,'case9_a+name.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
 
             % any name with or w/o a or the
             keyword_list3 = obj_labels;
             args.target_words = keyword_list3;
             output_filename = fullfile(output_dir,'case9_name.csv');
-            extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+            extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
             
 
 
         case 10
             % extract speech data that within child roi time window
-            expID = 351;
+            subexpID = 351;
             cevent_var = 'cevent_eye_roi_child'; 
-            num_obj = get_num_obj(expID);
+            num_obj = get_num_obj(subexpID);
             category_list = 1:num_obj+1; % list all the category: objects + face for eye roi data
             output_filename = fullfile(output_dir,'case10_extracted.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename);
+            extract_speech_in_situ(subexpID,cevent_var,category_list,output_filename);
     
             % remap the data with mapping table
             input_csv = output_filename;
@@ -218,12 +218,12 @@ function demo_speech_analysis_functions(option)
 
         case 11
             % extract speech data that within child holding object time window
-            expID = 351;
+            subexpID = 351;
             cevent_var = 'cevent_inhand_child'; 
-            num_obj = get_num_obj(expID);
+            num_obj = get_num_obj(subexpID);
             category_list = 1:num_obj+1; % list all the category: objects + face for eye roi data
             output_filename = fullfile(output_dir,'case11_extracted.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename);
+            extract_speech_in_situ(subexpID,cevent_var,category_list,output_filename);
             
             % group the output file into subject level, category level,
             % subject-category level.
@@ -250,12 +250,12 @@ function demo_speech_analysis_functions(option)
 
         case 14
             % extract speech utterance that contains 'car' when parent holding a car or truck
-            expID = 351;
+            subexpID = 351;
             cevent_var = 'cevent_inhand_parent'; % set speech utterance as the default
             category_list = [6,9];% 6 - car; 9 - truck 
             args.target_words = {'car'}; 
             output_filename = fullfile(output_dir,'case14_extracted.csv');
-            extract_speech_in_situ(expID,cevent_var,category_list,output_filename, args);
+            extract_speech_in_situ(subexpID,cevent_var,category_list,output_filename, args);
 
             % group in subject level
             input_file = output_filename; %fullfile(output_dir,'case14_extracted.csv');
