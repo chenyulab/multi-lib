@@ -49,18 +49,10 @@ function [cevent_naming,cstream_naming] = make_naming_local_id_by_whisper(subID,
         % get word-object mapping file from the experiment folder
         sub_info = get_subject_info(subID);
         expID = sub_info(2);
-        if ismember(expID,[77,78,79])
-            map_fileList = dir(fullfile(get_multidir_root,'experiment_77','exp77_object_word_pairs.xlsx'));
-        elseif ismember(expID,80)
-            map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'exp80_object_word_pairs.xlsx'));
-        elseif ismember(expID,58)
-            map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'exp58_object_word_pairs.xlsx'));
-        else
-            if ~isSpanishFlag % English transcription
-                map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs.xlsx'));
-            else % Spanish transcription
-                map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs_spanish.xlsx'));
-            end
+        if ~isSpanishFlag % English transcription
+            map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs.xlsx'));
+        else % Spanish transcription
+            map_fileList = dir(fullfile(get_multidir_root,sprintf('experiment_%d',expID),'object_word_pairs_spanish.xlsx'));
         end
 
         word_object_mapping_filename = map_fileList.name;
