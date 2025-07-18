@@ -57,11 +57,13 @@ function create_multipathways_dataset(expIDs,num_obj_list)
             %     label_matrix = ones(num_obj) * 2 + diag(-ones(num_obj,1));
             %     label_matrix(:,end+1) = 3;
             %elseif ismember(expID,[351 353])
-            %    args.cevent_values = 2:num_obj;
-            %    label_matrix = ones(num_obj) * 2 + diag(-ones(num_obj,1));
-            %    label_matrix = vertcat(repmat(2,1,num_obj),label_matrix);
-            %    label_matrix = horzcat(repmat(3,num_obj+1,1),label_matrix);
+            if ismember(expID,[301])
+               args.cevent_values = 2:num_obj;
+               label_matrix = ones(num_obj) * 2 + diag(-ones(num_obj,1));
+               label_matrix = vertcat(repmat(2,1,num_obj),label_matrix);
+               label_matrix = horzcat(repmat(3,num_obj+1,1),label_matrix);
             %end
+            end
 
             args.label_matrix = label_matrix;
             args.cevent_measures = 'individual_prop';
