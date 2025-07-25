@@ -152,11 +152,13 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
 
         trials = get_trial_times(sub_list(i));
         trial_length = sum(trials(:,2) - trials(:,1));
+
     
         % convert original timestamp to system time -- TODO: not sure if
         % all raw speech transcriptions have timestamps that are
         % inconsistent with the system time
         for j = 1:numel(speech_var)
+            
             speech_var(j).start = speech_var(j).start + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
             speech_var(j).end = speech_var(j).end + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
 
@@ -165,7 +167,9 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 
                 if ~isempty(target_words)
                     % calculate basic token measures per matching instance
+                    
                     count_vec = count_target_words(keyword_headers,speech_var(j).words);
+                    
                     overall_keywords_count = [overall_keywords_count;count_vec];
                 end
                 overall_instance = [overall_instance;instance];
@@ -236,7 +240,6 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                     if ~isempty(target_words)
                         % calculate basic token measures per matching instance
                         count_vec = count_target_words(keyword_headers,sub_utt);
-        
                         overall_keywords_count = [overall_keywords_count;count_vec];
                     end
     
@@ -248,6 +251,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 end
             end
         end
+
     
         if ~is_default_timewindow
             % get timestamps of cevent variable
@@ -334,6 +338,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                     if ~isempty(target_words)
                         % calculate basic token measures per matching instance
                         count_vec = count_target_words(keyword_headers,sub_utt);
+                        
         
                         overall_keywords_count = [overall_keywords_count;count_vec];
                     end
@@ -347,7 +352,10 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 end
             end
         end
+        
+        
     end
+    
 
     if ~isempty(overall_instance)
     % extract the data based on the keyword
@@ -389,6 +397,10 @@ function extracted_all = extract_data_by_mode(word_list, overall_instance, overa
         if contains(word_entry, '+')
             target_words = split(word_entry, '+');
             extract_mode = 'combine';
+        elseif contains(word_entry, ' * ')
+            % Wildcard pattern: e.g., "a * bear"
+            target_words = split(word_entry, ' ');
+            extract_mode = 'wildcard_sequence';
         elseif contains(word_entry, ' ')
             target_words = split(word_entry, ' ');
             extract_mode = 'sequence';
@@ -397,11 +409,11 @@ function extracted_all = extract_data_by_mode(word_list, overall_instance, overa
             extract_mode = 'individual';
         end
 
-        % Get indices of keywords in the header
-        idx_keywords_raw = cellfun(@(w) find(strcmp(keyword_headers, w), 1, 'first'), target_words, 'UniformOutput', false);
-        
-        % Now it's safe to convert to numeric
-        idx_keywords = cell2mat(idx_keywords_raw);
+        % Get indices of keywords in the header (skip for wildcard)
+        if ~strcmp(extract_mode, 'wildcard_sequence')
+            idx_keywords_raw = cellfun(@(w) find(strcmp(keyword_headers, w), 1, 'first'), target_words, 'UniformOutput', false);
+            idx_keywords = cell2mat(idx_keywords_raw);
+        end
 
         % Extract based on mode
         if strcmp(extract_mode, 'individual')
@@ -421,6 +433,34 @@ function extracted_all = extract_data_by_mode(word_list, overall_instance, overa
             idx = contains(overall_instance(:, end), sequence_phrase);
             extracted_data = overall_instance(idx, :);
             matched_words = repmat({strjoin(target_words, ' ')}, sum(idx), 1);
+        elseif strcmp(extract_mode, 'wildcard_sequence')
+            first_word = lower(target_words{1});
+            last_word = lower(target_words{end});
+
+            % Step 1: Use 'combine'-style check to get utterances that contain both words
+            idx_first = overall_keywords_count(:, strcmp(keyword_headers, first_word)) > 0;
+            idx_last  = overall_keywords_count(:, strcmp(keyword_headers, last_word)) > 0;
+            idx = idx_first & idx_last;
+
+            filtered_data = overall_instance(idx, :);
+            matched_rows = false(size(filtered_data, 1), 1);
+
+            % Step 2: For each matching row, check if there's exactly one word between first and last
+            for i = 1:size(filtered_data, 1)
+                utterance = lower(filtered_data{i, end});  % Get utterance text
+                words = split(utterance);
+
+                for j = 1:(length(words)-2)
+                    if strcmp(words{j}, first_word) && strcmp(words{j+2}, last_word)
+                        matched_rows(i) = true;
+                        break;
+                    end
+                end
+            end
+
+            % Keep only rows with exact wildcard match
+            extracted_data = filtered_data(matched_rows, :);
+            matched_words = repmat({strjoin(target_words, ' ')}, sum(matched_rows), 1);
         else
             error('Unknown extract_mode: %s', extract_mode);
         end
