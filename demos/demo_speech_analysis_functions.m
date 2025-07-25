@@ -36,7 +36,7 @@
 %%%
 function demo_speech_analysis_functions(option)
     % all the demo files are saved into, users can define their own path:
-    output_dir = '.\test_1';
+    output_dir = 'Z:\demo_output_files\speech_analysis';
     
     switch option
         %%% extracting functions
