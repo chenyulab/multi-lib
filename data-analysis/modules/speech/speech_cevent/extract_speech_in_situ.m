@@ -59,11 +59,11 @@
 
 function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_list,output_filename,args)
   
-    colNames = {'expID','subID','trial time','onset','offset','category','keywords','utterances'};
+    colNames = {'subID','expID','onset','offset','category','trialsID','instanceID','trial_length','keywords','utterances'};
     sub_list = cIDs(subexpID);
     frame_rate = 30;
     defaultSpeechTime = 30;
-    is_default_timewindow = 0;
+    is_speech_timewindow = 0;
 
     %% parameter checking
     % check if 'whence' and 'interval'
@@ -72,9 +72,9 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
     end
 
     if strcmp(cevent_var,'') && ~isfield(args, 'whence')
-        is_default_timewindow = 1;
+        is_speech_timewindow = 1;
     elseif strcmp(cevent_var,'') && isfield(args, 'whence')
-        is_default_timewindow = 2;
+        is_speech_timewindow = 2;
     end
 
 
@@ -125,11 +125,16 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
     overall_instance = [];
     overall_keywords_count = [];
     
+    
     %% find cevent timestamps matching utterances
     for i = 1:size(sub_list,1)
         disp(sub_list(i));
         expID = sub2exp(sub_list(i));
 
+
+        % get trial info
+        trial_info = get_variable(sub_list(i),'cevent_trials');
+        
         %% parse speech transcription file
         [~,speech_var] = parse_speech_trans(sub_list(i));
     
@@ -162,8 +167,12 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
             speech_var(j).start = speech_var(j).start + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
             speech_var(j).end = speech_var(j).end + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
 
-            if is_default_timewindow == 1
-                instance = {expID,sub_list(i),trial_length,speech_var(j).start,speech_var(j).end,0,speech_var(j).words};
+            trial_id = find_trial_id(trial_info, speech_var(j).start);
+
+            if is_speech_timewindow == 1
+                instance = {sub_list(i), expID, speech_var(j).start, speech_var(j).end, 0, trial_id, j, trial_length};
+                sub_utt = speech_var(j).words;
+                instance = [instance, {'None'}, {sub_utt}];
                 
                 if ~isempty(target_words)
                     % calculate basic token measures per matching instance
@@ -174,7 +183,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 end
                 overall_instance = [overall_instance;instance];
                 
-            elseif is_default_timewindow == 2
+            elseif is_speech_timewindow == 2
                 onset = speech_var(j).start;
                 offset = speech_var(j).end;
                 % shift timestamps accordingly
@@ -235,7 +244,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
     
                     utt_list = [utt_list;cellstr(sub_utt)];
                     % create one instance per instance in cevent_var
-                    instance = [expID sub_list(i) trial_length bt et 0];
+                    instance = [sub_list(i) expID bt et 0 trial_id j trial_length];
     
                     if ~isempty(target_words)
                         % calculate basic token measures per matching instance
@@ -253,13 +262,16 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
         end
 
     
-        if ~is_default_timewindow
+        if ~is_speech_timewindow
             % get timestamps of cevent variable
             cevent = get_variable_by_trial_cat(sub_list(i),cevent_var);
             if isempty(cevent)
                 warning('%d variable data is empty!',sub_list(i))
                 continue
             end
+
+            % Append sequential index as a new column (instanceID)
+            cevent = [cevent, (1:size(cevent,1))'];
             
             %% iterate thru categories
             for id = 1:numel(category_list)
@@ -268,6 +280,9 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 % find category relevant instances in cevent_var
                 onset = cevent(cevent(:,3)==cat,1);
                 offset = cevent(cevent(:,3)==cat,2);
+                instance_ids = cevent(cevent(:,3)==cat, 4);
+
+                onset_raw = onset;
     
                 % shift timestamps accordingly
                 if strcmp(whence,'start')
@@ -292,11 +307,15 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                     bt = onset(k);
                     et = offset(k);
 
+                    bt_raw = onset_raw(k);
+
                     % check cevent duration
                     cevent_dur = et - bt;
                     if cevent_dur < min_dur || cevent_dur > max_dur
                         continue
                     end
+
+                    trial_id = find_trial_id(trial_info, bt_raw);
                     
         
                     % find utterance timestamps that falls within bt-et range
@@ -333,13 +352,11 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
     
                     utt_list = [utt_list;cellstr(sub_utt)];
                     % create one instance per instance in cevent_var
-                    instance = [expID sub_list(i) trial_length bt et cat];
+                    instance = [sub_list(i) expID bt et cat trial_id instance_ids(k) trial_length];
     
                     if ~isempty(target_words)
                         % calculate basic token measures per matching instance
                         count_vec = count_target_words(keyword_headers,sub_utt);
-                        
-        
                         overall_keywords_count = [overall_keywords_count;count_vec];
                     end
     
@@ -358,7 +375,6 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
     
 
     if ~isempty(overall_instance)
-    % extract the data based on the keyword
     if ~isempty(target_words)
         % check the first element in this function determine the
         % extract_mode
@@ -372,7 +388,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
 
         [~, order] = sort(str2double(extracted_data(:,4)));
         extracted_data = extracted_data(order, :);
-        extracted_data = sortrows(extracted_data,2);  
+        extracted_data = sortrows(extracted_data,1);  % sort based on the subject id
     end
 
     else
@@ -471,5 +487,17 @@ function extracted_all = extract_data_by_mode(word_list, overall_instance, overa
             extracted_data(:, end-1) = matched_words;
             extracted_all = [extracted_all; extracted_data];
         end
+    end
+end
+
+function trial_id = find_trial_id(trial_info, onset_time)
+
+
+    idx = onset_time >= trial_info(:,1) & onset_time <= trial_info(:,2);
+
+    if any(idx)
+        trial_id = trial_info(idx, 3);
+    else
+        trial_id = 0; % or 0 or -1, depending on how you want to handle "no match"
     end
 end
