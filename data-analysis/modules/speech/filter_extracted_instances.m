@@ -1,7 +1,7 @@
 %%
 % Author: Elton Martinez
 % Modifier: Elton Martinez
-% Last modified: 7/18/25
+% Last modified: 8/1/2025
 % 
 % Filters the extract_multi_measures(emm) output to included only
 % utterances(instances) that are extracted from the
@@ -51,7 +51,7 @@ function filter_extracted_instances(emm_csv, ess_csv, output_name)
     end
     
     % add extract two columns for keywords and utterance 
-    header = [header, cell(3,2)];
+    header = [header(1:3,1:7), cell(3,2), header(1:3,8:end)];
     
     % read ess as table
     ess = readtable(ess_csv);
@@ -84,11 +84,11 @@ function filter_extracted_instances(emm_csv, ess_csv, output_name)
                end
             end
             gidx = ess_sub{j,"ID"};
-            shared(gidx,:) = [num2cell(emm_sub{n,:}),ess_sub{j,{'keywords','utterances'}}];
+            shared(gidx,:) = [num2cell(emm_sub{n,1:7}),ess_sub{j,{'keywords','utterances'}},num2cell(emm_sub{n,8:end})];
         end
     end    
     % concatenate header with shared instances 
-    cShared = [{emm_cell{4,:},'keywords','utterance'}; shared];
+    cShared = [emm_cell(4,1:7),'keywords','utterance', emm_cell(4,8:end); shared];
     shared_write = [header; cShared];
     
     % write out 
