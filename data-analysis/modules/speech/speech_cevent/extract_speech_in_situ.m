@@ -453,7 +453,7 @@ function extracted_all = extract_data_by_mode(word_list, overall_instance, overa
             first_word = lower(target_words{1});
             last_word = lower(target_words{end});
 
-            % Step 1: Use 'combine'-style check to get utterances that contain both words
+            % Use 'combine'-style check to get utterances that contain both words
             idx_first = overall_keywords_count(:, strcmp(keyword_headers, first_word)) > 0;
             idx_last  = overall_keywords_count(:, strcmp(keyword_headers, last_word)) > 0;
             idx = idx_first & idx_last;
@@ -461,11 +461,12 @@ function extracted_all = extract_data_by_mode(word_list, overall_instance, overa
             filtered_data = overall_instance(idx, :);
             matched_rows = false(size(filtered_data, 1), 1);
 
-            % Step 2: For each matching row, check if there's exactly one word between first and last
+            % For each matching row, check if there's exactly one word between first and last
             for i = 1:size(filtered_data, 1)
                 utterance = lower(filtered_data{i, end});  % Get utterance text
+                utterance = strrep(utterance, ';', '');
                 words = split(utterance);
-
+            
                 for j = 1:(length(words)-2)
                     if strcmp(words{j}, first_word) && strcmp(words{j+2}, last_word)
                         matched_rows(i) = true;
