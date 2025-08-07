@@ -5,12 +5,13 @@
 % levels using `cal_utterance_similarity_by_sBERT`.
 %
 % output
-% ├── expXX_utt_similarity.xlsx      % Experiment-level similarities
-% │   ├── [overall exp-level sheet]
-% │   └── [category-level sheets]
-% └── {subID}_utt_similarity.xlsx    % Subject-level similarities
-%     ├── [overall subject-level sheet]
-%     └── [subject-category level sheets]
+%   |- expXX_utt_similarity.xlsx      % Experiment-level similarities
+%   |  |- [overall exp-level sheet]
+%   |  `- [category-level sheets]
+% 
+%   |- {subID}_utt_similarity.xlsx    % Subject-level similarities
+%   |  |- [overall subject-level sheet]
+%   |  `- [subject-category level sheets]
 %
 % Prerequisites:
 % 0. Ensure Python (version 3.9–3.12) is installed.

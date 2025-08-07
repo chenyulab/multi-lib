@@ -13,12 +13,13 @@
 %   - output_dir
 % 
 % output
-% ├── expXX_utt_similarity.xlsx      % Experiment-level similarities
-% │   ├── [overall exp-level sheet]
-% │   └── [category-level sheets]
-% └── {subID}_utt_similarity.xlsx    % Subject-level similarities
-%     ├── [overall subject-level sheet]
-%     └── [subject-category level sheets]
+%   |- expXX_utt_similarity.xlsx      % Experiment-level similarities
+%   |  |- [overall exp-level sheet]
+%   |  `- [category-level sheets]
+% 
+%   |- {subID}_utt_similarity.xlsx    % Subject-level similarities
+%   |  |- [overall subject-level sheet]
+%   |  `- [subject-category level sheets]
 % 
 % see demo_utterance_similarity for example
 %%%
