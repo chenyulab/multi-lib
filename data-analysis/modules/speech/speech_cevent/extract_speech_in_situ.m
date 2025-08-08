@@ -172,7 +172,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
             if is_speech_timewindow == 1
                 instance = {sub_list(i), expID, speech_var(j).start, speech_var(j).end, 0, trial_id, j, trial_length};
                 sub_utt = speech_var(j).words;
-                instance = [instance, {'None'}, {sub_utt}];
+                instance = [instance, {sub_utt}];
                 
                 if ~isempty(target_words)
                     % calculate basic token measures per matching instance
@@ -369,8 +369,6 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 end
             end
         end
-        
-        
     end
     
 
@@ -399,8 +397,13 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
     % don't write to a CSV file if the function is used as an intermediate
     % helper function
     if ~strcmp(output_filename,'')
+        disp(extracted_data);
+        if ~isempty(extracted_data)
         summary_table = array2table(extracted_data,'VariableNames',colNames);
         writetable(summary_table,sprintf('%s.csv',output_filename(1:end-4)));
+        else
+            disp('no speech data is found!')
+        end
     end
 
 end

@@ -26,9 +26,10 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
     if isfield(args, 'exp_col')
         exp_col = args.exp_col;
     else
-        exp_col = 1;
+        exp_col = 2;
     end
 
+    
 
     stopWords_list = stopWords;
 
