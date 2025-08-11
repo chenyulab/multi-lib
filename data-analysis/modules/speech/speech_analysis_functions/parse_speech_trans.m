@@ -66,8 +66,16 @@ function [all_words,utterances] = parse_speech_trans(subID, trial_time_mtr)
             % check if an utterance is within trial
             flag = 0;
             for i = 1:size(trial_time_mtr,1)
-                if timestamp(1) + speechTime >= trial_time_mtr(i,1) && timestamp(1) + speechTime <= trial_time_mtr(i,2)
+                trial_on = trial_time_mtr(i,1);
+                trial_off = trial_time_mtr(i,2);
+
+            
+                % overlap duration (>=0 includes touching at edges; use >0 to require positive overlap)
+                overlap = min(timestamp(2) + speechTime, trial_off) - max(timestamp(1) + speechTime, trial_on);
+            
+                if overlap > 0      % or >= 0 if you want edge-touching counted
                     flag = 1;
+                    break
                 end
             end
 
