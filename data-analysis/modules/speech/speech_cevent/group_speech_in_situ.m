@@ -21,19 +21,23 @@ function [table_sub, table_cat, table_sub_cat] = group_speech_in_situ(input_csv,
     end
 
     if ~isfield(args, 'exp_col')
-        args.exp_col = 1;
+        args.exp_col = 2;
     end
     
     if ~isfield(args, 'sub_col')
-        args.sub_col = 2;
+        args.sub_col = 1;
     end
     
     if ~isfield(args, 'cat_col')
-        args.cat_col = 6;
+        args.cat_col = 5;
     end
     
     if ~isfield(args, 'trial_time_col')
-        args.trial_time_col = 3;
+        args.trial_time_col = 8;
+    end
+
+    if ~isfield(args, 'utt_col')
+        args.utt_col = -1;
     end
     exp_col = args.exp_col;
     sub_col = args.sub_col;
@@ -69,11 +73,15 @@ function [table_sub, table_cat, table_sub_cat] = group_speech_in_situ(input_csv,
                     num_instance = size(cat_data,1);
                     
                     % remove empty text
-                    clean_utt = table2cell(cat_data(:,end));
+                    if args.utt_col == -1
+                        clean_utt = table2cell(cat_data(:,end));
+                    else
+                        clean_utt = table2cell(cat_data(:,args.utt_col));
+                    end
                     clean_utt = clean_utt(~cellfun('isempty', clean_utt));
         
                     utterances = strjoin(clean_utt,' ');
-                    sub_cat = [sub_cat;{exp_id,sub_id,cat_value,trial_time,num_instance,utterances}];
+                    sub_cat = [sub_cat;{sub_id,exp_id,cat_value,trial_time,num_instance,utterances}];
                 end
             end
     
@@ -84,7 +92,7 @@ function [table_sub, table_cat, table_sub_cat] = group_speech_in_situ(input_csv,
             clean_utt = clean_utt(~cellfun('isempty', clean_utt));
     
             utterances = strjoin(clean_utt,' ');
-            sub = [sub;{exp_id,sub_id,trial_time,num_instance,utterances}];
+            sub = [sub;{sub_id,exp_id,trial_time,num_instance,utterances}];
     
         end
     
@@ -106,12 +114,12 @@ function [table_sub, table_cat, table_sub_cat] = group_speech_in_situ(input_csv,
     
         % write output file into table
         sub_cat_name = sprintf("%s_subject-category.csv",file_label);
-        col_names = {'expID','subID', 'catValue', 'trial_time', 'instance#', 'text'};
+        col_names = {'subID','expID','catValue', 'trial_time', 'instance#', 'text'};
         table_sub_cat = cell2table(sub_cat, 'VariableNames', col_names);
         writetable(table_sub_cat, sub_cat_name);
     
         sub_name = sprintf("%s_subject.csv",file_label);
-        col_names = {'expID','subID', 'trial_time', 'instance#', 'text'};
+        col_names = {'subID','expID','trial_time', 'instance#', 'text'};
         table_sub = cell2table(sub, 'VariableNames', col_names);
         writetable(table_sub, sub_name);
     

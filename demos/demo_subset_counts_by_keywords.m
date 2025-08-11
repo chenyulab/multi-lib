@@ -19,7 +19,7 @@
 %%%
 function demo_subset_counts_by_keywords(option)
 
-output_dir = 'Z:\Jingwen\cooccurance_functions\data'; % make sure you use '' instead of ""
+output_dir = 'Z:\demo_output_files\subset_counts_by_keywords'; % make sure you use '' instead of ""
 switch option
 
     case 1
@@ -50,9 +50,9 @@ switch option
         
         %% count cat - word pair frequency in subject level
         input_csv = output_filename;
-        sub_col = 2;
-        cat_col = 6;
-        utt_col = 8;
+        sub_col = 1;
+        cat_col = 5;
+        utt_col = 10;
         output_excel = fullfile(output_dir,'case2_speech_in_child_inhand_cat_word.xlsx');
         count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
         
@@ -101,8 +101,8 @@ switch option
         
         %% count word - word pair frequency in subject level
         input_csv = fullfile(output_dir,'case3_child_looking.csv');
-        utt_col = 8;
-        group_col = 2; % sub id column in this case
+        utt_col = 10;
+        group_col = 1; % sub id column in this case
         group_label = 'subject'; % group in subject for each individual sheet
         output_folder = fullfile(output_dir,'case3_child_looking_word-word_subject');
         count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)

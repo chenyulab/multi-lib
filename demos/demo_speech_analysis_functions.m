@@ -45,32 +45,36 @@ function demo_speech_analysis_functions(option)
             % create an output file containing individual spoken utterances
             % from all the subjects, one utterance intance per row 
             subexpIDs = [12];
-            keywords = {};
+            category_list = [];
+            cevent_var = '';
             output_filename = fullfile(output_dir,'case1_all_utterance.csv');
-            extract_speech_by_keywords(subexpIDs,keywords,output_filename);
-    
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
+
         case 2
             % extracting keywords in 4 different ways:
             % individual words {'A', 'B'}
             subexpIDs = [351];
-            keywords = {'car','firetruck','bulldozer','motorcycle','helicopter'};
+            category_list = [];
+            cevent_var = '';
+            args.target_words = {'car','firetruck','bulldozer','motorcycle','helicopter'};
             output_filename = fullfile(output_dir,'case2_individual_words.csv');
-            extract_speech_by_keywords(subexpIDs,keywords,output_filename);
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename,args)
 
             % combine {'A+B'}
-            keywords = {'like+car','like+truck','play+car','play+truck'};
+            args.target_words = {'like+car','like+truck','play+car','play+truck'};
             output_filename = fullfile(output_dir,'case2_combine_words.csv');
-            extract_speech_by_keywords(subexpIDs,keywords,output_filename);
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename,args)
 
             % sequence {'A B'}
-            keywords = {'this car', 'that car','the car','a car'};
+            args.target_words = {'this car', 'that car','the car','a car'};
             output_filename = fullfile(output_dir,'case2_sequence_words.csv');
-            extract_speech_by_keywords(subexpIDs,keywords,output_filename);
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename,args)
 
             % sequence_wildcard {'A * B'}, * can be any word
-            keywords = {'a * car', 'the * car'};
+            args.target_words = {'a * car', 'the * car'};
             output_filename = fullfile(output_dir,'case2_sequence_wildcard_words.csv');
-            extract_speech_by_keywords(subexpIDs,keywords,output_filename);
+            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename,args)
+
         case 3
             % Extract all of the spoken utterances that temporally overlap with a look 
             subexpID = 12;
@@ -238,7 +242,7 @@ function demo_speech_analysis_functions(option)
             input_file = fullfile(output_dir,'case14_extracted_subject.csv');
             output_file = fullfile(output_dir,'case14_extracted_word_count.csv');
             text_col = 5;
-            id_col = 2;
+            id_col = 1;
             target_words = ["look","car"];
             extraStopWords = {};
             count_word_speech_in_situ(input_file, output_file, target_words, extraStopWords, text_col , id_col)
@@ -253,8 +257,8 @@ function demo_speech_analysis_functions(option)
 
             % count word - word pair frequency in subject level
             input_csv = fullfile(output_dir,'case15_all_words.csv');
-            utt_col = 8;
-            group_col = 2;
+            utt_col = 10;
+            group_col = 1;
             group_label = 'subject';
             output_folder = fullfile(output_dir,'case15_all_words_word-word_subject');
             count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
@@ -269,16 +273,16 @@ function demo_speech_analysis_functions(option)
             
             % count word - word pair frequency in subject level
             input_csv = fullfile(output_dir,'case16_child_looking.csv');
-            utt_col = 8;
-            group_col = 2;
+            utt_col = 10;
+            group_col = 1;
             group_label = 'subject'; % group in subject for each individual sheet
             output_folder = fullfile(output_dir,'case16_child_looking_word-word_subject');
             count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
 
             % count word - word pair frequency in object level
             input_csv = fullfile(output_dir,'case16_child_looking.csv');
-            utt_col = 8;
-            group_col = 6;
+            utt_col = 10;
+            group_col = 5;
             group_label = 'category'; % group in object for each individual sheet
             output_folder = fullfile(output_dir,'case16_child_looking_word-word_category');
             count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
@@ -288,15 +292,15 @@ function demo_speech_analysis_functions(option)
             subexpIDs = [12];
             cevent_var = 'cevent_inhand_child'; 
             num_obj = get_num_obj(subexpIDs);
-            category_list = 1:num_obj;
+            category_list = 1:num_obj; % all objects
             output_filename = fullfile(output_dir,'case17_speech_in_child_inhand.csv');
             extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
             
             % count cat - word pair frequency in subject level
             input_csv = output_filename;
-            sub_col = 2;
-            cat_col = 6;
-            utt_col = 8;
+            sub_col = 1;
+            cat_col = 5;
+            utt_col = 10;
             output_excel = fullfile(output_dir,'case17_speech_in_child_inhand_cat_word.xlsx');
             count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
 
@@ -306,15 +310,15 @@ function demo_speech_analysis_functions(option)
             subexpIDs = [15];
             cevent_var = 'cevent_speech_naming_local-id'; 
             num_obj = get_num_obj(subexpIDs);
-            category_list = 1:num_obj;
+            category_list = 1:num_obj; % all objects
             output_filename = fullfile(output_dir,'case18_parent_naming.csv');
             extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
 
             % count cat - word pair frequency in subject level
             input_csv = output_filename;
-            sub_col = 2;
-            cat_col = 6;
-            utt_col = 8;
+            sub_col = 1;
+            cat_col = 5;
+            utt_col = 10;
             output_excel = fullfile(output_dir,'case18_parent_naming_cat_word.xlsx');
             count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
 
