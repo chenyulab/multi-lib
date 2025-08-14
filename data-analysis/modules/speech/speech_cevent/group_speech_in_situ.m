@@ -114,17 +114,17 @@ function [table_sub, table_cat, table_sub_cat] = group_speech_in_situ(input_csv,
     
         % write output file into table
         sub_cat_name = sprintf("%s_subject-category.csv",file_label);
-        col_names = {'subID','expID','catValue', 'trial_time', 'instance#', 'text'};
+        col_names = {'subID','expID','category', 'trial_time', 'instance#', 'utterances'};
         table_sub_cat = cell2table(sub_cat, 'VariableNames', col_names);
         writetable(table_sub_cat, sub_cat_name);
     
         sub_name = sprintf("%s_subject.csv",file_label);
-        col_names = {'subID','expID','trial_time', 'instance#', 'text'};
+        col_names = {'subID','expID','trial_time', 'instance#', 'utterances'};
         table_sub = cell2table(sub, 'VariableNames', col_names);
         writetable(table_sub, sub_name);
     
         cat_name = sprintf("%s_category.csv",file_label);
-        col_names = {'expID','catValue', 'instance#', 'text'};
+        col_names = {'expID','category', 'instance#', 'utterances'};
         table_cat = cell2table(cat, 'VariableNames', col_names);
         writetable(table_cat, cat_name);
     
