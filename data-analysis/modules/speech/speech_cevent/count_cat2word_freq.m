@@ -99,7 +99,7 @@ function count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel,args
     end
     
     % ---------- Build overall sheet ----------
-    headers = [{'cat_label'}, {'total_instance'}, cellstr(string(unique_word_ids))'];
+    headers = [{'cat_label'}, {'total_instance'}, unique_words'];
     overall_table = cell2table( ...
         horzcat(labels, num2cell(overall_counts), num2cell(overall_matrix)), ...
         "VariableNames", headers);
