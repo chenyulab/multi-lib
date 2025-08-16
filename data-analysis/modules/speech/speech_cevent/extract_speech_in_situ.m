@@ -143,19 +143,21 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
         end
     
         %% convert timestamps in speech transcription file to system time
-        % speechTime = get_timing(sub_list(i)).speechTime; 
+        
         extract_range_file = fullfile(get_subject_dir(sub_list(i)),'supporting_files','extract_range.txt');
         range_file = fopen(extract_range_file,'r');
 
         if range_file ~= -1
             extract_range_onset = fscanf(range_file, '[%f]');
             fclose(range_file); % Close the file after reading
+            speechTime = defaultSpeechTime - round(extract_range_onset/frame_rate, 3);
         else
-            error('Failed to open extract_range.txt');
+            speechTime = get_timing(sub_list(i)).speechTime; 
+            % error('Failed to open extract_range.txt');
         end
 
         % convert original timestamp to system time
-        speech_offset = defaultSpeechTime - round(extract_range_onset/frame_rate, 3);
+        speech_offset = speechTime;
         starts = num2cell([speech_var.start] + speech_offset);
         ends   = num2cell([speech_var.end]   + speech_offset);
         
