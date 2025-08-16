@@ -25,7 +25,7 @@ function obj_labels = get_object_label(exp_id, obj_ids)
         ids   = T{:, obj_id_col};
         names = T{:, obj_name_col};
 
-        % Normalize names to cell array of char
+        % Normalize names -> cellstr
         if isstring(names)
             names = cellstr(names);
         elseif ischar(names)
@@ -33,31 +33,39 @@ function obj_labels = get_object_label(exp_id, obj_ids)
         elseif ~iscell(names)
             names = cellstr(string(names));
         end
+        % Trim whitespace
+        names = cellfun(@strtrim, names, 'UniformOutput', false);
 
         orig_sz = size(obj_ids);
         ids_vec = obj_ids(:);
-        out_vec = repmat({'<NO_LABEL>'}, numel(ids_vec), 1);  % default placeholders
+        out_vec = cell(numel(ids_vec), 1);  % filled per element
 
         for k = 1:numel(ids_vec)
             oid = ids_vec(k);
-            idx = (ids == oid);
 
+            % Guard: skip non-numeric/non-string IDs cleanly
+            if ~(isnumeric(oid) || isstring(oid) || ischar(oid))
+                out_vec{k} = sprintf('<UNKNOWN:%s>', id2str(oid));
+                continue;
+            end
+
+            idx = (ids == oid);
             if any(idx)
                 lbls = names(idx);
 
-                % cleanup
-                if isstring(lbls), lbls = cellstr(lbls); end
-                if ischar(lbls),  lbls = cellstr(lbls);  end
-                lbls = lbls(:);
-                lbls = lbls(~cellfun(@isempty, lbls));
+                % Remove empties after trim
+                is_empty = cellfun(@(c) isempty(c) || all(isspace(c)), lbls);
+                lbls = lbls(~is_empty);
 
                 if isempty(lbls)
-                    out_vec{k} = '<NO_LABEL>';
+                    % ID present but label(s) empty -> INVALID_LABEL: ID
+                    out_vec{k} = sprintf('INVALID_LABEL:%s', id2str(oid));
                 else
                     out_vec{k} = strjoin(lbls, '/');
                 end
             else
-                out_vec{k} = sprintf('<UNKNOWN:%d>', oid);  % show which id is missing
+                % ID not in dictionary at all
+                out_vec{k} = sprintf('<UNKNOWN:%s>', id2str(oid));
             end
         end
 
@@ -75,6 +83,19 @@ function obj_labels = get_object_label(exp_id, obj_ids)
             obj_labels = '<ERROR>';
         else
             obj_labels = repmat({'<ERROR>'}, size(obj_ids));
+        end
+    end
+
+    % ---- helper: robust ID -> string ----
+    function s = id2str(v)
+        if isnumeric(v) && isscalar(v) && isfinite(v)
+            if mod(v,1)==0
+                s = sprintf('%d', v);
+            else
+                s = sprintf('%.6g', v);
+            end
+        else
+            s = char(string(v));
         end
     end
 end
