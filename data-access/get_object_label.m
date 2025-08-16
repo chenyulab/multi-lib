@@ -18,52 +18,46 @@ function obj_labels = get_object_label(exp_id, obj_ids)
     end
 
     try
-        dirp = fullfile(get_multidir_root(), sprintf('experiment_%d', exp_id)); % <-- () added
+        dirp = fullfile(get_multidir_root(), sprintf('experiment_%d', exp_id));
         filename = sprintf('exp_%d_dictionary.xlsx', exp_id);
         T = readtable(fullfile(dirp, filename));
 
         ids   = T{:, obj_id_col};
         names = T{:, obj_name_col};
 
-        % Normalize names to a cellstr
+        % Normalize names to cell array of char
         if isstring(names)
             names = cellstr(names);
         elseif ischar(names)
-            names = cellstr(names); % char matrix -> cellstr by row
+            names = cellstr(names);
         elseif ~iscell(names)
             names = cellstr(string(names));
         end
 
-        orig_sz   = size(obj_ids);
-        ids_vec   = obj_ids(:);
-        out_vec   = repmat({''}, numel(ids_vec), 1);  % default placeholders
+        orig_sz = size(obj_ids);
+        ids_vec = obj_ids(:);
+        out_vec = repmat({'<NO_LABEL>'}, numel(ids_vec), 1);  % default placeholders
 
         for k = 1:numel(ids_vec)
             oid = ids_vec(k);
-
-            % Skip non-numeric gracefully
-            if ~(isnumeric(oid) || (isstring(oid) && strlength(oid) > 0))
-                out_vec{k} = '';
-                continue;
-            end
-
             idx = (ids == oid);
+
             if any(idx)
                 lbls = names(idx);
 
-                % ensure cellstr & drop empties
+                % cleanup
                 if isstring(lbls), lbls = cellstr(lbls); end
                 if ischar(lbls),  lbls = cellstr(lbls);  end
                 lbls = lbls(:);
                 lbls = lbls(~cellfun(@isempty, lbls));
 
                 if isempty(lbls)
-                    out_vec{k} = '';
+                    out_vec{k} = '<NO_LABEL>';
                 else
                     out_vec{k} = strjoin(lbls, '/');
                 end
             else
-                out_vec{k} = '';  % <-- placeholder when no dictionary entry
+                out_vec{k} = sprintf('<UNKNOWN:%d>', oid);  % show which id is missing
             end
         end
 
@@ -78,9 +72,9 @@ function obj_labels = get_object_label(exp_id, obj_ids)
     catch ME
         disp(ME.message);
         if isscalar(obj_ids)
-            obj_labels = '';
+            obj_labels = '<ERROR>';
         else
-            obj_labels = repmat({''}, size(obj_ids));
+            obj_labels = repmat({'<ERROR>'}, size(obj_ids));
         end
     end
 end
