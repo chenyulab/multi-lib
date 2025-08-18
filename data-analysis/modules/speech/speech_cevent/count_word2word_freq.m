@@ -1,6 +1,6 @@
 %%%
 % Author: Jingwen Pang
-% Date: 6/16/2025
+% Date: 8/13/2025
 % 
 % This function processes an instance-level speech file and a specified utterance column. It reads all utterances and constructs an n × (n + 2) frequency matrix, where:
 % n + 1 counts individual word frequencies.
@@ -10,17 +10,11 @@
 % Subject-level sheets.
 % 
 %%%
-function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_dir, args)
+function freq_table = count_word2word_freq(input_csv, utt_col, group_col, group_label, output_dir, args)
 
 % check if there is optional parameters
     if ~exist('args', 'var') || isempty(args)
         args = struct([]);
-    end
-
-    if isfield(args, 'keep_stopwords')
-        keep_stopwords = args.keep_stopwords;
-    else
-        keep_stopwords = 0;
     end
 
     if isfield(args, 'exp_col')
@@ -28,8 +22,6 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
     else
         exp_col = 2;
     end
-
-    
 
     stopWords_list = stopWords;
 
@@ -41,11 +33,14 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
     data = readtable(input_csv);
 
     % get exp ids 
-    exp_ids = unique(data{:,exp_col});
+    exp_id = unique(data{:,exp_col});
 
-    if length(exp_ids) > 1
-        warning('Warning: Multiple experiment IDs detected.')
+    if length(exp_id) > 1
+        error('Error: Multiple experiment IDs detected.')
     end
+
+    all_word_list = get_exp_word_list(exp_id);
+    
 
     % check if the data is grounped by subject level or object level
     if strcmp(group_label,'subject')
@@ -55,27 +50,25 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
 
         group_ids = unique(sub_ids);
     elseif strcmp(group_label, 'category')
-        main_sheetname = sprintf('exp_%d_all-category',exp_ids);
+        main_sheetname = sprintf('exp_%d_all-category',exp_id);
 
         group_ids = unique(data{:,group_col});
 
     else
         error("please provide a valid cat label: 'subject' or 'category' ")
     end
-    
-    all_text = strjoin(table2cell(data(:,utt_col)),' ');
-    all_text = erase(all_text, ';');
-    all_text = regexprep(all_text, '\s+', ' ');
-    all_text = strtrim(all_text);
-    
-    all_words = split(all_text, ' ');
-    unique_words = unique(all_words);
-    
-    if ~keep_stopwords
-        unique_words = setdiff(unique_words, stopWords_list);
-    end
-    
-    unique_words = cellstr(unique_words);
+
+    % -- Vocabulary (IDs + words) --
+    all_word_list = get_exp_word_list(exp_id);
+    unique_words = all_word_list(:,2);
+    unique_ids   = all_word_list(:,1); %#ok<NASGU>
+    V = numel(unique_words);
+
+    % -- Map word -> index --
+    word2idx = containers.Map(unique_words, 1:V);
+
+    % -- Track words we’ve already warned about (to avoid spam) --
+    warned_unknown = containers.Map('KeyType','char','ValueType','logical');
     
     
     % initialize freq table, overall freq matrix
@@ -99,23 +92,13 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
         end
     
         % expand utterance into word list
-        utterance = erase(utterance, ';');
-        utterance = regexprep(utterance, '\s+', ' ');
-        utterance = strtrim(utterance);
-        word_list = split(utterance);
-    
-        unique_words_list = unique(word_list);
-    
-        if ~keep_stopwords
-            unique_words_list = setdiff(unique_words_list, stopWords_list);
-        end
-    
-        idx_list = cellfun(@(w) word2idx(w), unique_words_list);
+        [valid_words_list, valid_idx_list, word_list] = get_valid_tokens(utterance);
         
-        for j = 1:length(unique_words_list)
-            target_word = unique_words_list{j};
+        % Now loop only through valid words
+        for j = 1:length(valid_words_list)
+            target_word = valid_words_list{j};
             word_idx_local = strcmp(word_list, target_word);
-            word_idx_global = idx_list(j);
+            word_idx_global = valid_idx_list(j);
             target_freq = sum(word_idx_local);
         
             % Self-pair (diagonal)
@@ -126,8 +109,8 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
             overall_matrix(word_idx_global, end-1) = ...
                 overall_matrix(word_idx_global, end-1) + target_freq;
         
-            % Word pair co-occurrence (vectorized)
-            co_idx = idx_list;
+            % Word pair co-occurrence
+            co_idx = valid_idx_list;
             co_idx(j) = [];  % exclude self
             overall_matrix(word_idx_global, co_idx) = ...
                 overall_matrix(word_idx_global, co_idx) + target_freq;
@@ -145,31 +128,10 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
     headers = [{'words_col'}, unique_words',{'word_freq','word_pair_freq'}];
     overall_table = cell2table(horzcat(unique_words, num2cell(overall_matrix)), "VariableNames", headers);
     
-    freq_table{1} = overall_table;
-    
-    % Extract the word frequency column (last -1 column)
-    word_freqs = overall_matrix(:, end-1);  % second-to-last column is word_freq
-    
-    % Sort indices by descending frequency
-    [~, sort_idx] = sort(word_freqs, 'descend');
-    
-    % Reorder everything based on sorted frequency
-    sorted_words = unique_words(sort_idx);
-    sorted_matrix = overall_matrix(sort_idx, sort_idx);  % sort the n x n part
-    sorted_word_freq = word_freqs(sort_idx);
-    sorted_word_pair_freq = overall_matrix(sort_idx, end);  % last column
-    
-    % Rebuild full matrix with word_freq and word_pair_freq columns
-    sorted_overall_matrix = [sorted_matrix, sorted_word_freq, sorted_word_pair_freq];
-    
-    % Rebuild headers and table
-    headers = [{'words_col'}, sorted_words', {'word_freq','word_pair_freq'}];
-    overall_table = cell2table(horzcat(sorted_words, num2cell(sorted_overall_matrix)), "VariableNames", headers);
-    
     % Store back into the first sheet
     freq_table{1} = overall_table;
     
-    parfor i = 1:size(group_ids, 1)
+    for i = 1:size(group_ids, 1)
         disp(i + 1)  % to match freq_table sheet index
         sheet_list(i+1) = group_ids(i);
 
@@ -186,59 +148,46 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
                 continue;
             end
         
-            % Clean and split the utterance
-            utterance = erase(utterance, ';');
-            utterance = regexprep(utterance, '\s+', ' ');
-            utterance = strtrim(utterance);
-            word_list = split(utterance);
-        
-            % Get unique words in this utterance
-            unique_words_list = unique(word_list);
-        
-            if ~keep_stopwords
-                unique_words_list = setdiff(unique_words_list, stopWords_list);
+            % expand utterance into word list
+            [valid_words_list, valid_idx_list, word_list] = get_valid_tokens(utterance);
+            
+            if isempty(valid_idx_list)
+                continue;
             end
-        
-            idx_list = cellfun(@(w) word2idx(w), unique_words_list);
-            
-            for j = 1:length(unique_words_list)
-                target_word = unique_words_list{j};
+
+            % Accumulate counts for each valid target word
+            for j = 1:numel(valid_words_list)
+                target_word = valid_words_list{j};
                 word_idx_local = strcmp(word_list, target_word);
-                word_idx_global = idx_list(j);
+                word_idx_global = valid_idx_list(j);
                 target_freq = sum(word_idx_local);
-            
+
                 % Self-pair (diagonal)
                 indiv_matrix(word_idx_global, word_idx_global) = ...
-                    indiv_matrix(word_idx_global, word_idx_global) + target_freq - 1;
-            
-                % Count single word
+                    indiv_matrix(word_idx_global, word_idx_global) + max(target_freq - 1, 0);
+
+                % Single word frequency
                 indiv_matrix(word_idx_global, end-1) = ...
                     indiv_matrix(word_idx_global, end-1) + target_freq;
-            
-                % Word pair co-occurrence (vectorized)
-                co_idx = idx_list;
-                co_idx(j) = [];  % exclude self
-                indiv_matrix(word_idx_global, co_idx) = ...
-                    indiv_matrix(word_idx_global, co_idx) + target_freq;
-            
-                % Update word_pair_freq
-                total_pair_freq = target_freq * length(co_idx) + (target_freq - 1);
+
+                % Co-occurrence with others
+                co_idx = valid_idx_list;
+                co_idx(j) = [];
+                if ~isempty(co_idx)
+                    indiv_matrix(word_idx_global, co_idx) = ...
+                        indiv_matrix(word_idx_global, co_idx) + target_freq;
+                end
+
+                % Total pair freq
+                total_pair_freq = target_freq * numel(co_idx) + max(target_freq - 1, 0);
                 indiv_matrix(word_idx_global, end) = ...
                     indiv_matrix(word_idx_global, end) + total_pair_freq;
             end
         end
-    
-        % Sort matrix
-        sorted_indiv_matrix = indiv_matrix(sort_idx, sort_idx);
-        sorted_word_freq = indiv_matrix(sort_idx, end-1);
-        sorted_word_pair_freq = indiv_matrix(sort_idx, end);
-    
-        sorted_indiv_matrix_full = [sorted_indiv_matrix, sorted_word_freq, sorted_word_pair_freq];
-    
-
         
         % Build table
-        indiv_table = cell2table(horzcat(sorted_words, num2cell(sorted_indiv_matrix_full)), "VariableNames", headers);
+        % indiv_table = cell2table(horzcat(sorted_words, num2cell(sorted_indiv_matrix_full)), "VariableNames", headers);
+        indiv_table = cell2table(horzcat(unique_words, num2cell(indiv_matrix)), "VariableNames", headers);
         freq_table{i+1} = indiv_table;
         
     end
@@ -259,7 +208,7 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
             fileName = sprintf('%s.csv',main_sheetname);
         else
             if strcmp(group_label, 'category')
-                cat_name = get_object_label(exp_ids,sheet_id);
+                cat_name = get_object_label(exp_id,sheet_id);
                 fileName = sprintf('%s_%d_%s.csv', group_label, sheet_id, cat_name);
             else
                 fileName = sprintf('%s_%d.csv', group_label, sheet_id);
@@ -279,4 +228,41 @@ function freq_table = count_word_word_pair_freq(input_csv, utt_col, group_col, g
         end
     end
 
+
+
+function [valid_words_list, valid_idx_list, word_list_clean] = get_valid_tokens(utt)
+        % Clean & split
+        utt = erase(utt, ';');
+        utt = regexprep(utt, '\s+', ' ');
+        utt = strtrim(utt);
+        if isempty(utt)
+            valid_words_list = {};
+            valid_idx_list = [];
+            word_list_clean = strings(0,1);
+            return;
+        end
+        word_list_clean = split(utt);
+
+        % Unique tokens in this utterance
+        unique_words_list = unique(word_list_clean);
+
+        % Keep only words in vocab; warn once per unknown
+        valid_words_list = {};
+        valid_idx_list = [];
+        for jj = 1:numel(unique_words_list)
+            w = unique_words_list{jj};
+            if isKey(word2idx, w)
+                valid_words_list{end+1} = w; 
+                valid_idx_list(end+1) = word2idx(w);
+            else
+                if ~isKey(warned_unknown, w)
+                    warned_unknown(w) = true;
+                    warning('Skipping word "%s": not in vocabulary list.', w);
+                end
+            end
+        end
 end
+
+end
+
+
