@@ -158,13 +158,10 @@ function T_transposed = transpose_table(T)
     % Convert all to char vectors (in case some are strings)
     word_list_char = cellfun(@char, word_list_raw, 'UniformOutput', false);
 
-    % Ensure valid MATLAB variable names (sanitize accents, symbols, etc.)
-    word_list_valid = matlab.lang.makeValidName(word_list_char, 'ReplacementStyle', 'delete');
-
-    % Ensure uniqueness (no duplicate column names)
-    word_list_unique = matlab.lang.makeUniqueStrings(word_list_valid, {}, namelengthmax);
-
-    % Create full header row
+    % Use original words for CSV export
+    word_list_unique = matlab.lang.makeUniqueStrings(word_list_char, {}, namelengthmax);
+    
+    % Keep original labels (don’t force valid variable names)
     header = [{'subID'}, word_list_unique];
 
     % Transpose data: subject names become first column, rest is data
