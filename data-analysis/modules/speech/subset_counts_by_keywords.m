@@ -15,8 +15,9 @@
 % A remapped word matrix where the header aligns exactly with the word list; other words in the input file will be removed.
 % If a word in the list is missing in the word matrix, its column/row will be filled with NaN.
 %%%
-function subset_counts_by_keywords(input_file, word_list, flag, col_to_keep, output_file)
+function subset_counts_by_keywords(input_file, word_list, flag, placeholder, col_to_keep, output_file)
     
+
     % read input data file
     [~, ~, ext] = fileparts(input_file);  % Get file extension
     
@@ -29,7 +30,7 @@ function subset_counts_by_keywords(input_file, word_list, flag, col_to_keep, out
             error('The first column contains numeric values. Row headers should not be numerical when using flag 1. Try flag 2 to remap column headers only.');
         end
     
-        filtered_data = extract_word_matrix(data,word_list,flag,col_to_keep);
+        filtered_data = extract_word_matrix(data,word_list,flag, placeholder, col_to_keep);
     
         writetable(filtered_data,output_file);
     
@@ -40,6 +41,7 @@ function subset_counts_by_keywords(input_file, word_list, flag, col_to_keep, out
         
         for i = 1:length(sheetNames)
             sheet = sheetNames{i};
+            disp(sheet)
             data = readtable(input_file, 'Sheet', sheet);
 
             % Check if flag == 1 and first column contains numeric values
@@ -47,7 +49,7 @@ function subset_counts_by_keywords(input_file, word_list, flag, col_to_keep, out
                 error(['Sheet "' sheet '" contains numeric row headers. Row headers should not be numerical when using flag 1. Try flag 2 to remap column headers only.']);
             end
     
-            filtered_data = extract_word_matrix(data,word_list,flag,col_to_keep);
+            filtered_data = extract_word_matrix(data,word_list,flag, placeholder, col_to_keep);
             
             writetable(filtered_data, output_file, 'Sheet', sheet);
         end
@@ -59,7 +61,7 @@ end
 
 
 
-function output_data = extract_word_matrix(data, word_list, flag, col_to_keep)
+function output_data = extract_word_matrix(data, word_list, flag, placeholder, col_to_keep)
 
     row_labels = data{:,1};
     col_headers = data.Properties.VariableNames;
@@ -71,7 +73,11 @@ function output_data = extract_word_matrix(data, word_list, flag, col_to_keep)
 
     % Extract and reorder columns
     if flag == 1 || flag == 2
-        new_main_cols = array2table(NaN(height(data), length(word_list)), 'VariableNames', word_list);
+        if placeholder == 1
+            new_main_cols = array2table(NaN(height(data), length(word_list)), 'VariableNames', word_list);
+        else
+            new_main_cols = array2table(zeros(height(data), length(word_list)), 'VariableNames', word_list);
+        end
         for i = 1:length(word_list)
             idx = find(strcmp(col_headers_main, word_list{i}), 1);
             if ~isempty(idx)
@@ -84,8 +90,13 @@ function output_data = extract_word_matrix(data, word_list, flag, col_to_keep)
 
     % Extract and reorder rows
     if flag == 1
-        new_main_rows = array2table(NaN(length(word_list), width(new_main_cols)), ...
+        if placeholder == 1
+            new_main_rows = array2table(NaN(length(word_list), width(new_main_cols)), ...
                                     'VariableNames', new_main_cols.Properties.VariableNames);
+        else
+            new_main_rows = array2table(zeros(length(word_list), width(new_main_cols)), ...
+                                    'VariableNames', new_main_cols.Properties.VariableNames);
+        end
         new_row_names = cell(length(word_list), 1);
         for i = 1:length(word_list)
             idx = find(strcmp(row_labels, word_list{i}), 1);

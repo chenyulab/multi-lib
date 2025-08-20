@@ -131,7 +131,6 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
         disp(sub_list(i));
         expID = sub2exp(sub_list(i));
 
-
         % get trial info
         trial_info = get_variable(sub_list(i),'cevent_trials');
         
@@ -144,32 +143,42 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
         end
     
         %% convert timestamps in speech transcription file to system time
-        % speechTime = get_timing(sub_list(i)).speechTime; 
+        
         extract_range_file = fullfile(get_subject_dir(sub_list(i)),'supporting_files','extract_range.txt');
         range_file = fopen(extract_range_file,'r');
 
         if range_file ~= -1
             extract_range_onset = fscanf(range_file, '[%f]');
             fclose(range_file); % Close the file after reading
+            speechTime = defaultSpeechTime - round(extract_range_onset/frame_rate, 3);
         else
-            error('Failed to open extract_range.txt');
+            speechTime = get_timing(sub_list(i)).speechTime; 
+            % error('Failed to open extract_range.txt');
         end
 
+        % convert original timestamp to system time
+        speech_offset = speechTime;
+        starts = num2cell([speech_var.start] + speech_offset);
+        ends   = num2cell([speech_var.end]   + speech_offset);
+        
+        [speech_var.start] = starts{:};
+        [speech_var.end]   = ends{:};
+
+        % get trial length
         trials = get_trial_times(sub_list(i));
         trial_length = sum(trials(:,2) - trials(:,1));
-
     
         % convert original timestamp to system time -- TODO: not sure if
         % all raw speech transcriptions have timestamps that are
         % inconsistent with the system time
         for j = 1:numel(speech_var)
             
-            speech_var(j).start = speech_var(j).start + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
-            speech_var(j).end = speech_var(j).end + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
+            % speech_var(j).start = speech_var(j).start + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
+            % speech_var(j).end = speech_var(j).end + defaultSpeechTime - round(extract_range_onset/frame_rate,3);
 
-            trial_id = find_trial_id(trial_info, speech_var(j).start);
+            trial_id = find_trial_id(trial_info, speech_var(j).start, speech_var(j).end);
 
-            if is_speech_timewindow == 1
+            if is_speech_timewindow == 1 % extract speech utterance directly
                 instance = {sub_list(i), expID, speech_var(j).start, speech_var(j).end, 0, trial_id, j, trial_length};
                 sub_utt = speech_var(j).words;
                 instance = [instance, {sub_utt}];
@@ -183,7 +192,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 end
                 overall_instance = [overall_instance;instance];
                 
-            elseif is_speech_timewindow == 2
+            elseif is_speech_timewindow == 2 % extract speech utterance based on shifted speech time window
                 onset = speech_var(j).start;
                 offset = speech_var(j).end;
                 % shift timestamps accordingly
@@ -262,7 +271,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
         end
 
     
-        if ~is_speech_timewindow
+        if ~is_speech_timewindow % extract speech based on cevent time window
             % get timestamps of cevent variable
             cevent = get_variable_by_trial_cat(sub_list(i),cevent_var);
             if isempty(cevent)
@@ -283,6 +292,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                 instance_ids = cevent(cevent(:,3)==cat, 4);
 
                 onset_raw = onset;
+                offset_raw = offset;
     
                 % shift timestamps accordingly
                 if strcmp(whence,'start')
@@ -308,6 +318,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                     et = offset(k);
 
                     bt_raw = onset_raw(k);
+                    et_raw = offset_raw(k);
 
                     % check cevent duration
                     cevent_dur = et - bt;
@@ -315,7 +326,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
                         continue
                     end
 
-                    trial_id = find_trial_id(trial_info, bt_raw);
+                    trial_id = find_trial_id(trial_info, bt_raw, et_raw);
                     
         
                     % find utterance timestamps that falls within bt-et range
@@ -373,21 +384,21 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
     
 
     if ~isempty(overall_instance)
-    if ~isempty(target_words)
-        % check the first element in this function determine the
-        % extract_mode
-        extracted_data = extract_data_by_mode(target_words, overall_instance, overall_keywords_count, keyword_headers);
-    else
-        extracted_data = overall_instance;
-        extracted_data(:,end+1) = extracted_data(:,end);
-        extracted_data(:,end-1) = {'None'};
-    end
-    if ~isempty(extracted_data)
-
-        [~, order] = sort(str2double(extracted_data(:,4)));
-        extracted_data = extracted_data(order, :);
-        extracted_data = sortrows(extracted_data,1);  % sort based on the subject id
-    end
+        if ~isempty(target_words)
+            % check the first element in this function determine the
+            % extract_mode
+            extracted_data = extract_data_by_mode(target_words, overall_instance, overall_keywords_count, keyword_headers);
+        else
+            extracted_data = overall_instance;
+            extracted_data(:,end+1) = extracted_data(:,end);
+            extracted_data(:,end-1) = {'None'};
+        end
+        if ~isempty(extracted_data)
+    
+            [~, order] = sort(str2double(extracted_data(:,4)));
+            extracted_data = extracted_data(order, :);
+            extracted_data = sortrows(extracted_data,1);  % sort based on the subject id
+        end
 
     else
         extracted_data = [];
@@ -400,7 +411,7 @@ function [extracted_data] = extract_speech_in_situ(subexpID,cevent_var,category_
         disp(extracted_data);
         if ~isempty(extracted_data)
         summary_table = array2table(extracted_data,'VariableNames',colNames);
-        writetable(summary_table,sprintf('%s.csv',output_filename(1:end-4)));
+        writetable(summary_table,output_filename);
         else
             disp('no speech data is found!')
         end
@@ -494,14 +505,16 @@ function extracted_all = extract_data_by_mode(word_list, overall_instance, overa
     end
 end
 
-function trial_id = find_trial_id(trial_info, onset_time)
+function trial_id = find_trial_id(trial_info, event_onset, event_offset)
+    % trial_info: [trial_start, trial_end, trial_id]
+    % event_onset, event_offset: time window of the event
 
-
-    idx = onset_time >= trial_info(:,1) & onset_time <= trial_info(:,2);
+    % Overlap test: event and trial intervals intersect
+    idx = (event_onset <= trial_info(:,2)) & (event_offset >= trial_info(:,1));
 
     if any(idx)
         trial_id = trial_info(idx, 3);
     else
-        trial_id = 0; % or 0 or -1, depending on how you want to handle "no match"
+        trial_id = 0; % or NaN, depending on "no match" behavior
     end
 end

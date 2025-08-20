@@ -19,7 +19,7 @@
 %%%
 function demo_subset_counts_by_keywords(option)
 
-output_dir = 'Z:\demo_output_files\subset_counts_by_keywords'; % make sure you use '' instead of ""
+output_dir = 'Z:\Jingwen\AAAwork_space\data'; % make sure you use '' instead of ""
 switch option
 
     case 1
@@ -54,7 +54,7 @@ switch option
         cat_col = 5;
         utt_col = 10;
         output_excel = fullfile(output_dir,'case2_speech_in_child_inhand_cat_word.xlsx');
-        count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
+        count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
         
         %% filter the subset of words
         input_file = output_excel;
@@ -86,8 +86,9 @@ switch option
         mcdi_words(ismember(mcdi_words, unique_naming)) = [];
         mcdi_words = unique(mcdi_words);
         word_list = [unique_naming;mcdi_words];
+        placeholder = 0; % 0 - set column placeholder value as 0, 1 - set as NaN
         
-        subset_counts_by_keywords(input_file, word_list, flag, col_to_keep, output_file);
+        subset_counts_by_keywords(input_file, word_list, flag, placeholder, col_to_keep, output_file);
 
     case 3
         % filtering a word count csv data with speech words + mcdi word list
@@ -105,7 +106,7 @@ switch option
         group_col = 1; % sub id column in this case
         group_label = 'subject'; % group in subject for each individual sheet
         output_folder = fullfile(output_dir,'case3_child_looking_word-word_subject');
-        count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
+        count_word2word_freq(input_csv, utt_col, group_col, group_label, output_folder)
         
         %% filter the subset of words
         input_file = fullfile(output_folder,'exp_15_all-subject.csv');
@@ -137,8 +138,9 @@ switch option
         mcdi_words(ismember(mcdi_words, unique_naming)) = [];
         mcdi_words = unique(mcdi_words);
         word_list = [unique_naming;mcdi_words];
+        placeholder = 0; % 0 - set column placeholder value as 0, 1 - set as NaN
         
-        subset_counts_by_keywords(input_file, word_list, flag, col_to_keep, output_file);
+        subset_counts_by_keywords(input_file, word_list, flag, placeholder, col_to_keep, output_file);
         
 
 end

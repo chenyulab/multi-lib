@@ -36,7 +36,7 @@
 %%%
 function demo_speech_analysis_functions(option)
     % all the demo files are saved into, users can define their own path:
-    output_dir = 'Z:\demo_output_files\speech_analysis';
+    output_dir = '.\test_1';
     
     switch option
         %%% extracting functions
@@ -261,7 +261,7 @@ function demo_speech_analysis_functions(option)
             group_col = 1;
             group_label = 'subject';
             output_folder = fullfile(output_dir,'case15_all_words_word-word_subject');
-            count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
+            count_word2word_freq(input_csv, utt_col, group_col, group_label, output_folder)
 
         case 16 
             % extract the words when child is attending to toys from exp 12
@@ -285,7 +285,7 @@ function demo_speech_analysis_functions(option)
             group_col = 5;
             group_label = 'category'; % group in object for each individual sheet
             output_folder = fullfile(output_dir,'case16_child_looking_word-word_category');
-            count_word_word_pair_freq(input_csv, utt_col, group_col, group_label, output_folder)
+            count_word2word_freq(input_csv, utt_col, group_col, group_label, output_folder)
 
         case 17
             % extract the speech when child is holding objects
@@ -302,7 +302,7 @@ function demo_speech_analysis_functions(option)
             cat_col = 5;
             utt_col = 10;
             output_excel = fullfile(output_dir,'case17_speech_in_child_inhand_cat_word.xlsx');
-            count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
+            count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
 
         
         case 18
@@ -320,7 +320,7 @@ function demo_speech_analysis_functions(option)
             cat_col = 5;
             utt_col = 10;
             output_excel = fullfile(output_dir,'case18_parent_naming_cat_word.xlsx');
-            count_cat_word_pair_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
+            count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
 
             % % calculate similarity score
             % input_excel = output_excel;
