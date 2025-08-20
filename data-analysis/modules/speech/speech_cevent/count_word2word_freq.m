@@ -1,268 +1,207 @@
-%%%
+function count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_dir, args)
 % Author: Jingwen Pang
-% Date: 8/13/2025
-% 
-% This function processes an instance-level speech file and a specified utterance column. It reads all utterances and constructs an n × (n + 2) frequency matrix, where:
-% n + 1 counts individual word frequencies.
-% n + 2 counts word pair co-occurrence frequencies.
-% It outputs:
-% An overall sheet with aggregated results.
-% Subject-level sheets.
-% 
-%%%
-function freq_table = count_word2word_freq(input_csv, utt_col, group_col, group_label, output_dir, args)
+% Date: 2025-08-20
+%
+% For each ROW:
+%   - Tokenize utterance, map tokens to word IDs via experiment lexicon
+%   - Build V x (V+2) co-occurrence matrix
+%   - Save "subID_catID.csv"
+% Aggregates:
+%   - Sum across rows per subject -> "subID.csv"
+%   - Sum across rows per category -> "cat-<catID>.csv"
+%   - Sum across all rows -> "<expID>_all.csv"
+%
+% Required columns: utt_col (utterance), sub_col (subject id), cat_col (category id)
+% Optional args: args.exp_col (default: 2)
 
-% check if there is optional parameters
-    if ~exist('args', 'var') || isempty(args)
-        args = struct([]);
+    % --------- Args & setup ---------
+    if ~exist('args','var') || isempty(args), args = struct(); end
+    if ~isfield(args,'exp_col'), args.exp_col = 2; end
+
+    if ~exist(output_dir, 'dir')
+        mkdir(output_dir);
+        fprintf('Created folder: %s\n', output_dir);
     end
 
-    if isfield(args, 'exp_col')
-        exp_col = args.exp_col;
+    T = readtable(input_csv);
+
+    % --------- Experiment id ---------
+    exp_ids = unique(T{:, args.exp_col});
+    if numel(exp_ids) ~= 1
+        error('Please ensure all rows belong to a single experiment. Found: %s', mat2str(exp_ids));
+    end
+    exp_id = exp_ids(1);
+
+    % --------- Vocabulary (IDs & words) ---------
+    % Expect get_exp_word_list(exp_id) -> Nx2 cell: [id, word]
+    lexicon    = get_exp_word_list(exp_id);
+    word_ids   = lexicon(:,1);
+    word_terms = lexicon(:,2);
+
+    % Convert id cell -> numeric vector (robust)
+    if iscell(word_ids)
+        wid = cellfun(@(x) double(x), word_ids);
     else
-        exp_col = 2;
+        wid = double(word_ids);
+    end
+    max_id = max(wid);
+
+    % Map WORD (exact form) -> ID (no case conversion)
+    word2id = containers.Map('KeyType','char','ValueType','double');
+    V = numel(word_terms);
+    for i = 1:V
+        term = word_terms{i};
+        word2id(term) = wid(i);
     end
 
-    stopWords_list = stopWords;
-
-    delete(gcp('nocreate'));
-    parpool('Threads');
-    
-    output_folder = output_dir;
-    
-    data = readtable(input_csv);
-
-    % get exp ids 
-    exp_id = unique(data{:,exp_col});
-
-    if length(exp_id) > 1
-        error('Error: Multiple experiment IDs detected.')
+    % Build id->term (1..max_id), fill missing with id_x labels
+    id2term = strings(max_id,1);
+    for i = 1:V
+        if wid(i) >= 1 && wid(i) <= max_id
+            id2term(wid(i)) = string(word_terms{i});
+        end
+    end
+    for i = 1:max_id
+        if id2term(i) == ""
+            id2term(i) = sprintf('id_%d', i);
+        end
     end
 
-    all_word_list = get_exp_word_list(exp_id);
-    
+    headers_words = cellstr(id2term);  % 1..max_id
+    headers = [{'words_col'}, headers_words', {'word_freq','word_pair_freq'}];
 
-    % check if the data is grounped by subject level or object level
-    if strcmp(group_label,'subject')
-        sub_ids = data{:,group_col};
-        exp_labels = strjoin(string(unique(sub2exp(sub_ids))),',');
-        main_sheetname = sprintf('exp_%s_all-subject',exp_labels);
+    % --------- Accumulators ---------
+    overall = zeros(max_id, max_id + 2, 'double');
 
-        group_ids = unique(sub_ids);
-    elseif strcmp(group_label, 'category')
-        main_sheetname = sprintf('exp_%d_all-category',exp_id);
+    % Subject and category aggregators
+    subAgg = containers.Map('KeyType','double','ValueType','any');   % subID -> matrix
+    catAgg = containers.Map('KeyType','double','ValueType','any');   % catID -> matrix
 
-        group_ids = unique(data{:,group_col});
-
-    else
-        error("please provide a valid cat label: 'subject' or 'category' ")
-    end
-
-    % -- Vocabulary (IDs + words) --
-    all_word_list = get_exp_word_list(exp_id);
-    unique_words = all_word_list(:,2);
-    unique_ids   = all_word_list(:,1); %#ok<NASGU>
-    V = numel(unique_words);
-
-    % -- Map word -> index --
-    word2idx = containers.Map(unique_words, 1:V);
-
-    % -- Track words we’ve already warned about (to avoid spam) --
+    % Warn each unknown token once
     warned_unknown = containers.Map('KeyType','char','ValueType','logical');
-    
-    
-    % initialize freq table, overall freq matrix
-    freq_table = {};
-    overall_matrix = zeros(length(unique_words),length(unique_words) +2);
-    
-    % set up sheet id
-    % row_id = 1 : size(data,1);
-    sheet_list = zeros(1, size(data, 1)+1);
-    
-    % precompute a mapping from word
-    word2idx = containers.Map(unique_words, 1:length(unique_words));
-    
-    % go through each row count for overall matrix
-    for i = 1:size(data,1)
-    
-        utterance = data{i,utt_col};
-    
-        if isempty(utterance) || isempty(utterance{1})
-            continue;
-        end
-    
-        % expand utterance into word list
-        [valid_words_list, valid_idx_list, word_list] = get_valid_tokens(utterance);
-        
-        % Now loop only through valid words
-        for j = 1:length(valid_words_list)
-            target_word = valid_words_list{j};
-            word_idx_local = strcmp(word_list, target_word);
-            word_idx_global = valid_idx_list(j);
-            target_freq = sum(word_idx_local);
-        
-            % Self-pair (diagonal)
-            overall_matrix(word_idx_global, word_idx_global) = ...
-                overall_matrix(word_idx_global, word_idx_global) + target_freq - 1;
-        
-            % Count single word
-            overall_matrix(word_idx_global, end-1) = ...
-                overall_matrix(word_idx_global, end-1) + target_freq;
-        
-            % Word pair co-occurrence
-            co_idx = valid_idx_list;
-            co_idx(j) = [];  % exclude self
-            overall_matrix(word_idx_global, co_idx) = ...
-                overall_matrix(word_idx_global, co_idx) + target_freq;
-        
-            % Update word_pair_freq
-            total_pair_freq = target_freq * length(co_idx) + (target_freq - 1);
-            overall_matrix(word_idx_global, end) = ...
-                overall_matrix(word_idx_global, end) + total_pair_freq;
-        end
-        
-    end
-    
-    
-    % Rebuild headers and table
-    headers = [{'words_col'}, unique_words',{'word_freq','word_pair_freq'}];
-    overall_table = cell2table(horzcat(unique_words, num2cell(overall_matrix)), "VariableNames", headers);
-    
-    % Store back into the first sheet
-    freq_table{1} = overall_table;
-    
-    for i = 1:size(group_ids, 1)
-        disp(i + 1)  % to match freq_table sheet index
-        sheet_list(i+1) = group_ids(i);
 
-        % Initialize matrix
-        indiv_matrix = zeros(length(unique_words), length(unique_words) + 2);
+    % --------- Process each row -> write one CSV ---------
+    nrows = height(T);
+    for r = 1:nrows
+        disp(r)
+        utter = T{r, utt_col};
+        subID = double(T{r, sub_col});
+        catID = double(T{r, cat_col});
 
-        sub_data = data(data{:,group_col} == group_ids(i),:);
+        % Normalize utterance
+        utt = normalize_utt_(utter);
 
-        for s = 1:size(sub_data,1)
-            utterance = sub_data{s, utt_col};  
-        
-            if isempty(utterance) || isempty(utterance{1})
-                % empty sheet
-                continue;
-            end
-        
-            % expand utterance into word list
-            [valid_words_list, valid_idx_list, word_list] = get_valid_tokens(utterance);
-            
-            if isempty(valid_idx_list)
-                continue;
-            end
+        % Tokenize -> word IDs (warn & skip if not in experiment list)
+        ids = tokenize_to_ids_warn_(utt, word2id, warned_unknown);
 
-            % Accumulate counts for each valid target word
-            for j = 1:numel(valid_words_list)
-                target_word = valid_words_list{j};
-                word_idx_local = strcmp(word_list, target_word);
-                word_idx_global = valid_idx_list(j);
-                target_freq = sum(word_idx_local);
+        % Build individual matrix (even if empty)
+        indiv = zeros(max_id, max_id + 2, 'double');
 
-                % Self-pair (diagonal)
-                indiv_matrix(word_idx_global, word_idx_global) = ...
-                    indiv_matrix(word_idx_global, word_idx_global) + max(target_freq - 1, 0);
+        if ~isempty(ids)
+            % Count frequency of each ID in this utterance
+            per_counts = accumarray(ids(:), 1, [max_id, 1], @sum, 0);  % max_id x 1
 
-                % Single word frequency
-                indiv_matrix(word_idx_global, end-1) = ...
-                    indiv_matrix(word_idx_global, end-1) + target_freq;
+            present_ids = find(per_counts > 0);
+            for k = 1:numel(present_ids)
+                g  = present_ids(k);         % word ID (1..max_id)
+                tf = per_counts(g);          % term frequency in this utterance
 
-                % Co-occurrence with others
-                co_idx = valid_idx_list;
-                co_idx(j) = [];
-                if ~isempty(co_idx)
-                    indiv_matrix(word_idx_global, co_idx) = ...
-                        indiv_matrix(word_idx_global, co_idx) + target_freq;
+                % Diagonal: self-pairs
+                indiv(g, g) = indiv(g, g) + max(tf - 1, 0);
+                % Single word count
+                indiv(g, end-1) = indiv(g, end-1) + tf;
+
+                % Co-occurrence with others:
+                others = present_ids(present_ids ~= g);
+                if ~isempty(others)
+                    indiv(g, others) = indiv(g, others) + tf;
                 end
 
-                % Total pair freq
-                total_pair_freq = target_freq * numel(co_idx) + max(target_freq - 1, 0);
-                indiv_matrix(word_idx_global, end) = ...
-                    indiv_matrix(word_idx_global, end) + total_pair_freq;
+                % Total pair freq (including self-pairs)
+                indiv(g, end) = indiv(g, end) + tf * numel(others) + max(tf - 1, 0);
             end
         end
-        
-        % Build table
-        % indiv_table = cell2table(horzcat(sorted_words, num2cell(sorted_indiv_matrix_full)), "VariableNames", headers);
-        indiv_table = cell2table(horzcat(unique_words, num2cell(indiv_matrix)), "VariableNames", headers);
-        freq_table{i+1} = indiv_table;
-        
-    end
-    
-    % Create the folder if it does not exist
-    if ~exist(output_folder, 'dir')
-        mkdir(output_folder);
-        fprintf('Created folder: %s\n', output_folder);
-    end
-    
-    % Loop through freq_table and save each to a separate CSV file
-    for i = 1:length(freq_table)
-        data = freq_table{i};
-        sheet_id = sheet_list(i);
-    
-        % Create file name
-        if sheet_id == 0
-            fileName = sprintf('%s.csv',main_sheetname);
-        else
-            if strcmp(group_label, 'category')
-                cat_name = get_object_label(exp_id,sheet_id);
-                fileName = sprintf('%s_%d_%s.csv', group_label, sheet_id, cat_name);
-            else
-                fileName = sprintf('%s_%d.csv', group_label, sheet_id);
-            end
+
+        % Write row-level CSV: "subID_catID.csv"
+        row_name = fullfile(output_dir, sprintf('%d_%d.csv', subID, catID));
+        row_tbl  = cell2table([cellstr(id2term), num2cell(indiv)], 'VariableNames', headers);
+        writetable(row_tbl, row_name);
+        % fprintf('Wrote: %s\n', row_name);
+
+        % Accumulate into overall
+        overall = overall + indiv;
+
+        % Accumulate into subject-level
+        if ~isKey(subAgg, subID)
+            subAgg(subID) = zeros(max_id, max_id + 2, 'double');
         end
-    
-        filePath = fullfile(output_folder, fileName);
-    
-        % Debug info
-        fprintf('Writing to file: %s\n', filePath);
-    
-        % Write only if data is non-empty
-        if ~isempty(data) && width(data) > 0
-            writetable(data, filePath);
-        else
-            warning('Data for sheet_id %d is empty. Skipping.', sheet_id);
+        subAgg(subID) = subAgg(subID) + indiv;
+
+        % Accumulate into category-level
+        if ~isKey(catAgg, catID)
+            catAgg(catID) = zeros(max_id, max_id + 2, 'double');
         end
+        catAgg(catID) = catAgg(catID) + indiv;
     end
 
+    % --------- Write overall ---------
+    overall_tbl  = cell2table([cellstr(id2term), num2cell(overall)], 'VariableNames', headers);
+    overall_name = fullfile(output_dir, sprintf('exp-%d_all.csv', exp_id));
+    writetable(overall_tbl, overall_name);
 
+    % --------- Write subject aggregates ---------
+    subKeys = cell2mat(keys(subAgg));
+    for i = 1:numel(subKeys)
+        sid = subKeys(i);
+        M   = subAgg(sid);
+        sub_tbl  = cell2table([cellstr(id2term), num2cell(M)], 'VariableNames', headers);
+        sub_name = fullfile(output_dir, sprintf('%d.csv', sid));  % subject: subID.csv
+        writetable(sub_tbl, sub_name);
+    end
 
-function [valid_words_list, valid_idx_list, word_list_clean] = get_valid_tokens(utt)
-        % Clean & split
-        utt = erase(utt, ';');
-        utt = regexprep(utt, '\s+', ' ');
-        utt = strtrim(utt);
-        if isempty(utt)
-            valid_words_list = {};
-            valid_idx_list = [];
-            word_list_clean = strings(0,1);
-            return;
-        end
-        word_list_clean = split(utt);
-
-        % Unique tokens in this utterance
-        unique_words_list = unique(word_list_clean);
-
-        % Keep only words in vocab; warn once per unknown
-        valid_words_list = {};
-        valid_idx_list = [];
-        for jj = 1:numel(unique_words_list)
-            w = unique_words_list{jj};
-            if isKey(word2idx, w)
-                valid_words_list{end+1} = w; 
-                valid_idx_list(end+1) = word2idx(w);
-            else
-                if ~isKey(warned_unknown, w)
-                    warned_unknown(w) = true;
-                    warning('Skipping word "%s": not in vocabulary list.', w);
-                end
-            end
-        end
+    % --------- Write category aggregates ---------
+    catKeys = cell2mat(keys(catAgg));
+    for i = 1:numel(catKeys)
+        cid = catKeys(i);
+        M   = catAgg(cid);
+        cat_tbl  = cell2table([cellstr(id2term), num2cell(M)], 'VariableNames', headers);
+        cat_name = fullfile(output_dir, sprintf('cat-%d.csv', cid));  % category: cat-catID.csv
+        writetable(cat_tbl, cat_name);
+    end
 end
 
+% ===================== Helpers =====================
+
+function s = normalize_utt_(s)
+    % Convert to char, strip semicolons, collapse spaces, trim.
+    if iscell(s),   s = s{1}; end
+    if isstring(s), s = char(s); end
+    if isempty(s),  s = ''; return; end
+    s = strrep(s, ';', '');
+    s = regexprep(s, '\s+', ' ');
+    s = strtrim(s);
 end
 
-
+function ids = tokenize_to_ids_warn_(utt, word2id, warned_unknown)
+    if isempty(utt)
+        ids = [];
+        return;
+    end
+    toks = strsplit(utt, ' ');
+    ids = zeros(1, numel(toks));
+    n   = 0;
+    for i = 1:numel(toks)
+        tk = toks{i};
+        if isempty(tk), continue; end
+        if isKey(word2id, tk)
+            n = n + 1;
+            ids(n) = word2id(tk);
+        else
+            if ~isKey(warned_unknown, tk)
+                warned_unknown(tk) = true;
+                warning('Skipping word "%s": not in experiment word list.', tk);
+            end
+        end
+    end
+    ids = ids(1:n);
+end
