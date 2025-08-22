@@ -11,76 +11,62 @@
 % A remapped word matrix where the header aligns exactly with the word list; other words in the input file will be removed.
 % If a word in the list is missing in the word matrix, its column/row will be filled with NaN.
 %%%
-function filter_cat2word_freq(input_file, expID, word_list, output_file)
+function filter_cat2word_freq(input_file, output_file, word_list)
 
-    word_mapping = get_exp_word_list(expID, word_list);
-    word_id_list = cell2mat(word_mapping(:,1))'; % word id column
-    
-    
-    % read input data file
-    [~, ~, ext] = fileparts(input_file);  % Get file extension
-    
-    if strcmpi(ext, '.csv')
-        % Read CSV file
-        data = readtable(input_file,'PreserveVariableNames', true);
+   [~, ~, ext] = fileparts(input_file);
 
-        % Check if flag == 1 and first column contains numeric values
-        if flag == 1 && isnumeric(data{1,1})
-            error('The first column contains numeric values. Row headers should not be numerical when using flag 1. Try flag 2 to remap column headers only.');
-        end
-    
-        filtered_data = extract_word_matrix(data,word_list, word_id_list);
-    
-        writetable(filtered_data,output_file);
-    
-    
-    elseif strcmpi(ext, '.xlsx')
-        % Read all sheets in Excel file
-        [~, sheetNames] = xlsfinfo(input_file);
-        
-        
-        for i = 1:length(sheetNames)
-            sheet = sheetNames{i};
-            disp(sheet);
-            data = readtable(input_file, 'Sheet', sheet);
-    
-            filtered_data = extract_word_matrix(data,word_list, word_id_list);
-            
-            writetable(filtered_data, output_file, 'Sheet', sheet);
-        end
-    else
-        error('Unsupported file type: %s', ext);
+    switch lower(ext)
+        case '.csv'
+            data = readtable(input_file,'PreserveVariableNames',true);
+            filtered_data = extract_word_matrix(data, word_list);
+            writetable(filtered_data, output_file);
+
+        case '.xlsx'
+            [~, sheetNames] = xlsfinfo(input_file);
+            if isempty(sheetNames)
+                error('No sheets found in "%s".', input_file);
+            end
+            for i = 1:numel(sheetNames)
+                sheet = sheetNames{i};
+                disp(['Processing sheet: ' sheet]);
+                data = readtable(input_file, 'Sheet', sheet, 'PreserveVariableNames',true);
+                filtered_data = extract_word_matrix(data, word_list);
+
+                if i == 1
+                    writetable(filtered_data, output_file, 'Sheet', sheet);
+                else
+                    writetable(filtered_data, output_file, 'Sheet', sheet, 'WriteMode','overwritesheet');
+                end
+            end
+
+        otherwise
+            error('Unsupported file type: %s', ext);
     end
-
 end
 
 
+function output_data = extract_word_matrix(data, word_list)
+    col2skip = 2;   % always keep first 2 columns (IDs / metadata)
 
-function output_data = extract_word_matrix(data, word_list, word_id_list)
-    col2skip = 2;
-    col2keep = data(:, 1:col2skip);
+    % Ensure word_list is valid names (for matching)
+    target_names = matlab.lang.makeValidName(word_list);
+
+    % Get all variable names except metadata
     col_headers = data.Properties.VariableNames;
-    col_headers_main = col_headers(col2skip+1:end); % variable names for word columns
-    col_word_id = str2double(col_headers_main);     % extract word IDs from column headers
+    col_headers_main = col_headers(col2skip+1:end);
 
-    % Initialize new columns (will fill one-by-one)
-    new_data = NaN(height(data), length(word_id_list));  % default with NaNs
+    % Match requested words to available columns
+    [tf, loc] = ismember(target_names, col_headers_main);
 
-    for i = 1:length(word_id_list)
-        word_id = word_id_list(i);
-        if word_id == 0
-            new_data(:, i) = 0;  % Placeholder for missing word
-        else
-            new_data(:, i) = data{:, word_id + col2skip};  % skip ID/instance columns
-        end
+    if any(~tf)
+        warning('Some words not found and skipped: %s', strjoin(word_list(~tf), ', '));
     end
 
-    % Convert to table and assign word_list as headers
-    new_main_cols = array2table(new_data, 'VariableNames', matlab.lang.makeValidName(word_list));
+    % Keep only matched columns
+    keep_idx = loc(tf) + col2skip;   % shift for skipped columns
+    new_main_cols = data(:, keep_idx);
 
-    % Combine with label columns
-    main_with_labels = [col2keep new_main_cols];
-
-    output_data = main_with_labels;
-
+    % Combine with the always-kept metadata columns
+    col2keep = data(:, 1:col2skip);
+    output_data = [col2keep new_main_cols];
 end
