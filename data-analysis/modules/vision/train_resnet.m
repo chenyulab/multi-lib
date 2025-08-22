@@ -1,11 +1,13 @@
-%% 
-% Author: Elton Martinez
-% Modifier: Eric Zhao
-% last modified: 6/30/2025
-% 
+%%
 % This function trains a resnet model to categorize the objects under
 % cam0N_attended-objs-frames_p. Where the folder above has N folders for
-% each object.
+% each object. You need this
+% https://www.mathworks.com/matlabcentral/fileexchange/64626-deep-learning-toolbox-model-for-resnet-50-network,
+% along with the prerequisites of the project
+% 
+% Author: Elton Martinez
+% Modifier: Elton Martinez
+% last modified: 8/22/2025
 % 
 % Input Parameters:
 % - subexpID
@@ -15,10 +17,15 @@
 % - epochs
 %     integer, how many data passes do you want to train for
 
-function retrainResNet(subexpID, output_filename, epochs)
+function train_resnet(subexpID, varargin)
+    parallel.gpu.enableCUDAForwardCompatibility(true)
+    args = set_optional_args(varargin,["epochs","split","val_patience"],{1,0.9,10});
     
-    % gather subject path data
+    % gather subject & experiment path data
     subjects = cIDs(subexpID);
+    expID = sub2exp(subjects(1));
+    output_filename = fullfile(get_multidir_root(), sprintf('experiment_%d',expID),'resnet_attend_objs.mat');
+
     Folder = strings(numel(subjects),1);
 
     for i = 1:numel(subjects)
@@ -33,9 +40,9 @@ function retrainResNet(subexpID, output_filename, epochs)
     % partition into training and testing sets 
     nFiles = length(imds.Files);
     RandIndices = randperm(nFiles);
-    nNinetyPercent = round(0.9*nFiles);
-    train_indices = RandIndices(1:nNinetyPercent);
-    test_indices = RandIndices(nNinetyPercent+1:end);
+    nNPercent = round(args.split*nFiles);
+    train_indices = RandIndices(1:nNPercent);
+    test_indices = RandIndices(nNPercent+1:end);
 
     imdsTrain = subset(imds, train_indices);
     imdsTest = subset(imds, test_indices);
@@ -63,13 +70,17 @@ function retrainResNet(subexpID, output_filename, epochs)
     options = trainingOptions("adam", ...
         InitialLearnRate=0.001, ...
         ValidationData=augimdsTest, ...
-        ValidationFrequency=50, ... %default value=5, larger values to not slow down training in large datasets
+        ValidationFrequency=50, ... 
+        ValidationPatience=args.val_patience,...
         Plots="training-progress", ...
         Metrics="accuracy", ...  
         Verbose=true, ...
-        MaxEpochs=epochs);
+        MaxEpochs=args.epochs);
     
     % train 
+    disp("Starting Training..")
+    tic
     net = trainnet(augimdsTrain,net,"crossentropy",options);
     save(output_filename, "net");
+    toc
 end
