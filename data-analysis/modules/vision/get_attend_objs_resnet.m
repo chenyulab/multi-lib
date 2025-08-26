@@ -7,7 +7,7 @@
 % Last modified: 8/22/2025
 %%
 
-function net = get_resnet(expID)
+function net = get_attend_objs_resnet(expID)
     resnet_path = fullfile(get_multidir_root(), sprintf('experiment_%d',expID),'resnet_attend_objs.mat');
 
     if isfile(resnet_path)

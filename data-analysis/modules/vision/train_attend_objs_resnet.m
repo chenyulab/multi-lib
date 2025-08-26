@@ -17,7 +17,7 @@
 % - epochs
 %     integer, how many data passes do you want to train for
 
-function train_resnet(subexpID, varargin)
+function train_attend_objs_resnet(subexpID, varargin)
     parallel.gpu.enableCUDAForwardCompatibility(true)
     args = set_optional_args(varargin,["epochs","split","val_patience"],{1,0.9,10});
     

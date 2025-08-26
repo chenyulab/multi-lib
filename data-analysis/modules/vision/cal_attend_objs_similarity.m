@@ -25,7 +25,7 @@
 %%
 
 
-function cal_attend_obj_similarity(subexpID, varargin)
+function cal_attend_objs_similarity(subexpID, varargin)
     parallel.gpu.enableCUDAForwardCompatibility(true);
     % base dir
     base_dir = 'M:/extracted_datasets/event_similarity_matrices/attend_objs';

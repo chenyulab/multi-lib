@@ -9,6 +9,10 @@
 % Parameters:
 % - subexpID
 %   integer array of subjects or an exp number
+% Optional Parameters:
+% - args.replace
+%     boolean, If true it will recompute the embeding cache for subjects that
+%     already have data. 
 % Output: 
 %   outputs table with variables: 
 %       frame_name(string), name of image file
@@ -19,11 +23,13 @@
 %       image_identifier(double), object number and frame number represented as one number
 %%
 
-function compute_image_embed(subexpID)
+function compute_attend_objs_image_embeds(subexpID,varargin)
+    args = set_optional_args(varargin,{'replace'},{false});
+
     subs = cIDs(subexpID);
     expID = sub2exp(subs(1));
 
-    net = get_resnet(expID);
+    net = get_attend_objs_resnet(expID);
 
     if isempty(net)
         return 
@@ -38,7 +44,7 @@ function compute_image_embed(subexpID)
         output_filename = sprintf('%d_child_attended-objs-frames_image_scores.mat',sub);
         output_filename = fullfile(output_directory,output_filename);
         
-        if exist(output_filename,"file")
+        if isfile(output_filename) && ~args.replace
             fprintf('skipped subject %d, already has file\n',sub)
             continue
         end
@@ -49,9 +55,13 @@ function compute_image_embed(subexpID)
         dir_df = compute_image_embed_helper(cam_directory,net);
         toc
         
-        % save as .mat file in the extra_p
-        save(output_filename, 'dir_df');
-        fprintf('Saved: %s\n', output_filename)
+        if isempty(dir_df)
+            fprintf("attend obj subfolders for sub %d don't exist. No data was written\n",sub)
+        else
+            % save as .mat file in the extra_p
+            save(output_filename, 'dir_df');
+            fprintf('Saved: %s\n', output_filename)
+        end
 
     end
 end
@@ -65,7 +75,7 @@ function image_embed_df = compute_image_embed_helper(in_dir,net)
     upper_dir = {upper_dir([upper_dir.isdir]).name}; % only get folders
     upper_dir = upper_dir(~ismember(upper_dir ,{'.','..'})); %remove '.' and '..' folders
     if isempty(upper_dir)
-        error("subfolders in cam directory don't exist, stopping calculation")
+        return
     end
 
     for lower_dir_index = 1:numel(upper_dir)
