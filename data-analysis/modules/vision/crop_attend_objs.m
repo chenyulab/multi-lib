@@ -15,9 +15,10 @@
 %   agents:
 %       a cell array of ch, indicate if you want child, parent, or both
 %   args (optional):
-%       cevent_values: which categories to include. This is used if you
+%       cevent_values: array, which categories to include. This is used if you
 %       want to just run it on one category or if you want to include face.
 %       The default behavior is to include all toy categories. 
+%       empty_dir: boolean, if true all cropped images will be regenerated
 
 % couple of warnings:
 % experiment's 12 and 15 bbox_struct have different structures than what is
@@ -30,13 +31,6 @@
 
 
 function crop_attend_objs(subexpID, agents, varargin)
-    % define default arguments
-    if isempty(varargin)
-        args = {};
-    else
-        args = varargin{1};
-    end
-    
     % constants 
     subexpID = cIDs(subexpID);
     expID = get_experiment_dir(subexpID(1));
@@ -46,15 +40,8 @@ function crop_attend_objs(subexpID, agents, varargin)
     num_obj = get_num_obj(subexpID(1));
     cevent_values = 1:num_obj;
 
-    valid_args = {"cevent_values","empty_dir"};
-    default_args = {cevent_values, false};
-
-    % assign default arguments if not passed
-    for i = 1:numel(valid_args)
-        if ~isfield(args, valid_args{i})
-            args.(valid_args{i}) = default_args{i};
-        end
-    end
+    % define default arguments
+    args = set_optional_args(varargin,{"cevent_values","empty_dir"},{cevent_values,false});
     
     % add face if included 
     if ismember(num_obj + 1, args.cevent_values)
@@ -64,7 +51,6 @@ function crop_attend_objs(subexpID, agents, varargin)
     end
 
     input_foldernames = {'cam07_frames_p','cam08_frames_p'};
-    % might not be best lol 
     output_foldernames = {'cam07_attended-objs-frames_p','cam08_attended-objs-frames_p'};
 
     for i = 1:length(agents)
