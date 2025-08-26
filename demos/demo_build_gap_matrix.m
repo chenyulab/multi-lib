@@ -2,10 +2,10 @@
 % This takes the outfile of get_gap_instance (see demo_get_gap_instance)
 % and reformats the csv into a matlab struct of the form
 %   N = number_of_subjects x 1 cell array
-%    ├── N{i, 1}{1, 1} = subID of the ith subject
-%    ├── N{i, 1}{1, 2} = obj_num x obj_num cell array = A
+%     N{i, 1}{1, 1} = subID of the ith subject
+%     N{i, 1}{1, 2} = obj_num x obj_num cell array = A
 %        
-%       ├── A{n, m} = gaps between instances whose category goes from n-->m,
+%       A{n, m} = gaps between instances whose category goes from n-->m,
 %         there are four "columns" : inst1_onset, inst2_offset, inst2_onset, 
 %         inst2_offset = num_of_instances x 4 = B. For example A{5, 10} are
 %         the gaps between instances where inst1 has category is 5 and inst2
