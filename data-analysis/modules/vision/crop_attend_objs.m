@@ -19,7 +19,7 @@
 %       want to just run it on one category or if you want to include face.
 %       The default behavior is to include all toy categories. 
 %       empty_dir: boolean, if true all cropped images will be regenerated
-
+%
 % couple of warnings:
 % experiment's 12 and 15 bbox_struct have different structures than what is
 % the default format. For bbox_struct we expect a struct of 1xframe_num.
@@ -27,7 +27,7 @@
 % by simply using (i). 
 % For exp 12 the field frame_id is a string...
 % For exp 15 the post_boxes are in the format [top_left_x top_left_y width
-% height].... 
+% height].... This scripts handles that but man its ugly
 
 
 function crop_attend_objs(subexpID, agents, varargin)
