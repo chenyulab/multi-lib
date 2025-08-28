@@ -12,7 +12,7 @@
 %   - corresponding cevent variables
 % see demo_speech_analysis_functions case 8
 %%%
-function make_keywords_events(keyword_list, keyword_ids, data, varname)
+function make_keywords_events(keyword_list, keyword_ids, data, varname,args)
 % action_verbs = {'assemble','cut','close','drink','eat','get','grab','look','make','move','open','put','reach','rip','scoop','screw','spread','try','twist','wipe'};
 
     % parameter checking
