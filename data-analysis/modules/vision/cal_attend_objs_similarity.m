@@ -1,7 +1,7 @@
 %% 
 % Author: Elton Martinez
 % Modifier: Elton Martinez
-% last modified: 8/26/2025
+% last modified: 9/3/2025
 %
 % For each subjects the function calculates the unique pairwise similarity within 
 % categories.
@@ -81,15 +81,13 @@ function cal_attend_objs_similarity(subexpID, varargin)
             %define output filename
             output_filename = fullfile(sub_output_dir,'child_attended-objs_frame-sim.csv');
 
-            if ~isfile(output_filename) && ~args.replace
+            if args.replace || ~isfile(output_filename)
                 % runs the actual comparison
                 img_sim = cal_embed_similarity(embeds_df);
 
                 %write comparison results to csv
                 writetable(img_sim,output_filename);
                 fprintf("Saved: %s\n\n",output_filename);
-
-
             else
                 fprintf("Already Exists: %s\n\n",output_filename);
             end
@@ -113,14 +111,14 @@ function cal_attend_objs_similarity(subexpID, varargin)
                 %write empty csv if no obj instances
                 if sum(obj_mask,'all') == 0
                     writematrix([],output_filename);
+                    fprintf("Saved: %s [EMPTY]\n",output_filename);
                     continue
                 end
 
                 %prepare arguments to run comparison
                 obj_embeds_df = embeds_df(obj_mask,:);
 
-                if ~isfile(output_filename) && ~args.replace
-
+                if args.replace || ~isfile(output_filename)
                     %runs the actual comparison
                     img_sim = cal_embed_similarity(obj_embeds_df);
     
