@@ -42,7 +42,7 @@ function colors = distinguishable_colors(n_colors,bg,func)
 %
 %   colors = distinguishable_colors(n_colors,bg,rgb2labfunc)
 % By default, distinguishable_colors uses the image processing toolbox's
-% color conversion functions makecform and applycform. Alternatively, you
+% color conversion functions rgb2lab. Alternatively, you
 % can supply your own color conversion function.
 %
 % Example:
@@ -90,9 +90,8 @@ function colors = distinguishable_colors(n_colors,bg,func)
     lab = func(rgb);
     bglab = func(bg);
   else
-    C = makecform('srgb2lab');
-    lab = applycform(rgb,C);
-    bglab = applycform(bg,C);
+    lab   = rgb2lab(rgb);
+    bglab = rgb2lab(bg);
   end
 
   % If the user specified multiple background colors, compute distances
