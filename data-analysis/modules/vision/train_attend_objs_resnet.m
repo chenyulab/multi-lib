@@ -7,15 +7,21 @@
 % 
 % Author: Elton Martinez
 % Modifier: Elton Martinez
-% last modified: 8/22/2025
+% last modified: 9/2/2025
 % 
-% Input Parameters:
+% Parameters:
 % - subexpID
 %      array, list of subjects
-% - output_filename
-%     string, name of the output mat object 
-% - epochs
+% Optional Parameters:
+% - args.epochs
 %     integer, how many data passes do you want to train for
+% - args.split
+%     float, how much data to include in the training set as a percentage
+% - args.val_patience
+%     integer, if the model has not improved by this window then stop
+%     training
+%
+%%
 
 function train_attend_objs_resnet(subexpID, varargin)
     parallel.gpu.enableCUDAForwardCompatibility(true)

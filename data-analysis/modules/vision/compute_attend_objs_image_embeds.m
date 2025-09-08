@@ -4,7 +4,7 @@
 %
 % Author: Elton Martinez
 % Modifier: Elton Martinez
-% Last modified: 8/22/2025
+% Last modified: 9/2/2025
 %
 % Parameters:
 % - subexpID
@@ -23,10 +23,10 @@
 %       image_identifier(double), object number and frame number represented as one number
 %%
 
-function compute_attend_objs_image_embeds(subexpID,varargin)
-    args = set_optional_args(varargin,{'replace'},{false});
+function compute_attend_objs_image_embeds(subsexpID,varargin)
+    args = set_optional_args(varargin,{'replace','exclude'},{false,[]});
 
-    subs = cIDs(subexpID);
+    subs = cIDs(subsexpID);
     expID = sub2exp(subs(1));
 
     net = get_attend_objs_resnet(expID);
@@ -59,6 +59,12 @@ function compute_attend_objs_image_embeds(subexpID,varargin)
             fprintf("attend obj subfolders for sub %d don't exist. No data was written\n",sub)
         else
             % save as .mat file in the extra_p
+            if args.exclude > 0
+                mask = (dir_df{:,'obj_id'} ~= args.exclude);
+                mask = logical(prod(mask,2));
+                
+                dir_df = dir_df(mask,:);
+            end
             save(output_filename, 'dir_df');
             fprintf('Saved: %s\n', output_filename)
         end
