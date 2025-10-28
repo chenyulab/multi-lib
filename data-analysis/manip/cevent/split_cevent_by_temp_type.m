@@ -15,7 +15,7 @@
 % 
 %  Inputs:
 %   output_name: name of the output csv file containing the temporal
-%   category for each event 
+%   category for each event, if empty variables will be created instead
 %   
 %   plot_dir: where to save the plots, if empty not plots will be saved
 %   
@@ -62,6 +62,7 @@ function split_cevent_by_temp_type(output_name,plot_dir, subexpIDs, cevent_name,
     
         if has_variable(sub, cevent_name)
             cevent = get_variable(sub, cevent_name);
+            cevent = cevent(cevent(:,1) > 0,:);
         else
             fprintf('%d missing %s\n',sub, cevent_name)
             continue
@@ -81,23 +82,43 @@ function split_cevent_by_temp_type(output_name,plot_dir, subexpIDs, cevent_name,
         
         chunks = event_extract_ranges(cevent, expandCevent);
         
-        sameCount = zeros(height(cevent),1);
-        diffCount = zeros(height(cevent),1);
-        %ceventTempType = strings(height(cevent),1);
-        ceventTempType = zeros(height(cevent),6);
-    
+        ceventInfo = cell(height(cevent),6);
+        ceventTempType = zeros(height(cevent),1);
+
         for j = 1:height(cevent)
             currChunk = chunks{j};
-            onBound = currChunk(:,1) >= expandCevent(j,1);
-            offBound = currChunk(:,2) <= expandCevent(j,2);
+            if height(currChunk) > 1
+                chunkMask = ones(height(currChunk),1);
+                currEventInChunk = find(sum(currChunk == cevent(j,:),2) == 3);
+                if numel(currEventInChunk) > 1
+                    currEventInChunk = currEventInChunk(1);
+                end
+                chunkMask(currEventInChunk) = 0;
+    
+                for q = 1:height(currChunk)
+                    inst = currChunk(q,:);
+                    % well ... 
+                    % check if its out of bounds
+                    if inst(1) - expandCevent(j,1) == 0 || inst(2) - expandCevent(j,2) == 0
+                       row = sum(cevent(:,1) == inst(1) & cevent(:,2) == inst(2) & cevent(:,3) == inst(3));
+                       if row == 0
+                           chunkMask(q) = 0;
+                       end
+
+                    end
+                end
+                
+                chunkMask = logical(chunkMask);
+                boundCurrChunk = currChunk(chunkMask,:);
+                
+                catMask = boundCurrChunk(:,3) == cevent(j,3);
+                sameCountInst = sum(catMask);
+                diffCountInst = sum(~catMask);
+            else
+                sameCountInst = 0;
+                diffCountInst = 0;
+            end
             
-            boundCurrChunk = currChunk(onBound & offBound,:);
-            broadCastNaming = repmat(cevent(j,:),height(boundCurrChunk),1);
-        
-            mask = sum(broadCastNaming == boundCurrChunk,2);
-        
-            sameCountInst = sum(mask == 1);
-            diffCountInst = sum(mask == 0);
         
             tempType = NaN;
         
@@ -118,12 +139,24 @@ function split_cevent_by_temp_type(output_name,plot_dir, subexpIDs, cevent_name,
             if isempty(tempType)
                 disp(cevent(j,:))
             end
-        
-            sameCount(j) = sameCountInst;
-            diffCount(j) = diffCountInst;
-            ceventTempType(j,:) = [expID sub cevent(j,:) tempType];
+            
+            ceventTempType(j) = tempType;
+            ceventInfo(j,:) = [expID sub cevent(j,1) cevent(j,2)  cevent(j,3) varNames(tempType)];
         end
-        ceventTypewrite = [ceventTypewrite; ceventTempType];
+
+        ceventTypewrite = [ceventTypewrite; ceventInfo];
+
+        
+        if isempty(output_name)
+            for k = 1:numel(varNames)
+                variable_name = ['cevent_speech_naming_' varNames{k}];
+                data = cevent(ceventTempType == k,:);
+            
+                record_additional_variable(sub, variable_name, data)
+            end
+            continue
+        end
+
         
         if isempty(plot_dir)
             continue
@@ -134,7 +167,7 @@ function split_cevent_by_temp_type(output_name,plot_dir, subexpIDs, cevent_name,
     
         for k = 1:numel(varNames)
             labels{k} = varNames{k};
-            dataMask = ceventTempType(:,6) == k;
+            dataMask = ceventInfo(:,6) == k;
             celldata{k} = cevent(dataMask,:);
         end
         
@@ -150,7 +183,7 @@ function split_cevent_by_temp_type(output_name,plot_dir, subexpIDs, cevent_name,
         close(h);
     end
 
-    headers = {'expID','subID','onset','offset','cat','temp-cat'};
-    ceventTypeWrite = [headers; num2cell(ceventTypewrite)];
+    headers = {'expID','subID','onset','offset','cat','tempType'};
+    ceventTypeWrite = [headers; ceventTypewrite];
     writecell(ceventTypeWrite, output_name)
 end
