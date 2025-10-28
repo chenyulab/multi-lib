@@ -50,9 +50,19 @@ function count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel,args
     disp(vocab_map)
 
     % ---------- Categories & labels ----------
+    % cat_list = sort(unique(data{:, cat_col}));
     num_obj = get_num_obj(expID);
     cat_list = [1:num_obj];
     labels = get_object_label(expID,cat_list)';
+
+
+    % Mark bad labels (uppercase tokens)
+    bad = contains(string(labels), "UNKNOWN") | ...
+    contains(string(labels), "ERROR")   | ...
+    contains(string(labels), "INVALID_LABEL");
+
+    labels   = labels(~bad);
+    cat_list = cat_list(~bad);
     
     % ---------- Preallocate overall ----------
     overall_matrix = zeros(numel(cat_list), max_id, 'double');
@@ -99,10 +109,10 @@ function count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel,args
     end
     
     % ---------- Build overall sheet ----------
-    headers = [{'cat_label'}, {'total_instance'}, unique_words'];
-    overall_table = cell2table( ...
-        horzcat(labels, num2cell(overall_counts), num2cell(overall_matrix)), ...
-        "VariableNames", headers);
+    headers = [{'cat_label'}, unique_words', {'total_instance'}];
+overall_table = cell2table( ...
+    horzcat(labels, num2cell(overall_matrix), num2cell(overall_counts)), ...
+    "VariableNames", headers);
     
     % Store in cell array
     freq_table = cell(1 + numel(sub_list), 1);
@@ -147,8 +157,8 @@ function count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel,args
         end
 
         sub_table = cell2table( ...
-            horzcat(labels, num2cell(sub_counts), num2cell(sub_matrix)), ...
-            "VariableNames", headers);
+    horzcat(labels, num2cell(sub_matrix), num2cell(sub_counts)), ...
+    "VariableNames", headers);
 
         % Place at position s+1 (aligned with sheet_list)
         freq_table{s + 1} = sub_table;
