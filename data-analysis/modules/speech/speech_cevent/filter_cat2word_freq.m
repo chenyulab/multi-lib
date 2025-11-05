@@ -86,6 +86,14 @@ function filtered_data = process_table(data, word_list)
     % Safety check (all N rows)
     N = height(meta_left);
     assert(all(cellfun(@height, parts) == N), 'Row mismatch across parts.');
+    
+    % --- NEW: uniquify column names across parts ---
+    part_names = cellfun(@(t) t.Properties.VariableNames{1}, parts, 'UniformOutput', false);
+    part_names_unique = make_unique_after_valid(part_names);
+    for i = 1:numel(parts)
+        parts{i}.Properties.VariableNames = {part_names_unique{i}};
+    end
+    
     main_out = horzcat(parts{:});
 
     if ~isempty(ti_idx)
@@ -99,30 +107,47 @@ end
 % Returns ONLY the selected word columns from the provided MAIN block.
 % 'main_block' should already exclude metadata columns.
 function selected = extract_word_matrix_zero(main_block, word_list)
-    target_raw   = word_list(:);
-    target_names = matlab.lang.makeValidName(target_raw);  % desired output names
+    % Keep original labels
+    target_raw = cellstr(string(word_list(:)));
+    % Drop empty/whitespace-only items
+    target_raw = target_raw(~cellfun(@(s) isempty(s) || all(isspace(s)), target_raw));
 
-    % Existing data headers in the main block
-    main_names = main_block.Properties.VariableNames;
-
-    [tf, loc] = ismember(target_names, main_names);
     N = height(main_block);
-    cols = cell(1, numel(target_names));
 
+    % If nothing left, return an empty table with N rows (0 variables)
+    if isempty(target_raw)
+        selected = table('Size', [N 0], 'VariableTypes', {}, 'VariableNames', {});
+        return;
+    end
+
+    % Convert to valid names, make unique (car, car_2, ...)
+    target_names = make_unique_after_valid(target_raw);
+
+    % For lookup against existing main_block headers (validize only)
+    main_names   = main_block.Properties.VariableNames;
+    lookup_valid = matlab.lang.makeValidName(target_raw, 'ReplacementStyle', 'underscore');
+
+    [tf, loc] = ismember(lookup_valid, main_names);
+
+    cols = cell(1, numel(target_names));
     for k = 1:numel(target_names)
         if tf(k)
-            % Take existing column but rename to the desired target name (normalize)
             tmp = main_block(:, loc(k));
             tmp.Properties.VariableNames = {target_names{k}};
             cols{k} = tmp;
         else
-            % Missing -> zero-filled placeholder with desired name
             cols{k} = array2table(zeros(N,1), 'VariableNames', {target_names{k}});
         end
     end
 
-    selected = horzcat(cols{:});
+    % If cols is empty (defensive), still return N×0 table
+    if isempty(cols)
+        selected = table('Size', [N 0], 'VariableTypes', {}, 'VariableNames', {});
+    else
+        selected = horzcat(cols{:});
+    end
 end
+
 
 function name = make_group_name(words)
     words = cellstr(string(words(:)));
@@ -135,4 +160,32 @@ function out = normalize_word_list(wl)
     if isstring(wl), wl = cellstr(wl); end
     if ~iscell(wl),  wl = {wl};        end
     out = wl;
+end
+
+function uniqueNames = make_unique_after_valid(baseNames)
+% Ensure valid, unique MATLAB variable names.
+% - baseNames: cellstr of desired labels (original words or group names)
+% - Returns names that are valid and unique, using suffixes _2, _3, ...
+%
+% First occurrence: 'car'     -> 'car'
+% Second occurrence:          -> 'car_2'
+% Third occurrence:           -> 'car_3', etc.
+
+    % 1) Make valid (preserve "original header initially" as much as possible)
+    valid = matlab.lang.makeValidName(baseNames, 'ReplacementStyle', 'underscore');
+
+    % 2) De-duplicate with custom counters (start suffix at _2)
+    uniqueNames = valid;
+    seen = containers.Map('KeyType','char','ValueType','double');
+    for i = 1:numel(valid)
+        name = valid{i};
+        if isKey(seen, name)
+            cnt = seen(name) + 1;
+            seen(name) = cnt;
+            uniqueNames{i} = sprintf('%s_%d', name, cnt);
+        else
+            seen(name) = 1;   % first time: keep as-is
+            uniqueNames{i} = name;
+        end
+    end
 end

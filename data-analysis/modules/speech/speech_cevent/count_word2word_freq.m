@@ -17,6 +17,7 @@ function count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_dir, 
     % --------- Args & setup ---------
     if ~exist('args','var') || isempty(args), args = struct(); end
     if ~isfield(args,'exp_col'), args.exp_col = 2; end
+    if ~isfield(args,'skipSubVersions'), args.skipSubVersions = 0; end
 
     if ~exist(output_dir, 'dir')
         mkdir(output_dir);
@@ -80,6 +81,7 @@ function count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_dir, 
     % Warn each unknown token once
     warned_unknown = containers.Map('KeyType','char','ValueType','logical');
 
+    
     % --------- Process each row -> write one CSV ---------
     nrows = height(T);
     for r = 1:nrows
@@ -122,11 +124,13 @@ function count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_dir, 
             end
         end
 
-        % Write row-level CSV: "subID_catID.csv"
-        row_name = fullfile(output_dir, sprintf('%d_%d.csv', subID, catID));
-        row_tbl  = cell2table([cellstr(id2term), num2cell(indiv)], 'VariableNames', headers);
-        writetable(row_tbl, row_name);
-        % fprintf('Wrote: %s\n', row_name);
+        if args.skipSubVersions == 1;
+            % Write row-level CSV: "subID_catID.csv"
+            row_name = fullfile(output_dir, sprintf('%d_%d.csv', subID, catID));
+            row_tbl  = cell2table([cellstr(id2term), num2cell(indiv)], 'VariableNames', headers);
+            writetable(row_tbl, row_name);
+            % fprintf('Wrote: %s\n', row_name);
+        end
 
         % Accumulate into overall
         overall = overall + indiv;
@@ -143,10 +147,11 @@ function count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_dir, 
         end
         catAgg(catID) = catAgg(catID) + indiv;
     end
+    
 
     % --------- Write overall ---------
     overall_tbl  = cell2table([cellstr(id2term), num2cell(overall)], 'VariableNames', headers);
-    overall_name = fullfile(output_dir, sprintf('exp-%d_all.csv', exp_id));
+    overall_name = fullfile(output_dir, sprintf('exp%d_all.csv', exp_id));
     writetable(overall_tbl, overall_name);
 
     % --------- Write subject aggregates ---------
