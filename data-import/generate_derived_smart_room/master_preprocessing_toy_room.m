@@ -90,7 +90,7 @@ for k = 1:numel(kidIDs)
                 fixations = fixations(log,[1 2]);
                 % split up long fixations into smaller ones
                 newfixations = [];
-                for f = 1:size(fixations)
+                for f = 1:size(fixations,1)
                     splitbegin = fixations(f,1):60:fixations(f,2);
                     if splitbegin(end) == fixations(f,2)
                         splitbegin = splitbegin(1:end-1);
