@@ -1,40 +1,79 @@
-% This demo function illustrates a complete workflow for extracting and analyzing
-% word co-occurrence patterns from speech data.
+% PURPOSE
+%   Extract and analyze word–word co-occurrence patterns from speech data across
+%   multiple experiments. This demo builds co-occurrence matrices showing how
+%   often pairs of words appear together within the same utterance, and then
+%   filters those matrices down to a target vocabulary list (e.g., MCDI words).
 %
-% Author: Jingwen Pang
-% Date: 2025-11-05
+%   Co-occurrence definition (for this function):
+%     - We treat each utterance as one "bucket" of words.
+%     - Two words co-occur if they both appear in the same utterance
+%       (i.e., in the same row of the input CSV).
+%     - The co-occurrence count for a word pair is the number of utterances
+%       in which both words appear together.
+%     - Example:
+%           Utterance 1: "get the ball"
+%           Utterance 2: "kick the ball"
+%           Utterance 3: "get the red ball"
+%           Utterance 4: "look, a dog"
+%         -> ("get","ball") co-occur in 2 utterances
+%         -> ("ball","red") co-occur in 1 utterance
+%         -> ("ball","dog") co-occur in 0 utterances
 %
-% Pipeline overview:
-%   Speech Extraction
-%       - Uses 'extract_speech_in_situ()' to collect utterance-level speech data
-%         for each experiment ID.
+%     - Rule: ROW label cooccur with COLUMN label N time
+%     - Utterance: 'dog... dog... cat!'
+%       in this case, dog co-occur with cat 2 times, cat co-occur with dog
+%       1 times, so the table will be: 
+%           dog cat
+%       dog 1    2
+%       cat 1    0
 %
-%   Word–Word Co-occurrence Counting
-%       - Uses 'count_word2word_freq()' to compute pairwise word co-occurrence matrices
-%         within utterances.
-%       - Generates aggregate CSVs at multiple levels:
-%           • per-subject (subID.csv)
-%           • per-category (cat-XX.csv)
-%           • overall (expXX_all.csv)
-%       - The parameter 'args.skipSubVersions = 1' disables saving the
-%         utterance-level (sub-version) files for faster batch processing.
+% AUTHOR:  Jingwen Pang
+% DATE:    2025-11-05
+% REVISED: Connor Pickett 2025-11-14
 %
-%   Word Matrix Filtering
-%       - Uses 'filter_word2word_freq()' to subset the large co-occurrence matrix
-%         according to a predefined vocabulary (e.g., MCDI word list).
-%       - Outputs a reduced version of the co-occurrence matrix that includes
-%         only relevant words and summary columns (e.g., word frequency and pair frequency).
+% PIPELINE OVERVIEW
+%   Step 1) Extract all speech utterances
+%      - Uses 'extract_speech_in_situ()' to gather every utterance from the
+%        experiment (not restricted by attention or category).
+%      - Input file:
+%          * No CSV input file; reads from the lab's data for a given expID.
+%      - Output file:
+%          * exp##_all_speech.csv
+%            (one row per utterance with subject, category, timing, text, etc.)
 %
-% Output structure (example):
+%   Step 2) Count word–word co-occurrence
+%      - Uses 'count_word2word_freq()' on the all-speech CSV to build matrices
+%        showing how often pairs of words appear together within a single
+%        utterance, based on the definition above.
+%      - Input file:
+%          * exp##_all_speech.csv    (from Step 1)
+%      - Output files (in exp##_all_speech_word-cooccur\):
+%          * exp##_all.csv      - overall co-occurrence matrix for the experiment
+%          * cat-XX.csv         - per-category co-occurrence
+%          * per-subject files  - written only if args.skipSubVersions = 0
+%
+%   Step 3) Filter by vocabulary list
+%      - Loads a predefined word list (e.g., MCDI via 'MCDI_wordlist.csv').
+%      - Uses 'filter_word2word_freq()' to keep only rows/columns that match
+%        the vocabulary items.
+%      - Input files:
+%          * exp##_all.csv         (from Step 2)
+%          * MCDI_wordlist.csv     (or another word list on disk)
+%      - Output file:
+%          * exp##_all_filtered_obj-obj.csv
+%        This filtered matrix contains only the words from MCDI and summary
+%        columns such as word frequency and word-pair frequency.
+%
+% OUTPUT EXAMPLE (per experiment)
 %   M:\extracted_datasets\count_word_cooccurance\
-%       ├─ exp12_all_speech.csv
-%       ├─ exp12_all_speech_word-cooccur\
-%       │     ├─ exp12_all.csv
-%       │     ├─ cat-1.csv
-%       │     ├─ 1201.csv
-%       │     └─ ...
-%       └─ exp12_all_filtered_obj-obj.csv
-%
+%     Step 1  |- exp12_all_speech.csv
+%     Step 2  |- exp12_all_speech_word-cooccur\
+%             |     |- exp12_all.csv
+%             |     |- cat-1.csv
+%             |     |- cat-2.csv
+%             |     |- ...
+%             |     `- subID files (if not skipped)
+%     Step 3  `- exp12_all_filtered_obj-obj.csv
 %
 function demo_count_word_cooccurance(expIDs)
     % This function is showing how to extract word co-occurance 

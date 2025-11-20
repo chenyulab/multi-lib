@@ -1,35 +1,64 @@
-% This demo extracts and analyzes speech data within child-attention windows
-% across multiple experiments. It generates category–word frequency matrices
-% and filters them to relevant naming words.
+% PURPOSE
+%   Extract and analyze speech that occurs while the child is attending to an
+%   object (cevent_eye_roi_child), across multiple experiments. The demo builds
+%   category–word frequency matrices and then filters them down to relevant
+%   object-naming words.
 %
-% Author: Jingwen Pang
-% Date: 2025-11-05
+% AUTHOR:  Jingwen Pang
+% DATE:    2025-11-05
+% REVISED: Connor Pickett 2025-11-13
 %
-% Pipeline overview:
-%   Extract Speech in Child Attention
-%       - Uses 'extract_speech_in_situ()' with cevent 'cevent_eye_roi_child'
-%         to collect utterances spoken while the child attends.
 %
-%   ️Group Utterances
-%       - Runs 'group_speech_in_situ()' to produce subject, category,
-%         and subject–category grouped CSVs.
+% PIPELINE OVERVIEW
+%   Step 1) Extract speech during child attention
+%      - Uses 'extract_speech_in_situ()' with 'cevent_eye_roi_child' to collect
+%        utterances that happen while the child is looking at a category.
 %
-%   Count Category–Word Frequency
-%       - Uses 'count_cat2word_freq()' to build frequency matrices from the
-%         subject–category file (optionally weighted by instance counts).
+%   Step 2) Group utterances
+%      - Uses 'group_speech_in_situ()' to create three CSVs:
+%          * subject.csv
+%          * category.csv
+%          * subject-category.csv    <-- used by the pipeline
+%        Descriptions:
+%          - subject.csv: all utterances produced by each subject across the
+%            experiment (ignores category).
+%          - category.csv: all utterances that occurred while the child looked at
+%            a given category (ignores who spoke).
+%          - subject-category.csv: all utterances spoken per category per subject in the entire experiment.
+%          -  columns include subID, expID, category, trial_time, utterance, and "instance#".
+%              > "instance#": how many times the category (object) looked
+%              at and had an utterance.
 %
-%   Filter by Object Words
-%       - Retrieves object labels and word lists via 'get_object_label()' and
-%         'get_object_words()'.
-%       - Filters the matrices with 'filter_cat2word_freq()' to retain only
-%         relevant words (adds zero placeholders for missing ones).
+%   Step 3) Count category–word frequency
+%      - Uses 'count_cat2word_freq()' on the subject-category CSV to build
+%        frequency matrices (experiment-wide and subject-level).
+%        Axes:
+%          X-axis = spoken words
+%          Y-axis = category labels
+%        Meaning:
+%          Counts how often each word appeared while the child was looking at a
+%          given category (optionally weighted by instance counts).
 %
-% Output example:
+%   Step 4) Filter by object words
+%      - Uses 'get_object_label()' to get the experiment's object labels and
+%        'get_object_words()' to get the accepted word list for those objects.
+%      - Uses 'filter_cat2word_freq()' to keep only relevant object words and to
+%        add zeros for expected labels that did not appear.
+%        Axes (filtered matrix):
+%          X-axis = spoken object labels (plus accepted alternates)
+%          Y-axis = category labels
+%        Meaning:
+%          Shows how often valid object names (and alternates) were spoken while
+%          the child was looking at the corresponding category.
+%
+% OUTPUT EXAMPLE (per experiment)
 %   M:\extracted_datasets\count_individual_word_frequency\speech_in_child_attention\
-%       ├─ exp12_speech_in_child_attention.csv
-%       ├─ exp12_speech_in_child_attention_subject-category.csv
-%       ├─ exp12_speech_in_child_attention_cat-word.xlsx
-%       └─ exp12_speech_in_child_attention_cat-word_filtered.xlsx
+%     Step 1  |- exp12_speech_in_child_attention.csv
+%     Step 2  |- exp12_speech_in_child_attention_subject.csv          (not used in pipeline)
+%             |- exp12_speech_in_child_attention_category.csv         (not used in pipeline)
+%             |- exp12_speech_in_child_attention_subject-category.csv
+%     Step 3  |- exp12_speech_in_child_attention_cat-word.xlsx
+%     Step 4  `- exp12_speech_in_child_attention_cat-word_filtered.xlsx
 %
 function demo_count_individual_freq()
     output_dir = 'M:\extracted_datasets\count_individual_word_frequency\speech_in_child_attention';
