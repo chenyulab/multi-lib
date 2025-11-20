@@ -60,7 +60,7 @@
 %     Step 3  |- exp12_speech_in_child_attention_cat-word.xlsx
 %     Step 4  `- exp12_speech_in_child_attention_cat-word_filtered.xlsx
 %
-function demo_count_individual_freq()
+function demo_count_individual_freq(expIDs)
     output_dir = 'M:\extracted_datasets\count_individual_word_frequency\speech_in_child_attention';
     if ~exist("expIDs","var")
         expIDs =[12, 15, 58, 65, 66, 67, 68, 77, 78, 79, 351, 353, 361, 362, 363]; 
