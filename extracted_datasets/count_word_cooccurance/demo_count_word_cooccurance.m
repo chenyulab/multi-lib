@@ -41,7 +41,7 @@
 %          * exp##_all_speech.csv
 %            (one row per utterance with subject, category, timing, text, etc.)
 %
-%   Step 2) Count word–word co-occurrence
+%   Step 2) Count word - word co-occurrence
 %      - Uses 'count_word2word_freq()' on the all-speech CSV to build matrices
 %        showing how often pairs of words appear together within a single
 %        utterance, based on the definition above.
@@ -92,7 +92,7 @@ function demo_count_word_cooccurance(expIDs)
         output_filename = fullfile(output_dir, sprintf('exp%d_%s.csv', expID,file_name));
         extract_speech_in_situ(expID, cevent_var, category_list, output_filename);
         
-        % Step 2: Count Word–Word Cooccurance
+        % Step 2: Count Word - Word Cooccurance
         input_csv = output_filename;
         utt_col = 10;
         sub_col = 1;

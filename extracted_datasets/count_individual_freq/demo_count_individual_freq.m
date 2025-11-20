@@ -29,7 +29,7 @@
 %              > "instance#": how many times the category (object) looked
 %              at and had an utterance.
 %
-%   Step 3) Count category–word frequency
+%   Step 3) Count category - word frequency
 %      - Uses 'count_cat2word_freq()' on the subject-category CSV to build
 %        frequency matrices (experiment-wide and subject-level).
 %        Axes:
@@ -81,7 +81,7 @@ function demo_count_individual_freq()
         group_speech_in_situ(output_filename);  % This creates multiple grouped files (subject, category, subject-category)
         
         
-        % Step 3: Count Category–Word Frequency from Subject-Category File
+        % Step 3: Count Category - Word Frequency from Subject-Category File
         input_csv = fullfile(output_dir, sprintf('exp%d_%s_subject-category.csv', expID,file_name));
         sub_col = 1;         
         cat_col = 3;         
