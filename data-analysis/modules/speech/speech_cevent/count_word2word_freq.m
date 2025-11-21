@@ -124,7 +124,7 @@ function count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_dir, 
             end
         end
 
-        if args.skipSubVersions == 1;
+        if args.skipSubVersions == 0
             % Write row-level CSV: "subID_catID.csv"
             row_name = fullfile(output_dir, sprintf('%d_%d.csv', subID, catID));
             row_tbl  = cell2table([cellstr(id2term), num2cell(indiv)], 'VariableNames', headers);

@@ -2,8 +2,8 @@
 % DATE:    2025-11-05
 % REVISED: Connor Pickett 2025-11-14
 % PURPOSE
-%   Extract and analyze word–word co-occurrence patterns from speech data across
-%   multiple experiments. This demo builds co-occurrence matrices showing how
+%   Extract and analyze word–word co-occurrence patterns from speech data
+%   in experiment level. This demo builds co-occurrence matrices showing how
 %   often pairs of words appear together within the same utterance, and then
 %   filters those matrices down to a target vocabulary list (e.g., MCDI words).
 %
@@ -103,7 +103,7 @@ function demo_count_word_cooccurrence(option,expIDs)
                 cat_col = 5;
                 output_folder = fullfile(output_dir,sprintf('exp%d_%s_word-cooccur', expID,file_name));
                 args.skipSubVersions = 1; % skip sub versions (in utterance level)
-                count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_folder)
+                count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_folder, args)
                 
                 % Step 3: Filter Word Matrix based on Word List
                 input_folder = output_folder;
@@ -111,7 +111,7 @@ function demo_count_word_cooccurrence(option,expIDs)
                 mcdi_path = "M:\MCDI_wordlist.csv";
                 mcdi_table = readtable(mcdi_path);
                 word_list = mcdi_table.item_definition;
-                word_list = word_list';
+                word_list = word_list'; % get mcdi word list
                 
                 % just subset the main file
                 input_file = fullfile(input_folder,sprintf('exp%d_all.csv',expID));
@@ -142,11 +142,11 @@ function demo_count_word_cooccurrence(option,expIDs)
                 cat_col = 5;
                 output_folder = fullfile(output_dir,sprintf('exp%d_%s_word-cooccur', expID,file_name));
                 args.skipSubVersions = 1; % skip sub versions (in utterance level)
-                count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_folder)
+                count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_folder, args)
             
                 % Step 3: Filter Word Matrix based on Word List
                 input_folder = output_folder;
-                word_list = get_object_label(expID, 1:num_obj);
+                word_list = get_object_label(expID, 1:num_obj); % get object word list
                 input_file = fullfile(input_folder,sprintf('exp%d_all.csv',expID));
                 output_file = fullfile(output_dir,sprintf('exp%d_all_filtered_obj_name.csv',expID));
                 filter_word2word_freq(input_file, output_file, word_list);
