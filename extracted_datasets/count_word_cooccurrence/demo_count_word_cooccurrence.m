@@ -113,9 +113,6 @@ function demo_count_word_cooccurrence(option,expIDs)
                 word_list = mcdi_table.item_definition;
                 word_list = word_list';
                 
-                col_to_keep = {'word_freq','word_pair_freq'}; % column headers to keep and will be appended at the end
-                placeholder = 0; % 0 - set column placeholder value as 0, 1 - set as NaN
-                
                 % just subset the main file
                 input_file = fullfile(input_folder,sprintf('exp%d_all.csv',expID));
                 output_file = fullfile(output_dir,sprintf('exp%d_all_filtered_mcdi.csv',expID));
