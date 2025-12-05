@@ -141,7 +141,7 @@ function write_learning_score_table(expID, valid_gaze_time_threshold, valid_targ
     filename_label = sprintf('_targetGE%d',valid_target_time_prop * 100); % GE:greater or equal to
     
     % learning score mapping file
-    mapping_file = 'mapping_file_learning_score.xlsx';
+    mapping_file = 'learning_score_mapping.xlsx';
     
     % extract multi measure column number
     sub_col = 1;
