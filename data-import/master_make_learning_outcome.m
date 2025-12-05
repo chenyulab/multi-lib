@@ -1,4 +1,5 @@
 function master_make_learning_outcome(subexpIDs,args)
+
     if ~exist('args', 'var') || isempty(args)
         args = struct();
     end
@@ -34,8 +35,10 @@ function master_make_learning_outcome(subexpIDs,args)
         expID = sub2exp(subID);
         convert_mapping_file(subID, test_version_file);
         convert_testing_result(subID, learning_data);
-        write_learning_score_table(expID, valid_gaze_time_threshold, valid_target_time_prop);
+        
     end
+
+    write_learning_score_table(expID, valid_gaze_time_threshold, valid_target_time_prop);
 
 
 end
@@ -95,9 +98,11 @@ function convert_testing_result(subID, learning_data)
     
     file = fullfile(get_subject_dir(subID),learning_data);
     
-    M_direction = containers.Map({'Left','Right','away'},[1,2,0]);
+    M_direction = containers.Map({'Left','Right','away','right'},[1,2,0,2]);
     
     data = readtable(file);
+
+    disp(unique(data.Tag));
     
     tag = cellfun(@(k) M_direction(k),data.Tag);
     timestamp = data.Time/1000 + start_time;
