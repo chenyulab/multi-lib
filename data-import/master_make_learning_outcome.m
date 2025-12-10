@@ -165,7 +165,7 @@ function write_learning_score_table(expID, valid_gaze_time_threshold, valid_targ
     args.label_matrix = ones(obj_num) * 2 + diag(-ones(obj_num,1));
     
     % extract data
-    [data, ~] = extract_multi_measures(var_list, expID, '', args);
+    [data, ~] = extract_multi_measures_at_test(var_list, expID, '', args);
     
     % append total valid gaze time (target + distractor) at the end
     cat_all = data(:,cat_target_col) + data(:,cat_distractor_col);
