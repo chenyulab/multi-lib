@@ -48,6 +48,8 @@ function [cevent_mtr,cstream_mtr] = convert_datavyu_label(subID,var_list,first_c
     % generate info.mat file and trial variables
     read_trial_info(subID);
     make_trials_vars(subID)
+    % trials based on continious roi time and manual trials
+    make_trials_by_child_roi_vyu(subID) 
     % get trial time
     trial_times = get_trial_times(subID);
     begin_time = trial_times(1,1);
