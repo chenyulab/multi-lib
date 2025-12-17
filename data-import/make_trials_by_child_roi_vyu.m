@@ -1,3 +1,10 @@
+% Used to find chunks of time were the lag between looking at the next ROI
+% is less than 20 seconds. This function reads the raw roi file, ignores
+% categories and merges events less than 1 second, these new chunks are
+% then merged again if the gaps are less than 2 seconds. The final chunks
+% are the trials. It also take into account the initial manual trials by
+% now allowing events to be merged across trial boundaries. 
+
 function  make_trials_by_child_roi_vyu(subexpIDs)
     numInfoLines = 21;
     subs = cIDs(subexpIDs);
