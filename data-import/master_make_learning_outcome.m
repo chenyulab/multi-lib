@@ -1,4 +1,4 @@
-function master_make_learning_outcome(subexpIDs,args)
+function master_make_learning_outcome(subID,args)
 
     if ~exist('args', 'var') || isempty(args)
         args = struct();
@@ -22,29 +22,31 @@ function master_make_learning_outcome(subexpIDs,args)
         test_version_file = 'subject_test-type_mapping.xlsx';
     end
 
-
     if isfield(args, 'learning_data')
         learning_data = args.learning_data;  % child looking data path
     else
         learning_data = 'supporting_files\lowcam\lowcam_synced.csv';
     end
 
-    subIDs = cIDs(subexpIDs);
-    for s = 1:length(subIDs)
-        subID = subIDs(s);
-        expID = sub2exp(subID);
-        convert_mapping_file(subID, test_version_file);
-        convert_testing_result(subID, learning_data);
+    % subIDs = cIDs(subexpIDs);
+    % for s = 1:length(subIDs)
+    % subID = subIDs(s);
+    expID = sub2exp(subID);
+    convert_mapping_file(subID, test_version_file);
+    make_trials_vars_at_test(subID)
+    convert_testing_result(subID, learning_data);
+    make_trials_vars_at_test(subID)
         
-    end
+    % end
 
     write_learning_score_table(expID, valid_gaze_time_threshold, valid_target_time_prop);
 
 
 end
 
-function convert_mapping_file(subID, test_version_file)
+function convert_mapping_file(subID, test_version_file, pause_info)
     start_time = 30;
+    sample_rate = 30;
     
     expID = sub2exp(subID);
     obj_ids = 1:get_num_obj(expID);
@@ -77,6 +79,13 @@ function convert_mapping_file(subID, test_version_file)
             obj_mtrx(i, 1) = distractor(i);
         end
     end
+
+    if exist("pause_info","var")
+        next_trial = pause_info(1);
+        offset_f = pause_info(2);
+        onset(next_trial:end) = onset(next_trial:end) + offset_f/sample_rate;
+        offset(next_trial:end) = offset(next_trial:end) + offset_f/sample_rate;
+    end
     
     target_data = [onset,offset,target];
     varname = 'cevent_test-trial_word';
@@ -98,7 +107,7 @@ function convert_testing_result(subID, learning_data)
     
     file = fullfile(get_subject_dir(subID),learning_data);
     
-    M_direction = containers.Map({'Left','Right','away','right'},[1,2,0,2]);
+    M_direction = containers.Map({'Left','Right','away','right','looking'},[1,2,0,2,0]);
     
     data = readtable(file);
 
@@ -248,4 +257,32 @@ end
 function outcome = get_learning_score(score,trial, mapping_data)
     idx = mapping_data.score == score & mapping_data.trial == trial;
     outcome = mapping_data.learning_outcome(idx);
+end
+
+
+function make_trials_vars_at_test(subexpIDs)
+    %% Make test trial variables
+    rate = 30;
+    
+    test_varname = 'cevent_test-trial_word'; % cevent variable which define test trial length
+    
+    subjs = cIDs(subexpIDs);
+    
+    
+    for s = 1:numel(subjs)
+        
+        sid = subjs(s);
+        
+        data = get_variable(sid,test_varname);
+    
+        times = [data(1,1),data(end,2),1]; % first onset, last offset
+    
+        
+        record_additional_variable(sid, 'cevent_trials_at_test', times);
+        
+        
+        cstr_times = cevent2cstream(times, times(1), 1/rate, 0, times(end, 2));
+        record_additional_variable(sid, 'cstream_trials_at_test', cstr_times);
+        
+    end
 end
