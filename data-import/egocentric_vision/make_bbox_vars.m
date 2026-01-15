@@ -15,6 +15,9 @@ for s = 1:length(subs)
             box2dist(subs(s),flag,is_face);
             % make obj to gaze vars
             box2dist_eyegaze(subs(s), flag, is_face);
+            if is_face && strcmp(flag,'child')
+                make_face_vision(subs(s),flag);
+            end
         catch ME
             fprintf('unable to generate %s data for %d\n',flag,subs(s));
             disp(ME.message);
