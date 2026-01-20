@@ -1,7 +1,7 @@
 function cal_timing_histogram(load_filename, tag_col, time1_col, time2_col, header_skip, bins, save_filename)
-end
+
 %exp_id = 80; 
-%file_name = sprintf('M:/extracted_datasets/contingency/data/naming_following_exp%d.csv',exp_id);
+%file_name = sprintf('M:/extracted_datasets/project_contingency/data/naming_following_exp%d.csv',exp_id);
 %tag_col = 1; % using this column to divide data into subsets, if 0, not divided
 %time1_col = 2; % must have 
 %time2_col = 6; % if 0, not time2
@@ -9,7 +9,7 @@ end
 %bins = [0:0.5:5]; 
 %output_name = 'test.csv'; 
 % e.g.
-% cal_timing_histogram('M:/extracted_datasets/contingency/data/naming_following_exp12.csv', 1, 2, 6, 2, [0:0.5:5],'../data/test.csv')
+% cal_timing_histogram('M:/extracted_datasets/project_contingency/data/naming_following_exp12.csv', 1, 2, 6, 2, [0:0.5:5],'../data/test.csv')
 %
 
 
@@ -42,6 +42,6 @@ csvwrite(save_filename,results);
 
 
 
-
+end
 
 

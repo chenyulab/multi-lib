@@ -4,8 +4,8 @@ function generate_hist_results_target(expIDs, input_filename, output_filename, a
 % args.num_bin
 % }
 
-    input_dir = "M:/extracted_datasets/histogram/data";
-    output_dir = "M:/extracted_datasets/histogram/results";
+    input_dir = "M:/extracted_datasets/plot_histogram/data";
+    output_dir = "M:/extracted_datasets/plot_histogram/results";
     start_col = 8;
     subj_headers = {'subID','num_instances','session_dur'};
     obj_headers = {'objID','num_instances'};

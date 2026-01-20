@@ -68,7 +68,7 @@ function rtr = generate_enter_type_results(expIDs,JA_enter_type)
 
         % rtr_table = array2table(rtr,'VariableNames',colNames);
         % writetable(rtr_table,output_filename);
-        csvwrite(fullfile('M:\extracted_datasets\multipathways\result\6_categories',sprintf('JA-enter-type_results_exp%d.csv',expID)), rtr); 
+        csvwrite(fullfile('M:\extracted_datasets\project_multipathways\result\6_categories',sprintf('JA-enter-type_results_exp%d.csv',expID)), rtr); 
     end
 
 end

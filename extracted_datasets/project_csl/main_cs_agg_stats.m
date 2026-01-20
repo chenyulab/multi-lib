@@ -1,6 +1,6 @@
 exp_id = 91; 
 
-file_path = 'M:/extracted_datasets/csl';
+file_path = 'M:/extracted_datasets/project_csl';
 file_name = fullfile(file_path,sprintf('exp%d_cs_agg_stats.csv', exp_id));
 data = csvread(file_name,1,0);
 % 8: cs stats (target-distractor)

@@ -1,11 +1,11 @@
 % Author: Ruchi Shah
-% Last modified: 03/27/3034
+% Last modified: 03/27/2024
 % Summary: 
 % This function uses the inputted experiment's dictionary to generate csv's
 % for each ROI using query_csv_speech()
 % 
 function exp_dict_query_csv_speech(exp_ID)
-    output_dir = strcat('M:\extracted_datasets\event_clips\data\CLIP_data\experiment_', string(exp_ID), '\');
+    output_dir = strcat('M:\extracted_datasets\extract_event_clips\clips\CLIP_data\experiment_', string(exp_ID), '\');
     if ~exist(output_dir, 'dir')
         mkdir(output_dir);
     end

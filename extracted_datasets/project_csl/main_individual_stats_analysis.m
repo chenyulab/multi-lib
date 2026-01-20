@@ -3,7 +3,7 @@ clear;
 exp_id = 91;
 num_objs = 24; 
 
-path = 'M:/extracted_datasets/csl';
+path = 'M:/extracted_datasets/project_csl';
 data = csvread(fullfile(path,sprintf('individual_stats_exp%d.csv',exp_id)),1,0); 
 
 histogram(data(:,18),"Normalization","probability"); 

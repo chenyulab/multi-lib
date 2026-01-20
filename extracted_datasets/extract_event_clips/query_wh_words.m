@@ -1,7 +1,7 @@
 clear;
 
 expIDs = [12 351];
-output_dir = 'M:\extracted_datasets\event_clips\data\wh_words';
+output_dir = 'M:\extracted_datasets\extract_event_clips\clips\wh_words';
 keywords = {'what','where','who','which','when','why','how'};
 keywordsID = [1:7];
 subID_col = 1;

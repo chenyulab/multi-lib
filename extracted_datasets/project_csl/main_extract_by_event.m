@@ -11,7 +11,7 @@ for i = 1:num_objs
 end
 
 % output file naming_expXX.csv
-path = 'M:/extracted_datasets/csl';
+path = 'M:/extracted_datasets/project_csl';
 filename = fullfile(path,sprintf('naming_exp%d.csv',subexpIDs));
 args.cevent_name = 'cevent_speech_naming_local-id';
 args.cevent_values = 1:num_objs;

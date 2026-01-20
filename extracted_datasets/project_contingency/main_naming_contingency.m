@@ -13,7 +13,7 @@ for i = 1 : length(exp_ids)
     exp_id = exp_ids(i); 
     
     % how fast parents follow the child's attention to name an object 
-    file_name = sprintf('M:/extracted_datasets/contingency/data/naming_following_exp%d.csv',exp_id);
+    file_name = sprintf('M:/extracted_datasets/project_contingency/data/naming_following_exp%d.csv',exp_id);
     data1 = csvread(file_name,2,0); 
     % timing of naming  an object by following child's attention
     lag= data1(:,2)-data1(:,6); 
@@ -28,7 +28,7 @@ for i = 1 : length(exp_ids)
     
     % child response to parent naming
     l = 9; 
-    file_name = sprintf('M:/extracted_datasets/contingency/data/naming_led_exp%d.csv',exp_id);
+    file_name = sprintf('M:/extracted_datasets/project_contingency/data/naming_led_exp%d.csv',exp_id);
     data2 = csvread(file_name,1,0); 
     
     

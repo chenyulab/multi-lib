@@ -30,7 +30,7 @@ function extract_accumulate_naming_measure(exp_id, num_objs)
 
 
 % calculate accumulated results 
-path = 'M:/extracted_datasets/csl';
+path = 'M:/extracted_datasets/project_csl';
 data2 = csvread(fullfile(path,sprintf('csl_accumulate_stats_exp%d.csv',exp_id))); 
 header_col = 3; 
 for i = 1 : size(data2,1) 

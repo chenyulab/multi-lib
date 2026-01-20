@@ -22,14 +22,14 @@ function demo_speech_contingency_functions(option)
             % get the first forward and backward pairing instances of expanded 
             % naming variable and cevent_eye_roi_child.
             num_obj_list = [24 10 24 3];
-            output_dir = 'M:/extracted_datasets/contingency/data';
+            output_dir = 'M:/extracted_datasets/project_contingency/data';
             master_make_naming_pairs_files(expIDs, num_obj_list,'cevent_speech_naming_local-id','cevent_eye_roi_child',output_dir);
          case 2
             % get the first forward and backward pairing instances of expanded 
             % naming variable and cevent_eye_roi_child.
             expIDs = [77 78 79 80];
             num_obj_list = [10 10 10 10];
-            output_dir = 'M:/extracted_datasets/contingency/data';
+            output_dir = 'M:/extracted_datasets/project_contingency/data';
 
             base_varname = 'cevent_speech_naming_local-id';
             output_varname = 'cevent_speech_naming_local-id_expanded';
@@ -40,7 +40,7 @@ function demo_speech_contingency_functions(option)
             % naming variable and cevent_eye_roi_child.
             expIDs = [96];
             num_obj_list = [6];
-            output_dir = 'M:/extracted_datasets/contingency/data';
+            output_dir = 'M:/extracted_datasets/project_contingency/data';
 
             base_varname = 'cevent_speech_naming_local-id';
             output_varname = 'cevent_speech_naming_local-id_expanded';
@@ -51,7 +51,7 @@ function demo_speech_contingency_functions(option)
             % naming variable and cevent_eye_roi_child.
             expIDs = [351];
             num_obj_list = [27];
-            output_dir = 'M:/extracted_datasets/contingency/data';
+            output_dir = 'M:/extracted_datasets/project_contingency/data';
 
             base_varname = 'cevent_speech_naming_local-id';
             output_varname = 'cevent_speech_naming_local-id_expanded';
@@ -62,7 +62,7 @@ function demo_speech_contingency_functions(option)
             % naming variable and cevent_eye_roi_child.
             expIDs = [353];
             num_obj_list = [25];
-            output_dir = 'M:/extracted_datasets/contingency/data';
+            output_dir = 'M:/extracted_datasets/project_contingency/data';
 
             base_varname = 'cevent_speech_naming_local-id';
             output_varname = 'cevent_speech_naming_local-id_expanded';
@@ -73,7 +73,7 @@ function demo_speech_contingency_functions(option)
             % naming variable and cevent_eye_roi_child.
             expIDs = [353];
             num_obj_list = [25];
-            output_dir = 'M:/extracted_datasets/contingency/data';
+            output_dir = 'M:/extracted_datasets/project_contingency/data';
 
             base_varname = 'cevent_eye_roi_child';
             output_varname = 'cevent_eye_roi_child_expanded';

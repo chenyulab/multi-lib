@@ -44,7 +44,7 @@ function make_JA_enter_type(exp_ids, JA_types, inhand_prop)
     
             % load intermediate data representations - event & behavior
             % cell arrays
-            file_name = sprintf('M:/extracted_datasets/multipathways/data/JA_%s-lead_before_exp%d.mat',JA_name, exp_id);
+            file_name = sprintf('M:/extracted_datasets/project_multipathways/data/JA_%s-lead_before_exp%d.mat',JA_name, exp_id);
     
             output_cevent_name = sprintf('cevent_eye_joint-attend_%s-lead-enter-type_both',JA_name);
             output_cstream_name = sprintf('cstream_eye_joint-attend_%s-lead-enter-type_both',JA_name);

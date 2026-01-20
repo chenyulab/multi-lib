@@ -1,7 +1,7 @@
 clear; 
 exp_id = 27; 
 num_objs = 24;
-path = 'M:/extracted_datasets/csl';
+path = 'M:/extracted_datasets/project_csl';
 data  = csvread(fullfile(path,sprintf('naming_exp%d.csv',exp_id)), 4,0);
 target_col = 5;
 prop_col = 8; 
