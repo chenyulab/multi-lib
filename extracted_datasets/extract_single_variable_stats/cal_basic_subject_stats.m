@@ -25,7 +25,7 @@ function cal_basic_subject_stats(exp_ids,var_list)
     end
     headers = {'subID','total time'};
     co_headers = {'obj time','face time','obj freq','face freq'};
-    results_path = 'M:/extracted_datasets/single_variable_stats/results';
+    results_path = 'M:/extracted_datasets/extract_single_variable_stats/results';
     start_col = length(headers);
     
     % create headers

@@ -29,6 +29,8 @@ function extract_basic_stats(varname, exp_id, num_obj)
     % headers = {'subject_id','trial_length'};
     % get a list of subjects that have the input variable
     sub_list = find_subjects(varname, exp_id); 
+
+    output_dir = 'M:\extracted_datasets\extract_single_variable_stats\results';
     
     if isempty(sub_list)
         disp('!!!cannot find any subject with the specified variable name!!!');
@@ -104,7 +106,7 @@ function extract_basic_stats(varname, exp_id, num_obj)
          end 
     end
     t1.Properties.VariableNames  =header; 
-    writetable(t1,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',1);
+    writetable(t1,fullfile(output_dir,filename),'Sheet',1);
 
     header ={'subID','total time'};
     t2 = array2table(results2);
@@ -115,7 +117,7 @@ function extract_basic_stats(varname, exp_id, num_obj)
          end 
     end
     t2.Properties.VariableNames  =header;
-    writetable(t2,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',2);
+    writetable(t2,fullfile(output_dir,filename),'Sheet',2);
 
     header ={'subID','cat-id'};
     t3 = array2table(results3);
@@ -124,10 +126,7 @@ function extract_basic_stats(varname, exp_id, num_obj)
     end 
 
     t3.Properties.VariableNames  =header;
-    writetable(t3,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',3);
+    writetable(t3,fullfile(output_dir,filename),'Sheet',3);
 
-    %writematrix(results1,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',1); 
-    %writematrix(results2,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',2);
-    %writematrix(results3,fullfile('M:\extracted_datasets\single_variable_stats\results',filename),'Sheet',3);
 end
 

@@ -507,14 +507,18 @@ end
 
 function trial_id = find_trial_id(trial_info, event_onset, event_offset)
     % trial_info: [trial_start, trial_end, trial_id]
-    % event_onset, event_offset: time window of the event
+    % Return ONLY the first overlapping trial (by earliest trial start time).
 
-    % Overlap test: event and trial intervals intersect
+    % Find all overlapping trials
     idx = (event_onset <= trial_info(:,2)) & (event_offset >= trial_info(:,1));
 
     if any(idx)
-        trial_id = trial_info(idx, 3);
+        overlap_trials = trial_info(idx, :);
+
+        [~, firstIdx] = min(overlap_trials(:,1));
+        trial_id = overlap_trials(firstIdx, 3);
+
     else
-        trial_id = 0; % or NaN, depending on "no match" behavior
+        trial_id = 0;
     end
 end
