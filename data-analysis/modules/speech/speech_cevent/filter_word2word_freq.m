@@ -65,51 +65,40 @@ function list = normalize_list(in_list)
 end
 
 function out_tbl = subset_matrix_table(tbl, col_list, row_list)
-    % tbl: first column = row labels; other columns = words (variables)
-
     if width(tbl) < 2
         error('Input table must have at least one column of data plus row labels.');
     end
 
-    % Extract labels
-    row_labels = tbl{:,1};                     % could be cellstr, string, numeric, categorical
-    varnames   = tbl.Properties.VariableNames; % includes first label column
-    data_names = varnames(2:end);              % only word columns
+    % Labels / names
+    row_labels = ensure_cellstr(tbl{:,1}); % row labels from first column
+    varnames   = tbl.Properties.VariableNames;
+    col_names  = varnames(2:end);
 
-    % subset columns
-    if ~isempty(col_list)  % non-empty cell => subset columns
-        % Ensure cellstr of desired order
-        col_list = ensure_cellstr(col_list);
-        % Find indices in the existing columns, keeping the order of col_list
-        col_idx = locate_in_order(data_names, col_list);
-        data_keep_names = data_names(col_idx);
-    else
-        data_keep_names = data_names; % keep all
+    % Numeric matrix
+    X = tbl{:, 2:end};
+    if ~isnumeric(X)
+        X = double(X);
     end
 
-    % subset rows
-    if ~isempty(row_list)
-        row_list = ensure_cellstr(row_list);
-        row_labels_str = ensure_cellstr(row_labels);
-        row_idx = locate_in_order(row_labels_str, row_list);
-        tbl_rows = tbl(row_idx, :);
-    else
-        tbl_rows = tbl; % keep all
+    % If you want: empty {} means "keep all" (your sentinel)
+    % Here we interpret empty cell {} as keep all; otherwise apply filtering/aggregation.
+    if isempty(col_list)
+        col_list = {}; % keep all
+    end
+    if isempty(row_list)
+        row_list = {}; % keep all
     end
 
-    % Rebuild table: first column (labels) + selected columns (in requested order)
-    out_tbl = tbl_rows(:, [1, 1 + find(ismember(data_names, data_keep_names))]);
+    % --- Aggregate/filter columns (flat list filters; nested list aggregates) ---
+    [Xc, new_col_names] = aggregate_columns(X, col_names, col_list);
 
-    % Reorder selected data columns to match the requested order exactly
-    % (since ismember preserves existing order, we explicitly reorder here)
-    if ~isempty(col_list)
-        % Current order of data columns in out_tbl (excluding first label col)
-        current_data_names = out_tbl.Properties.VariableNames(2:end);
-        % Target order
-        [~, reorder_idx] = ismember(col_list, current_data_names);
-        reorder_idx = reorder_idx(reorder_idx > 0);
-        out_tbl = out_tbl(:, [1, 1 + reorder_idx]);
-    end
+    % --- Aggregate/filter rows ---
+    [Xcr, new_row_labels] = aggregate_rows(Xc, row_labels, row_list);
+
+    % Build output table
+    out_tbl = array2table(Xcr, 'VariableNames', matlab.lang.makeValidName(new_col_names, 'ReplacementStyle','delete'));
+    new_row_labels = new_row_labels(:);
+    out_tbl = addvars(out_tbl, new_row_labels, 'Before', 1, 'NewVariableNames', varnames(1));
 end
 
 function s = ensure_cellstr(x)
@@ -145,4 +134,123 @@ function idx = locate_in_order(existing_names, desired_names)
     % order of desired_names and skipping names not found.
     [tf, loc] = ismember(desired_names, existing_names);
     idx = loc(tf);
+end
+
+
+function [groupLabels, groups] = parse_groups(list)
+% list can be:
+%   {} or []          -> keep-all sentinel (handled outside)
+%   {'a','b'}         -> non-grouped (groups are singletons)
+%   {{'a','b'},{'c'}} -> grouped
+%
+% Returns:
+%   groups: cell array, each element is a cellstr of member words
+%   groupLabels: cellstr, label for each group (e.g., 'a,b')
+
+    if isempty(list)
+        groupLabels = {};
+        groups = {};
+        return
+    end
+
+    % Normalize input to cell
+    if isstring(list), list = cellstr(list); end
+
+    isNested = iscell(list) && ~isempty(list) && any(cellfun(@iscell, list));
+
+    if ~isNested
+        % Flat list: treat each item as its own group (no aggregation)
+        s = ensure_cellstr(list);
+        groups = arrayfun(@(i){s(i)}, 1:numel(s)); % singleton groups
+        groupLabels = s;
+    else
+        % Nested list: each element is a group
+        groups = cell(size(list));
+        groupLabels = cell(size(list));
+        for i = 1:numel(list)
+            members = ensure_cellstr(list{i});
+            groups{i} = members;
+            groupLabels{i} = strjoin(members, ',');
+        end
+    end
+end
+
+function [Y, newNames] = aggregate_columns(X, oldNames, groupList)
+% Aggregate columns of X according to groupList.
+% groupList can be flat or nested (same conventions as parse_groups).
+
+    [newNames, groups] = parse_groups(groupList);
+
+    % If parse_groups returns empty (meaning list empty), keep all columns
+    if isempty(newNames)
+        Y = X;
+        newNames = oldNames;
+        return
+    end
+
+    oldNames = ensure_cellstr(oldNames);
+
+    nR = size(X,1);
+    nG = numel(groups);
+    Y = nan(nR, nG);
+
+    for g = 1:nG
+        members = groups{g};
+        [tf, loc] = ismember(members, oldNames);
+        idx = loc(tf);
+
+        if isempty(idx)
+            % No member found → zeros
+            Y(:,g) = zeros(nR,1);
+        else
+            block = X(:, idx);
+        
+            % Sum ignoring NaNs
+            s = nansum(block, 2);
+        
+            % If all contributors were NaN, force 0 (instead of NaN)
+            s(sum(~isnan(block), 2) == 0) = 0;
+        
+            Y(:,g) = s;
+        end
+    end
+end
+
+function [Y, newLabels] = aggregate_rows(X, oldLabels, groupList)
+% Aggregate rows of X according to groupList.
+
+    [newLabels, groups] = parse_groups(groupList);
+
+    % Empty list => keep all rows
+    if isempty(newLabels)
+        Y = X;
+        newLabels = oldLabels;
+        return
+    end
+
+    oldLabels = ensure_cellstr(oldLabels);
+
+    nC = size(X,2);
+    nG = numel(groups);
+    Y = nan(nG, nC);
+
+    for g = 1:nG
+        members = groups{g};
+        [tf, loc] = ismember(members, oldLabels);
+        idx = loc(tf);
+        
+        if isempty(idx)
+            % No member found → zeros
+            Y(g,:) = zeros(1,nC);
+        else
+            block = X(idx, :);
+        
+            s = nansum(block, 1);
+        
+            % Force 0 if all contributors were NaN
+            s(sum(~isnan(block), 1) == 0) = 0;
+        
+            Y(g,:) = s;
+        end
+    end
 end

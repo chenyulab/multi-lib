@@ -224,7 +224,7 @@ function demo_count_word_cooccurrence(option,expIDs)
         case 3
             output_dir = 'M:\extracted_datasets\count_word_cooccurrence\obj_verb_cooccurrence';
             if ~exist("expIDs","var")
-                expIDs =351; 
+                expIDs =[351,353]; 
             end
             for e = 1:length(expIDs)
                 expID = expIDs(e);
@@ -232,11 +232,9 @@ function demo_count_word_cooccurrence(option,expIDs)
                 num_obj = get_num_obj(expID);             
                 category_list = [];
                 cevent_var = ''; 
-                file_name = 'all_speech_3s-before_and_within'; 
-                args.whence = 'startend'; 
-                args.interval = [-3 0]; % time window: 3 second before and within speech 
+                file_name = 'all_speech'; 
                 output_filename = fullfile(output_dir, sprintf('exp%d_%s.csv', expID,file_name));
-                extract_speech_in_situ(expID, cevent_var, category_list, output_filename, args);
+                extract_speech_in_situ(expID, cevent_var, category_list, output_filename);
     
                 % Step 2: Count Word - Word Cooccurrence
                 input_csv = output_filename;
@@ -249,8 +247,8 @@ function demo_count_word_cooccurrence(option,expIDs)
             
                 % Step 3: Filter Word Matrix based on Word List
                 input_folder = output_folder;
-                verb_list = {'look', 'find', 'show', 'give', 'take', 'put', 'shake', 'open'};
-                word_list = get_object_label(expID, 1:num_obj); % get object word list
+                verb_list = {'reach','move','hold','open','close','scoop','spread','cut','assemble','pour','wipe','drink','eat'};
+                word_list = get_object_words(expID, 1:num_obj); % get object word list
                 input_file = fullfile(input_folder,sprintf('exp%d_all.csv',expID));
                 output_file = fullfile(output_dir,sprintf('exp%d_all_filtered_obj_verb.csv',expID));
                 filter_word2word_freq(input_file, output_file, word_list, verb_list);
