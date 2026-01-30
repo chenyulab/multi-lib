@@ -224,7 +224,7 @@ function demo_count_word_cooccurrence(option,expIDs)
         case 3
             output_dir = 'M:\extracted_datasets\count_word_cooccurrence\obj_verb_cooccurrence';
             if ~exist("expIDs","var")
-                expIDs =[351,353]; 
+                expIDs =[351]; 
             end
             for e = 1:length(expIDs)
                 expID = expIDs(e);
@@ -247,11 +247,60 @@ function demo_count_word_cooccurrence(option,expIDs)
             
                 % Step 3: Filter Word Matrix based on Word List
                 input_folder = output_folder;
-                verb_list = {'reach','move','hold','open','close','scoop','spread','cut','assemble','pour','wipe','drink','eat'};
-                word_list = get_object_words(expID, 1:num_obj); % get object word list
+                verb_list = {'look', 'put', 'eat', 'make', 'get', 'spin', 'open', 'call', 'pour', 'try',...
+                    'turn', 'push', 'give', 'drink', 'fit', 'hold', 'drive', 'touch', 'move', 'bring',...
+                    'hop', 'close', 'scoop', 'ride', 'pet', 'crash', 'roll', 'pull', 'shake', 'pick'};
+
+                obj_word_list = {'kettle','teapot','cat','kitty','potato','firetruck','bulldozer','backhoe','excavator','car','ostrich',...
+                    'frog','froggy' 'truck','lobster','crab','carrot','colander','strainer','motorcycle','bike','motorbike','cup','dog',...
+                    'doggy','pug','elephant','spaceship','pineapple','banana','submarine','boat','cookie','oreo','stingray','ray','fork',...
+                    'helicopter','duck','ducky','bee'};
                 input_file = fullfile(input_folder,sprintf('exp%d_all.csv',expID));
                 output_file = fullfile(output_dir,sprintf('exp%d_all_filtered_obj_verb.csv',expID));
-                filter_word2word_freq(input_file, output_file, word_list, verb_list);
+                filter_word2word_freq(input_file, output_file, verb_list, obj_word_list);
+
+            end
+
+
+        case 4
+            output_dir = 'M:\extracted_datasets\count_word_cooccurrence\obj_verb_cooccurrence';
+            if ~exist("expIDs","var")
+                expIDs =[353]; 
+            end
+            for e = 1:length(expIDs)
+                expID = expIDs(e);
+                % Step 1: Extract Basic Speech Utterances
+                num_obj = get_num_obj(expID);             
+                category_list = [];
+                cevent_var = ''; 
+                file_name = 'all_speech'; 
+                output_filename = fullfile(output_dir, sprintf('exp%d_%s.csv', expID,file_name));
+                extract_speech_in_situ(expID, cevent_var, category_list, output_filename);
+    
+                % Step 2: Count Word - Word Cooccurrence
+                input_csv = output_filename;
+                utt_col = 10;
+                sub_col = 1;
+                cat_col = 5;
+                output_folder = fullfile(output_dir,sprintf('exp%d_%s_word-cooccur', expID,file_name));
+                args.skipSubVersions = 1; % skip sub versions (in utterance level)
+                count_word2word_freq(input_csv, utt_col, sub_col, cat_col, output_folder, args)
+            
+                % Step 3: Filter Word Matrix based on Word List
+                input_folder = output_folder;
+                verb_list = {'spread', 'cut', 'make', 'eat', 'put', 'get', 'look', 'give', 'try', 'scoop',...
+                    'hold', 'wipe', 'shake', 'touch', 'drink', 'move', 'pick', 'park', 'call',...
+                    'open', 'close', 'pour', 'drop', 'pull', 'ride', 'tip', 'peel', 'fit', 'drive', 'stick'};
+
+                obj_word_list = {'bread','sandwich','slice','top','piece','bag',...
+                    'knife','fork','plate','jelly','jam','jar','strawberry','lid','cover',...
+                    'cap','peanut_butter','peanut',...
+                    'napkin','water','pitcher','drink','cola','cup',...
+                    'closure','tie','fruit','bowl','banana','pear','grape','salt','pepper',...
+                    'mug','flower','vase','table','chair'};
+                input_file = fullfile(input_folder,sprintf('exp%d_all.csv',expID));
+                output_file = fullfile(output_dir,sprintf('exp%d_all_filtered_obj_verb.csv',expID));
+                filter_word2word_freq(input_file, output_file, verb_list, obj_word_list);
 
             end
 
