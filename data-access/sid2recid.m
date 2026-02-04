@@ -11,9 +11,9 @@
 % Example:
 %   recordingID = subID2recordingID(35101, 351);
 
-function recordingID = subID2recordingID(subID, expID, format)
+function recordingID = sid2recid(subID, expID, format)
     %subject_id, experiment_num, date, kid_id
-   sub_table = read_subject_table();
+   sub_table = read_subject_table();s
 
     % Build mask
     mask = sub_table(:,1) == subID & ...
