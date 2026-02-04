@@ -7,6 +7,7 @@ function obj_labels = get_object_label(exp_id, obj_ids)
 % - For scalar input: returns a char/string ('' if missing).
 % - For vector/matrix input: returns a cell array the same size as obj_ids,
 %   with '' as placeholder when an id has no label.
+    warning('off','MATLAB:table:ModifiedAndSavedVarnames')
 
     obj_id_col   = 3;
     obj_name_col = 1;
