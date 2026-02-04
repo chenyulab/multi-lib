@@ -1,7 +1,7 @@
 % return the height and width of the target camera for each subject
 % in subs
 % Missing data is marked by 0 0
-function [sz, camFolders] = get_frame_size(subs, subDirs, camID)
+function [sz, camFolders] = get_frame_sz(subs, subDirs, camID)
     sz = zeros(height(subDirs),2);
     camFolders = strings(height(subDirs),1);
 
