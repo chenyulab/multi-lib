@@ -11,8 +11,9 @@
 %%%
 function [ subj_info ] = get_home2_subject_info(subID)
     subTable = read_home2_subject_table();
+    subTable = subTable(:,1:6); 
     
     % return only the line of the table that has the first field (the subject
     % ID) equal to the search query's subject ID.
-    subj_info = table2array(subTable(subTable.SubID == subID,2:6));
+    subj_info = table2array(subTable(subTable.SubID == subID,2:end));
 end
