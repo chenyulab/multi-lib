@@ -129,7 +129,7 @@ function convert_testing_result(subID, learning_data)
     data_r = get_variable(subID,'cevent_test-trial_right-object');
     
     begin_time = cstream(1,1);
-    end_time = cstream(end,1);
+    end_time = cstream(end,1) +0.01; % avoid rounding issue
     
     data_l_cs = cevent2cstream(data_l,begin_time,1/rate,0,end_time);
     data_r_cs = cevent2cstream(data_r,begin_time,1/rate,0,end_time);
