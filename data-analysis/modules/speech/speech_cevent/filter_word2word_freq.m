@@ -24,6 +24,10 @@ function filter_word2word_freq(input_file, output_file, row_word_list, col_word_
     col_list = normalize_list(col_word_list);
     row_list = normalize_list(row_word_list);
 
+    % append the word freqency column at the end
+    col_list{end+1} = 'word_freq';
+
+
     [~, ~, ext] = fileparts(input_file);
 
     switch lower(ext)
