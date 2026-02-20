@@ -1,9 +1,12 @@
 % visualize an event continuously by drawing a green border around the 
 % frames that are within the event
-
+%
 % to get a thicker border pass args as last parameter
 % args.thickness = 10
 % create_cont_event_movie(subsexpID, event, camID, outpath, args)
+%
+% example call
+% create_cont_event_movie(7010, 'event_motion_pos_right-hand_resting_child', 7, 'output')
 
 function create_cont_event_movie(subsexpID, event, camID, outpath, varargin)
 args = set_optional_args(varargin,{'thickness'},{2});
