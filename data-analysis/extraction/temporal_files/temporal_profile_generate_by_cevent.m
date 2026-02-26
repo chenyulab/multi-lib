@@ -287,7 +287,7 @@ for sidx = 1:length(sub_list)
                     chunks_one_new(isnan(chunks_one_new(:,2)),2) = 0;
                     mat_profile_one(cnidx, :) = chunks_one_new(:, 2)';
                 catch
-                    warning('timestamp %.3f might not exist in %s',range_one,input.var_name);
+                    warning('timestamp %.3f might not exist in %s',range_one(1),input.var_name{1});
                     continue
                 end
             end

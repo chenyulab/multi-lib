@@ -4,7 +4,7 @@ if nargin < 2
     save_dir = '.';
 end
 
-expr_module = 'eye_roi|inhand|naming|vision_size|joint|ballrolling';
+expr_module = 'eye_roi|inhand|naming|vision_size|joint|ballrolling|gyro';
 cevent_name = profile_data.cevent_name;
 var_name = profile_data.var_name;
 
