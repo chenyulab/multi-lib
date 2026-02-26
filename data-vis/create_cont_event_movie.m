@@ -1,5 +1,4 @@
-% visualize an event continuously by drawing a green border around the 
-% frames that are within the event
+% visualize an event continuously by drawing a green border around the frames that are within the event
 %
 % to get a thicker border pass args as last parameter
 % args.thickness = 10
@@ -113,3 +112,4 @@ J(:, 1:t, 3) = color(3);
 J(:, end-t+1:end, 1) = color(1);
 J(:, end-t+1:end, 2) = color(2);
 J(:, end-t+1:end, 3) = color(3);
+%byton
