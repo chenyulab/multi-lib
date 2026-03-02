@@ -218,19 +218,21 @@ data_extras = cell(numel(subs), 1);
 % allnumobj = get_num_obj(subs);
 for s = 1:numel(subs)
     expid = sub2exp(subs(s));
-    if ismember(expid, [18 23])
-        numobj = 5;
-    elseif ismember(expid, 12)
-        numobj = 27;
-    else
-        numobj = 3;
-    end
+    % if ismember(expid, [18 23])
+    %     numobj = 5;
+    % elseif ismember(expid, 12)
+    %     numobj = 27;
+    % else
+    %     numobj = 3;
+    % end
+
+    [ids, ~] = get_valid_object_ids(expid); % get all valid obj ids
     
     if ~isempty(strfind(var_name, 'obj#'))
-        allvars = arrayfun(@(a) strrep(var_name, 'obj#', sprintf('obj%d', a)), 1:numobj, 'un', 0);
+        allvars = arrayfun(@(a) strrep(var_name, 'obj#', sprintf('obj%d', a)), ids, 'un', 0);
         numallvars = numel(allvars);
     elseif ~isempty(strfind(var_name, '#'))
-        allvars = arrayfun(@(a) strrep(var_name, '#', sprintf('obj%d', a)), 1:numobj, 'un', 0);
+        allvars = arrayfun(@(a) strrep(var_name, '#', sprintf('obj%d', a)), ids, 'un', 0);
         allvars = cat(2, allvars, {strrep(var_name, '#', 'head')});
         numallvars = numel(allvars);
     else
