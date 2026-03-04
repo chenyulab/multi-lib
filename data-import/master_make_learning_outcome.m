@@ -107,7 +107,7 @@ function convert_testing_result(subID, learning_data)
     
     file = fullfile(get_subject_dir(subID),learning_data);
     
-    M_direction = containers.Map({'Left','Right','away','right','looking'},[1,2,0,2,0]);
+    M_direction = containers.Map({'Left','Right','away','left','right','looking'},[1,2,0,1,2,0]);
     
     data = readtable(file);
 
