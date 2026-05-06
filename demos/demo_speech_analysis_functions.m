@@ -299,7 +299,7 @@ function demo_speech_analysis_functions(option)
             sub_col = 1; % subject column number
             cat_col = 5; % category column number
             utt_col = 10; % utterance column number
-            output_folder = fullfile(output_dir,'case15_all_words_word-word_subject');
+            output_folder = fullfile(output_dir,'case15_all_words_word-word');
             count_word2word_freq(input_csv, utt_col, sub_col,cat_col, output_folder)
 
         case 16 
