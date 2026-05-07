@@ -1,3 +1,121 @@
+% MASTER_MAKE_LEARNING_OUTCOME
+% Generate learning outcome variables and score tables for one subject.
+%
+% This master function runs the full learning outcome pipeline for a given
+% subject. It:
+%
+%   1. Converts the learning test trial mapping file into cevent variables.
+%   2. Creates test trial variables.
+%   3. Converts child looking behavior during test into cstream/cevent variables.
+%   4. Maps child looking direction to attended object ID.
+%   5. Creates final learning score tables at the experiment level.
+%
+% Syntax:
+%   master_make_learning_outcome(subID)
+%   master_make_learning_outcome(subID, args)
+%
+% Inputs:
+%   subID
+%       Subject ID.
+%
+%   args
+%       Optional struct containing user-defined parameters.
+%
+% Optional fields in args:
+%
+%   args.valid_gaze_time_threshold
+%       Minimum proportion of valid gaze time required for a trial to be
+%       counted as valid.
+%
+%       Default:
+%           0.5
+%
+%   args.valid_target_time_prop
+%       Minimum proportion of target-looking time among valid gaze time
+%       required for the trial to count as learned.
+%
+%       Formula:
+%           target_time / (target_time + distractor_time)
+%
+%       Default:
+%           0.5
+%
+%   args.test_version_file
+%       File that maps subject IDs to learning test versions.
+%
+%       Default:
+%           'subject_test-type_mapping.xlsx'
+%
+%   args.learning_data
+%       Path to the child looking coding file, relative to the subject folder.
+%
+%       Default:
+%           'supporting_files\lowcam\lowcam_synced.csv'
+%
+%   args.pause_info
+%       Optional pause correction information.
+%
+%       Use this when the testing video was paused between trials and the
+%       later trials need to be shifted forward in time.
+%
+%       Format:
+%           [next_trial, pause_frames]
+%
+%       next_trial:
+%           The first trial after the pause.
+%
+%       pause_frames:
+%           The number of paused frames to add to all trials from
+%           next_trial to the end.
+%
+%       Example:
+%           args.pause_info = [6, 90];
+%
+%           This means the video was paused before trial 6, and trials
+%           6:end should be shifted forward by 90 frames.
+%
+%           At 30 fps, 90 frames = 3 seconds.
+%
+% Output:
+%   This function does not return output directly.
+%
+%   It saves/records:
+%
+%       cevent_test-trial_word
+%       cevent_test-trial_left-object
+%       cevent_test-trial_right-object
+%       cevent_trials_at_test
+%       cstream_trials_at_test
+%       cstream_eye-at-test_child
+%       cevent_eye-at-test_child
+%       cevent_eye-at-test_obj_child
+%
+%   It also writes experiment-level learning score tables:
+%
+%       Learning_outcome
+%       Learning_score
+%
+% Example 1: Run with default settings
+%
+%   master_make_learning_outcome(35131);
+%
+% Example 2: Run with pause correction
+%
+%   args = struct();
+%   args.pause_info = [6, 90];
+%   master_make_learning_outcome(35131, args);
+%
+% Example 3: Run with high camera video
+%
+%   args = struct();
+%   args.learning_data = 'supporting_files\highcam\highcam_synced.csv';
+%
+%   master_make_learning_outcome(35131, args);
+%
+% Notes:
+%   - Pause correction assumes a sample rate of 30 fps.
+%   - If there is no pause in the testing video, leave args.pause_info empty
+%     or do not include it.
 function master_make_learning_outcome(subID,args)
 
     if ~exist('args', 'var') || isempty(args)
@@ -7,7 +125,7 @@ function master_make_learning_outcome(subID,args)
     if isfield(args, 'valid_gaze_time_threshold')
         valid_gaze_time_threshold = args.valid_gaze_time_threshold; % target prop + distractor prop
     else
-        valid_gaze_time_threshold = 0.5;   % default
+        valid_gaze_time_threshold = 0.5;
     end
 
     if isfield(args, 'valid_target_time_prop')
@@ -28,19 +146,21 @@ function master_make_learning_outcome(subID,args)
         learning_data = 'supporting_files\lowcam\lowcam_synced.csv';
     end
 
-    % subIDs = cIDs(subexpIDs);
-    % for s = 1:length(subIDs)
-    % subID = subIDs(s);
+    if isfield(args, 'pause_info')
+        pause_info = args.pause_info;
+    else
+        pause_info = [];
+    end
+
     expID = sub2exp(subID);
-    convert_mapping_file(subID, test_version_file);
-    make_trials_vars_at_test(subID)
+
+    convert_mapping_file(subID, test_version_file, pause_info);
+    make_trials_vars_at_test(subID);
+
     convert_testing_result(subID, learning_data);
-    make_trials_vars_at_test(subID)
-        
-    % end
+    make_trials_vars_at_test(subID);
 
     write_learning_score_table(expID, valid_gaze_time_threshold, valid_target_time_prop);
-
 
 end
 
@@ -80,7 +200,7 @@ function convert_mapping_file(subID, test_version_file, pause_info)
         end
     end
 
-    if exist("pause_info","var")
+    if exist("pause_info","var") && ~isempty(pause_info)
         next_trial = pause_info(1);
         offset_f = pause_info(2);
         onset(next_trial:end) = onset(next_trial:end) + offset_f/sample_rate;
