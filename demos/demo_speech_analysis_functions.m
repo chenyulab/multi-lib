@@ -77,7 +77,7 @@ function demo_speech_analysis_functions(option)
 
         case 3
             % Extract all of the spoken utterances that temporally overlap with a look 
-            subexpID = 12;
+            subexpID = [12 15];
             cevent_var = 'cevent_eye_roi_child';
             category_list = 1:get_num_obj(subexpID)+1; % include face looks as a category value 
             output_filename = fullfile(output_dir,'case3_speech_during_gaze.csv');
@@ -107,10 +107,10 @@ function demo_speech_analysis_functions(option)
         case 6
             % Keyword Matching During Gaze
             % when attending to an object and hearing a list of keywords specified  
-            subexpID = 351;
+            subexpID = [12 15 351];
             cevent_var = 'cevent_eye_roi_child';
-            category_list = [6 9]; % visual attention: 6-car 9 - truck; 
-            args.target_words = {'car','truck'};
+            category_list =1:get_num_obj(subexpID)+1; % [6 9]; % visual attention: 6-car 9 - truck; 
+            args.target_words = {'yellow'};
             output_filename = fullfile(output_dir,'case6_keyword_during_gaze.csv');
             extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
     
@@ -121,20 +121,20 @@ function demo_speech_analysis_functions(option)
             % see how many times parent is naming rabbit
             subexpID = 12;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 7; % 7 - rabbit 
+            category_list = [7 2]; % 7 - rabbit 
             args.whence = 'start';
             args.interval = [-3 1];
-            args.target_words = [
-                2;   % cat
-                7;   % ostrich
-                8;   % frog
-                10;  % lobster
-                15;  % dog
-                16;  % elephant
-                23;  % stingray
-                26;  % duck
-                27;  % bee
-            ];
+            % category = [
+            %     2;   % cat
+            %     7;   % ostrich
+            %     8;   % frog
+            %     10;  % lobster
+            %     15;  % dog
+            %     16;  % elephant
+            %     23;  % stingray
+            %     26;  % duck
+            %     27;  % bee
+            % ];
             args.target_words = {
                 'cat','kitty','animal','ostrich','frog','froggy','lobster','crab','dog',...
                 'doggy','puppy','pug','elephant','animal','stingray','ray','duck','ducky',...
@@ -289,7 +289,8 @@ function demo_speech_analysis_functions(option)
             % extract all the words from exp 12
             subexpIDs = [12];
             cevent_var = '';
-            category_list = NaN; 
+            cevent_var = 'cevent_eye_roi_child'; 
+            category_list = [10]; 
             output_filename = fullfile(output_dir,'case15_all_words.csv');
             extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
 
@@ -328,9 +329,9 @@ function demo_speech_analysis_functions(option)
             % This case extracts speech occurring while the child is holding
             % objects in experiment 12. It then computes category-word
             % association frequencies between held objects and spoken words.
-
+ 
             % extract the speech when child is holding objects
-            subexpIDs = [12];
+            subexpIDs = [1201:1205]
             cevent_var = 'cevent_inhand_child'; 
             num_obj = get_num_obj(subexpIDs);
             category_list = 1:num_obj; % all objects

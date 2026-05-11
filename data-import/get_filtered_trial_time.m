@@ -1,6 +1,6 @@
 % find the difference between the hand trials and the trials calculated
 % from roi coding 
-function get_base_roi_trial_diff(subID)
+function get_filtered_trial_time(subID)
     % load curr trials and info file     
     handTrials = get_variable(subID, 'cevent_trials');
     trialInfo = get_info_file_path(subID);
