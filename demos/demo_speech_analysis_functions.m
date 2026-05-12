@@ -287,9 +287,10 @@ function demo_speech_analysis_functions(option)
             % category level, and experiment overall level
 
             % extract all the words from exp 12
-            subexpIDs = [12];
-            cevent_var = '';
-            category_list = NaN; 
+            subexpIDs = [351];
+            expID = 351; 
+            cevent_var = 'cevent_eye_roi_child';
+            category_list = 6; % 6 - car 
             output_filename = fullfile(output_dir,'case15_all_words.csv');
             extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
 
@@ -302,6 +303,36 @@ function demo_speech_analysis_functions(option)
             output_folder = fullfile(output_dir,'case15_all_words_word-word');
             count_word2word_freq(input_csv, utt_col, sub_col,cat_col, output_folder)
 
+            % Filter Word Matrix based on Word List
+            input_folder = output_folder;
+            
+            color_list = { ...
+                'red', 'blue', 'green', 'yellow', 'orange', ...
+                'purple', 'pink', 'black', 'white', 'gray', ...
+                'grey', 'brown', 'gold', 'silver', 'rainbow'};
+            
+            obj_word_list = { ...
+                'kettle', 'teapot', 'cat', 'kitty', 'potato', ...
+                'firetruck', 'bulldozer', 'backhoe', 'excavator', ...
+                'car', 'ostrich', 'frog', 'froggy', 'truck', ...
+                'lobster', 'crab', 'carrot', 'colander', 'strainer', ...
+                'motorcycle', 'bike', 'motorbike', 'cup', 'dog', ...
+                'doggy', 'pug', 'elephant', 'spaceship', 'pineapple', ...
+                'banana', 'submarine', 'boat', 'cookie', 'oreo', ...
+                'stingray', 'ray', 'fork', 'helicopter', 'duck', ...
+                'ducky', 'bee'};
+            
+            input_file = fullfile(input_folder, ...
+                sprintf('exp%d_all.csv', expID));
+            
+            output_file = fullfile(output_dir, ...
+                sprintf('case15_all_filtered_obj_color.csv'));
+            
+            filter_word2word_freq( ...
+                input_file, output_file,  obj_word_list, color_list);
+
+
+
         case 16 
             % This case extracts utterances that occur while the child is
             % visually attending to toys in experiment 12. Word-word
@@ -309,7 +340,8 @@ function demo_speech_analysis_functions(option)
             % speech data.
 
             % extract the words when child is attending to toys from exp 12
-            subexpIDs = [12];
+            subexpIDs = [351];
+            expID = 351;
             cevent_var = 'cevent_eye_roi_child';
             category_list = 1:get_num_obj(subexpIDs); % all toys in exp
             output_filename = fullfile(output_dir,'case16_child_looking.csv');
@@ -324,28 +356,84 @@ function demo_speech_analysis_functions(option)
             output_folder = fullfile(output_dir,'case16_child_looking_word-word');
             count_word2word_freq(input_csv, utt_col, sub_col,cat_col, output_folder)
 
+
+            % Filter Word Matrix based on Word List
+            input_folder = output_folder;
+            
+            color_list = { ...
+                'red', 'blue', 'green', 'yellow', 'orange', ...
+                'purple', 'pink', 'black', 'white', 'gray', ...
+                'grey', 'brown', 'gold', 'silver', 'rainbow'};
+            
+            obj_word_list = { ...
+                'kettle', 'teapot', 'cat', 'kitty', 'potato', ...
+                'firetruck', 'bulldozer', 'backhoe', 'excavator', ...
+                'car', 'ostrich', 'frog', 'froggy', 'truck', ...
+                'lobster', 'crab', 'carrot', 'colander', 'strainer', ...
+                'motorcycle', 'bike', 'motorbike', 'cup', 'dog', ...
+                'doggy', 'pug', 'elephant', 'spaceship', 'pineapple', ...
+                'banana', 'submarine', 'boat', 'cookie', 'oreo', ...
+                'stingray', 'ray', 'fork', 'helicopter', 'duck', ...
+                'ducky', 'bee'};
+            
+            input_file = fullfile(input_folder, ...
+                sprintf('exp%d_all.csv', expID));
+            
+            output_file = fullfile(output_dir, ...
+                sprintf('case15_all_filtered_obj_color.csv'));
+            
+            filter_word2word_freq( ...
+                input_file, output_file,  obj_word_list, color_list);
+
         case 17
             % This case extracts speech occurring while the child is holding
             % objects in experiment 12. It then computes category-word
             % association frequencies between held objects and spoken words.
-
-            % extract the speech when child is holding objects
+            
+            % Basic settings
             subexpIDs = [12];
+            file_name = 'speech_in_child_inhand';
+            
+            % Extract the speech when child is holding objects
             cevent_var = 'cevent_inhand_child'; 
             num_obj = get_num_obj(subexpIDs);
             category_list = 1:num_obj; % all objects
-            output_filename = fullfile(output_dir,'case17_speech_in_child_inhand.csv');
-            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
             
-            % count cat - word pair frequency in subject level and category
-            % level
+            output_filename = fullfile(output_dir, ...
+                sprintf('case17_%s.csv', file_name));
+            
+            extracted_data = extract_speech_in_situ( ...
+                subexpIDs, cevent_var, category_list, output_filename);
+
+            if isempty(extracted_data)
+                error('extracted data is empty!')
+            end
+            
+            % Count category-word pair frequency in subject level and category level
             input_csv = output_filename;
+            
             sub_col = 1;
             cat_col = 5;
             utt_col = 10;
-            output_excel = fullfile(output_dir,'case17_speech_in_child_inhand_cat_word.xlsx');
-            count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel);
-
+            
+            output_excel = fullfile(output_dir, ...
+                sprintf('case17_%s_cat_word.xlsx', file_name));
+            
+            count_cat2word_freq( ...
+                input_csv, sub_col, cat_col, utt_col, output_excel);
+            
+            % Filter Word Matrix based on Keyword List
+            input_file = output_excel;
+            word_list = {'helmet','house','bluecar','rose','elephant',...
+                'snowman','rabbit','spongebob','turtle','hammer',...
+                'ladybug','mantis','greencar','saw','doll','phone',...
+                'rubiks','shovel','bigwheels','whitecar','ladybugstick',...
+                'purpleblock','bed','clearblock'};
+            
+            output_file = fullfile(output_dir, ...
+                sprintf('case17_%s_cat-word_filtered.xlsx', file_name));
+            
+            filter_cat2word_freq(input_file, output_file, word_list)
         
         case 18
             % This case extracts speech segments labeled as parent naming
@@ -354,19 +442,33 @@ function demo_speech_analysis_functions(option)
 
             % extract the speech when parent is naming objects
             subexpIDs = [15];
+            file_name = 'parent_naming';
             cevent_var = 'cevent_speech_naming_local-id'; 
             num_obj = get_num_obj(subexpIDs);
             category_list = 1:num_obj; % all objects
-            output_filename = fullfile(output_dir,'case18_parent_naming.csv');
-            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
+            output_filename = fullfile(output_dir,sprintf('case18_%s.csv',file_name));
+            extracted_data = extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename);
+
+            if isempty(extracted_data)
+                error('extracted data is empty!')
+            end
 
             % count cat - word pair frequency in subject level
             input_csv = output_filename;
             sub_col = 1;
             cat_col = 5;
             utt_col = 10;
-            output_excel = fullfile(output_dir,'case18_parent_naming_cat_word.xlsx');
+            output_excel = fullfile(output_dir,sprintf('case18_%s_cat_word.xlsx',file_name));
             count_cat2word_freq(input_csv,sub_col,cat_col,utt_col,output_excel);   
+
+            % Filter Word Matrix based on Keyword List
+            input_file = output_excel;
+            word_list = {'bison','croc','drop','kettle','koala','lemon','mango','moose','pot','seal'};
+            
+            output_file = fullfile(output_dir, ...
+                sprintf('case18_%s_cat-word_filtered.xlsx', file_name));
+            
+            filter_cat2word_freq(input_file, output_file, word_list)
             
 
 
