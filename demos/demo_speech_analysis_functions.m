@@ -31,7 +31,7 @@
 % -------------------------------------------------------------------
 %
 % Output CSV and Excel files are stored in:
-%   `Z:\demo_output_files\speech_analysis`
+%   `Z:\CORE\repository_new\multi-lib\demo_results\speech_analysis`
 %
 %%%
 function demo_speech_analysis_functions(option)
@@ -77,7 +77,7 @@ function demo_speech_analysis_functions(option)
 
         case 3
             % Extract all of the spoken utterances that temporally overlap with a look 
-            subexpID = 12;
+            subexpID = [12 15];
             cevent_var = 'cevent_eye_roi_child';
             category_list = 1:get_num_obj(subexpID)+1; % include face looks as a category value 
             output_filename = fullfile(output_dir,'case3_speech_during_gaze.csv');
@@ -107,10 +107,10 @@ function demo_speech_analysis_functions(option)
         case 6
             % Keyword Matching During Gaze
             % when attending to an object and hearing a list of keywords specified  
-            subexpID = 351;
+            subexpID = [12 15 351];
             cevent_var = 'cevent_eye_roi_child';
-            category_list = [6 9]; % visual attention: 6-car 9 - truck; 
-            args.target_words = {'car','truck'};
+            category_list =1:get_num_obj(subexpID)+1; % [6 9]; % visual attention: 6-car 9 - truck; 
+            args.target_words = {'yellow'};
             output_filename = fullfile(output_dir,'case6_keyword_during_gaze.csv');
             extract_speech_in_situ(subexpID, cevent_var, category_list, output_filename, args);
     
@@ -118,23 +118,12 @@ function demo_speech_analysis_functions(option)
             % simialr to case 6, with a specified time window 
             % Rabbit-Specific Attention Window
             % extract 3 sec before and 1 sec after child looks at rabbit,
-            % see how many times parent is naming rabbit
-            subexpID = 12;
+            % see how many times parent is naming animal names
+            subexpID = 351;
             cevent_var = 'cevent_eye_roi_child';
-            category_list = 7; % 7 - rabbit 
+            category_list = [7]; % 7 - rabbit
             args.whence = 'start';
             args.interval = [-3 1];
-            args.target_words = [
-                2;   % cat
-                7;   % ostrich
-                8;   % frog
-                10;  % lobster
-                15;  % dog
-                16;  % elephant
-                23;  % stingray
-                26;  % duck
-                27;  % bee
-            ];
             args.target_words = {
                 'cat','kitty','animal','ostrich','frog','froggy','lobster','crab','dog',...
                 'doggy','puppy','pug','elephant','animal','stingray','ray','duck','ducky',...
@@ -271,7 +260,7 @@ function demo_speech_analysis_functions(option)
             input_file = output_filename; %fullfile(output_dir,'case14_extracted.csv');
             group_speech_in_situ(input_file)
 
-            % count the 'look' and 'car' occurance in subject level
+            % count the occurrences of 'look' and 'car' at the subject level
             input_file = fullfile(output_dir,'case14_extracted_subject.csv');
             output_file = fullfile(output_dir,'case14_extracted_word_count.csv');
             text_col = 5;
@@ -281,12 +270,15 @@ function demo_speech_analysis_functions(option)
             count_word_speech_in_situ(input_file, output_file, target_words, extraStopWords, text_col , id_col)
 
         case 15
-            % This case extracts all utterances from experiment 12 without
-            % applying any behavioral filtering. It then computes word-word
+            % This case extracts all utterances from experiment 351 while
+            % children is attending to the car. It then computes word-word
             % co-occurrence frequencies and generates outputs at: subject level, 
             % category level, and experiment overall level
 
-            % extract all the words from exp 12
+            % we want to look into how the color co-occured with object
+            % name when the child is attending to the toy car
+
+            % extract all the words from exp 351
             subexpIDs = [351];
             expID = 351; 
             cevent_var = 'cevent_eye_roi_child';
@@ -295,7 +287,7 @@ function demo_speech_analysis_functions(option)
             extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
 
             % count word - word pair frequency in subject level and
-            % categoryical level
+            % category level
             input_csv = fullfile(output_dir,'case15_all_words.csv');
             sub_col = 1; % subject column number
             cat_col = 5; % category column number
@@ -335,11 +327,15 @@ function demo_speech_analysis_functions(option)
 
         case 16 
             % This case extracts utterances that occur while the child is
-            % visually attending to toys in experiment 12. Word-word
+            % visually attending to toys in experiment 351. Word-word
             % co-occurrence frequencies are then calculated for the extracted
             % speech data.
 
-            % extract the words when child is attending to toys from exp 12
+            % we want to look into how the color co-occured with object
+            % name when the child is attending to any objects
+
+            % extract the words when the hild is attending to toys from exp
+            % 351
             subexpIDs = [351];
             expID = 351;
             cevent_var = 'cevent_eye_roi_child';
@@ -348,7 +344,7 @@ function demo_speech_analysis_functions(option)
             extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
             
             % count word - word pair frequency in subject level and
-            % categoryical level
+            % category level
             input_csv = fullfile(output_dir,'case16_child_looking.csv');
             sub_col = 1; % subject column number
             cat_col = 5; % category column number
@@ -380,7 +376,7 @@ function demo_speech_analysis_functions(option)
                 sprintf('exp%d_all.csv', expID));
             
             output_file = fullfile(output_dir, ...
-                sprintf('case15_all_filtered_obj_color.csv'));
+                sprintf('case16_all_filtered_obj_color.csv'));
             
             filter_word2word_freq( ...
                 input_file, output_file,  obj_word_list, color_list);
@@ -393,8 +389,6 @@ function demo_speech_analysis_functions(option)
             % Basic settings
             subexpIDs = [12];
             file_name = 'speech_in_child_inhand';
-            
-            % Extract the speech when child is holding objects
             cevent_var = 'cevent_inhand_child'; 
             num_obj = get_num_obj(subexpIDs);
             category_list = 1:num_obj; % all objects

@@ -1,4 +1,7 @@
-
+*.csv
+*.xlsx
+*.xls
+~$*.xlsx
 *.asv
 desktop.ini
 .DS_Store
