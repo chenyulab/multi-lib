@@ -283,16 +283,20 @@ function demo_speech_analysis_functions(option)
             expID = 351; 
             cevent_var = 'cevent_eye_roi_child';
             category_list = 6; % 6 - car 
-            output_filename = fullfile(output_dir,'case15_all_words.csv');
-            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
+            output_filename = fullfile(output_dir,'case15_child_looking.csv');
+            extracted_data = extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename);
+
+            if isempty(extracted_data)
+                error('extracted data is empty!')
+            end
 
             % count word - word pair frequency in subject level and
             % category level
-            input_csv = fullfile(output_dir,'case15_all_words.csv');
+            input_csv = fullfile(output_dir,'case15_child_looking.csv');
             sub_col = 1; % subject column number
             cat_col = 5; % category column number
             utt_col = 10; % utterance column number
-            output_folder = fullfile(output_dir,'case15_all_words_word-word');
+            output_folder = fullfile(output_dir,'case15_child_looking_word-word');
             count_word2word_freq(input_csv, utt_col, sub_col,cat_col, output_folder)
 
             % Filter Word Matrix based on Word List
@@ -341,7 +345,11 @@ function demo_speech_analysis_functions(option)
             cevent_var = 'cevent_eye_roi_child';
             category_list = 1:get_num_obj(subexpIDs); % all toys in exp
             output_filename = fullfile(output_dir,'case16_child_looking.csv');
-            extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename)
+            extracted_data = extract_speech_in_situ(subexpIDs,cevent_var,category_list,output_filename);
+
+            if isempty(extracted_data)
+                error('extracted data is empty!')
+            end
             
             % count word - word pair frequency in subject level and
             % category level
