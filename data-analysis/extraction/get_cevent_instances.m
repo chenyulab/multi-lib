@@ -1,4 +1,4 @@
-function [rawOut, T, datamatrix, hd] = extract_cevent_info(cevent_variable, subexpIDs, output_file)
+function [rawOut] = get_cevent_instances(cevent_variable, subexpIDs, output_file)
 % extract_cevent_info
 %
 % Creates the first 7 columns in the original extract_multi_measures-style
