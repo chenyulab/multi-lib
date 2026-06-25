@@ -18,6 +18,7 @@ function [rawOut] = get_cevent_instances(cevent_variable, subexpIDs, output_file
 %
 % OUTPUTS:
 %  csv file          : original-format cell array with 4 header rows
+%                               This includes the cevent name
 %
 % Output columns:
 %   subID, expID, onset, offset, category, trialsID, instanceID

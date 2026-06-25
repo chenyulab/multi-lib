@@ -10,7 +10,7 @@ function demo_cevent_to_img_frame(option)
 % subID      expID      onset      offset      category       trial      instanceID
 %  --          --         --         --          --             --          --
 % 
-% (i.e. extract_multi_measures, extract_speech_in_situ, extract_cevent_info)
+% (i.e. extract_multi_measures, extract_speech_in_situ, get_cevent_instances)
 % and pass it as input to the function. 
 
 % This function will output the original csv file with the frame IDs and frame paths appended
@@ -87,7 +87,7 @@ switch option
     case 1
         % Get events from cevent_inhand_child for two subjects (1501 and 1502)
         filename = 'Z:\James\ImageVectorMeasures\DEMO_Cases\case01.csv';
-        extract_cevent_info('cevent_inhand_child', [1501 1502], filename);
+        get_cevent_instances('cevent_inhand_child', [1501 1502], filename);
         
         % Get a single full frame representing the events
         args = [];
@@ -189,7 +189,7 @@ switch option
         % Get a COLOR vector for the images pulled from cevent_to_img_frame
         % In this example, we will use the output from case 4 to get a
         % color profile of the full frames and object frames associated
-        % with a spoken "zcolor word". 
+        % with a spoken "color word". 
         args = [];
         subexpIDs = [351];
         filename = 'Z:\James\ImageVectorMeasures\DEMO_Cases\case06_color.csv';
@@ -215,9 +215,9 @@ switch option
         input_file = "Z:\James\ImageVectorMeasures\DEMO_Cases\case06_color_att_fps_single\case06_color_att_fps_single.mat";
         image_color_profile(input_file, "attended"); 
     case 7
-        % Use extract_cevent_info to get naming instances from exp 15
+        % Use get_cevent_instances to get naming instances from exp 15
         filename = 'Z:\James\ImageVectorMeasures\DEMO_Cases\case07.csv';
-        extract_cevent_info('cevent_speech_naming_local-id', [1501 1502 1503 1504], filename);
+        get_cevent_instances('cevent_speech_naming_local-id', [1501 1502 1503 1504], filename);
 
         args = [];
         output_location = 'Z:\James\ImageVectorMeasures\DEMO_Cases\';
@@ -228,17 +228,7 @@ switch option
         image_GBVS_profile(input_file);
 
     case 8
-        % Get a CONCEPT vector -- REWORD
-
-    
-    case 100
-        filename = 'Z:\James\ImageVectorMeasures\DEMO_Cases\case07.csv';
-        extract_cevent_info('cevent_speech_naming_local-id', [35101 35102], filename);
-        args=[];
-        output_location = 'Z:\James\ImageVectorMeasures\DEMO_Cases\';
-        cevent_to_img_frame(filename, output_location, args);
-        input_file = "Z:\James\ImageVectorMeasures\DEMO_Cases\case100_fps_single\case100_fps_single.mat";
-        image_GBVS_profile(input_file);
+        % Get a CONCEPT vector -- In Progress
 end
 
 
