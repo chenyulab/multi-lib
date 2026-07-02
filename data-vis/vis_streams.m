@@ -166,7 +166,7 @@ for s = 1:numel(subs)
                                         if coloridx == 0
                                             coloridx = MAX_COLOR;
                                         end
-                                        thiscolor = this_args.colors(coloridx,:);
+                                        thiscolor = tmpcolors(coloridx,:);
                                     elseif tmp(3) == 0
                                         thiscolor = [1 1 1];
                                     else
@@ -182,7 +182,7 @@ for s = 1:numel(subs)
                                 end
                             end
                         end
-                        
+ 
                     end
                 end
             end
