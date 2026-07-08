@@ -523,14 +523,14 @@ function copy_selected_images_to_folders(T, outputDir, defaultCamera, attended)
     fullPathCols = sort_frame_path_cols(fullPathCols);
     attPathCols = sort_frame_path_cols(attPathCols);
 
-    copy_image_group(T, fullPathCols, fullDir, defaultCamera);
+    copy_image_group(T, fullPathCols, fullDir, defaultCamera, false);
 
-    if attended; copy_image_group(T, attPathCols, attDir, defaultCamera); end
+    if attended; copy_image_group(T, attPathCols, attDir, defaultCamera, true); end
 
     fprintf("Copied selected images to: %s\n", rootDir);
 end
 
-function copy_image_group(T, pathCols, destDir, defaultCamera)
+function copy_image_group(T, pathCols, destDir, defaultCamera, addROI)
     
     if isempty(pathCols)
         return;
@@ -570,13 +570,31 @@ function copy_image_group(T, pathCols, destDir, defaultCamera)
             camID = defaultCamera;
     
             [~, ~, ext] = fileparts(currPath);
-    
-            newName = sprintf("%s_%s_%s_%s%s", ...
-                value_to_string(subID), ...
-                value_to_string(camID), ...
-                value_to_string(instanceID), ...
-                value_to_string(frameID), ...
-                ext);
+            
+            if addROI
+                roiTok = regexp(currPath, "obj_(\d+)", "tokens", "once");
+                if isempty(roiTok)
+                    warning("ROI label not found");
+                    roiSuffix = "ROINA";
+                else
+                    roiSuffix = "ROI" + string(roiTok{1});
+                end
+
+                newName = sprintf("%s_%s_%s_%s_%s%s", ...
+                    value_to_string(roiSuffix), ...
+                    value_to_string(subID), ...
+                    value_to_string(camID), ...
+                    value_to_string(instanceID), ...
+                    value_to_string(frameID), ...
+                    ext);
+            else
+                newName = sprintf("%s_%s_%s_%s%s", ...
+                    value_to_string(subID), ...
+                    value_to_string(camID), ...
+                    value_to_string(instanceID), ...
+                    value_to_string(frameID), ...
+                    ext);
+            end
     
             destPath = fullfile(destDir, newName);
     
