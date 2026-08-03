@@ -153,6 +153,6 @@ function record_eyegaze_datavyu(subID,agent)
 
     var_name = sprintf('eye_fixation_xy_%s',agent);
 
-    % record_additional_variable(subID,['cevent2_' char(var_name)],fixation_events);
+    record_additional_variable(subID,['cevent2_' char(var_name)],fixation_events);
 
 end
