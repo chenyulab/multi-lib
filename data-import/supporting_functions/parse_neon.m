@@ -2,6 +2,9 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
     % fixation_file,world_file,sync_file,chunk_file,output_fixation_file
     % TODO: parameter checking
 
+    % Author: Jingwen Pang
+    % Modified by: Ashley Nguyen 8/3/2026 
+
     % obtain path to raw gaze_positions.csv pupil labs output on D drive
     root = get_d_drive_kid_root(date,kidID, expID);
     if strcmp(agent,'child')
@@ -20,6 +23,8 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
     parse_neon_saccades(date,kidID,expID,agent);
     % create eyegaze file in temp backus & multiwork (if exist)
     parse_neon_eyegaze(date,kidID,expID,agent);
+    % create imu csv file in temp backus & multiwork (if exist)
+    parse_neon_imu(date,kidID,expID,agent);
 
     % read raw fixation file
     raw_fixation = readtable(fullfile(agent_root,'fixations.csv'));
@@ -72,6 +77,5 @@ function sync_fixation = parse_neon(date, kidID, expID, agent)
             writetable(chunked_fixation_table,temp_backus_output_filename);
         end
     end
-    
 
-end
+end 
