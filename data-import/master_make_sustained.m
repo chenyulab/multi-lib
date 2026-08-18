@@ -169,6 +169,22 @@ for s = 1:numel(subs)
             end
             
             cevent_final = cevent_remove_small_segments(new_cev, min_duration);
+
+            % complement (ROI instances that do not meet the sustained duration criterion)
+            durations = new_cev(:,2) - new_cev(:,1);
+            not_sustained = new_cev(durations < min_duration, :);
+
+            % derive output name
+            not_sustained_output = strrep(output_name{v}, 'sustained', 'not-sustained');
+
+
+            % record complement cevent and cstream
+            record_additional_variable(subs(s), not_sustained_output, not_sustained);
+            if record_cstream
+                timebase = make_time_base(subs(s));
+                cst_not = cevent2cstream_v2(not_sustained, [], [], timebase);
+                record_additional_variable(subs(s), strrep(not_sustained_output, 'cevent', 'cstream'), cst_not);
+            end
             
             % record both cevent and cstream
             record_variable(subs(s), output_name{v}, cevent_final);
