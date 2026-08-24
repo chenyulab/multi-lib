@@ -51,6 +51,14 @@ function master_derived_datavyu(subexpIDs,hasInhand,hasSaccadesAndEyegaze)
             end
         end
 
+        % generate head movement variable
+        if hasIMU
+            for a = 1:2
+                agent = agents{a};
+                run_rot_speed_imu(subID,agent);
+            end 
+        end 
+
         % generate sustained attention variables
         master_make_sustained(sub, [4,7,9])
         
