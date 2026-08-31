@@ -72,6 +72,16 @@ catch ME
 end
 
 %%
+% run time series visualizations
+disp("==============================")
+disp('[*] Running time series visualizations...')
+disp("==============================")
+
+subs = all_subs;
+
+run_vis_streams_timeseries(subs)
+
+%%
 % run object_stats plots
 % copied from the orignal matlab_once_per_week script
 disp("==============================")
