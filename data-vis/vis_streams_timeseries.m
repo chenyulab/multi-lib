@@ -232,6 +232,11 @@ end
 % Formatting the Plot
 hold off;
 if y_pos > 0
+    % Scale figure height with the number of subjects
+    row_height = 22;
+    fig_height = min(max(420, row_height * y_pos + 180), 2400);
+    set(fig, 'Position', [100, 100, 1100, fig_height], 'PaperPositionMode', 'auto');
+
     ax = gca;
     ax.FontName = 'Arial';
     set(gca,'fontsize',14);
