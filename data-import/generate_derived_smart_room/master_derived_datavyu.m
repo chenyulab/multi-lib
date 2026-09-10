@@ -1,4 +1,4 @@
-function master_derived_datavyu(subexpIDs,hasInhand,hasSaccadesAndEyegaze)
+function master_derived_datavyu(subexpIDs,hasInhand,hasSaccadesAndEyegaze,hasIMU)
 % postfixation
 % all
 %   trial
