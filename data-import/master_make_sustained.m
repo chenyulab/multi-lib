@@ -1,9 +1,16 @@
-function exceptions = master_make_sustained(IDs, option)
+function exceptions = master_make_sustained(IDs, option, which_output)
+
+% which_output: you can choose to generate 'sustained' (default), 'not-sustained', or 'both'
+if ~exist('which_output', 'var') || isempty(which_output)
+    which_output = 'sustained';
+end
+do_sustained     = ismember(which_output, {'sustained', 'both'});
+do_not_sustained = ismember(which_output, {'not-sustained', 'both'});
 
 if numel(option) > 1
     exceptions = {};
     for o = 1:numel(option)
-        exceptions{o,1} = master_make_sustained(IDs, option(o));
+        exceptions{o,1} = master_make_sustained(IDs, option(o), which_output);
     end
     if isempty(exceptions)
         disp('No exceptions');
@@ -137,7 +144,25 @@ switch option
         
         output_name = 'cevent_inhand_right-hand_obj-all_sustained-3s_child';
         record_cstream = 1;
-end;
+
+    case 13
+        min_max_gap = 0.5;
+        max_max_gap = 1;
+        min_duration = 3;
+        variable_name = 'cevent_inhand_left-hand_obj-all_parent';
+
+        output_name = 'cevent_inhand_left-hand_obj-all_sustained-3s_parent';
+        record_cstream = 1;
+
+    case 14
+        min_max_gap = 0.5;
+        max_max_gap = 1;
+        min_duration = 3;
+        variable_name = 'cevent_inhand_right-hand_obj-all_parent';
+
+        output_name = 'cevent_inhand_right-hand_obj-all_sustained-3s_parent';
+        record_cstream = 1;
+end
 
 % a new version of merging, if gap < max_max_gap but > min_max_gap, each  of the two to-be-merged
 % segments should be longer than max_max_gap/2;
@@ -157,8 +182,8 @@ for s = 1:numel(subs)
             cat_list = [1:get_num_obj(subs(s))];
         end
         try
-            cevent = get_variable(subs(s), variable_name{v});
-            cevent = cevent_merge_segments(cevent,min_max_gap, cat_list);
+            raw_cev = get_variable(subs(s), variable_name{v});
+            cevent = cevent_merge_segments(raw_cev,min_max_gap, cat_list);
             new_cev = cevent(1,:);
             for c = 2:length(cevent)
                 if (cevent(c,2)-cevent(c,1) >= max_max_gap/2 && new_cev(end,2)-new_cev(end,1) >= max_max_gap/2 && cevent(c,1)-new_cev(end,2) <= max_max_gap && cevent(c,3) == new_cev(end,3))
@@ -170,28 +195,38 @@ for s = 1:numel(subs)
             
             cevent_final = cevent_remove_small_segments(new_cev, min_duration);
 
-            % complement (ROI instances that do not meet the sustained duration criterion)
+            % not-sustained attention (ROI instances that do not meet the sustained duration criterion)
+            % Instances absorbed into a sustained episode are excluded 
             durations = new_cev(:,2) - new_cev(:,1);
-            not_sustained = new_cev(durations < min_duration, :);
+            ns_blocks = new_cev(durations < min_duration, :);
+            keep = false(size(raw_cev,1),1);
+            for k = 1:size(ns_blocks,1)
+                keep = keep | (raw_cev(:,1) >= ns_blocks(k,1)-1e-6 & ...
+                               raw_cev(:,2) <= ns_blocks(k,2)+1e-6);
+            end
+            not_sustained = raw_cev(keep, :);
 
             % derive output name
             not_sustained_output = strrep(output_name{v}, 'sustained', 'not-sustained');
 
-
             % record complement cevent and cstream
-            record_additional_variable(subs(s), not_sustained_output, not_sustained);
-            if record_cstream
-                timebase = make_time_base(subs(s));
-                cst_not = cevent2cstream_v2(not_sustained, [], [], timebase);
-                record_additional_variable(subs(s), strrep(not_sustained_output, 'cevent', 'cstream'), cst_not);
+            if do_not_sustained
+                record_any(subs(s), not_sustained_output, not_sustained);
+                if record_cstream
+                    timebase = make_time_base(subs(s));
+                    cst_not = cevent2cstream_v2(not_sustained, [], [], timebase);
+                    record_any(subs(s), strrep(not_sustained_output, 'cevent', 'cstream'), cst_not);
+                end
             end
-            
+
             % record both cevent and cstream
-            record_variable(subs(s), output_name{v}, cevent_final);
-            if record_cstream
-                timebase = make_time_base(subs(s));
-                cst = cevent2cstream_v2(cevent_final, [], [], timebase);
-                record_variable(subs(s), strrep(output_name{v}, 'cevent', 'cstream'), cst);
+            if do_sustained
+                record_any(subs(s), output_name{v}, cevent_final);
+                if record_cstream
+                    timebase = make_time_base(subs(s));
+                    cst = cevent2cstream_v2(cevent_final, [], [], timebase);
+                    record_any(subs(s), strrep(output_name{v}, 'cevent', 'cstream'), cst);
+                end
             end
         catch ME
             exceptions(e,1:3) = {subs(s), variable_name{v}, ME.message};
@@ -201,5 +236,15 @@ for s = 1:numel(subs)
 end
 if isempty(exceptions)
     exceptions = 'No exceptions';
+end
+end
+
+function record_any(subject_id, variable_name, data)
+% route to whichever recorder will accept this name:
+% record_variable refuses non-core names, record_additional_variable refuses core ones
+if is_core_variable(variable_name)
+    record_variable(subject_id, variable_name, data);
+else
+    record_additional_variable(subject_id, variable_name, data);
 end
 end
