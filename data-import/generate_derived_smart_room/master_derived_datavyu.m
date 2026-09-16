@@ -55,7 +55,7 @@ function master_derived_datavyu(subexpIDs,hasInhand,hasSaccadesAndEyegaze,hasIMU
         if hasIMU
             for a = 1:2
                 agent = agents{a};
-                run_rot_speed_imu(subID,agent);
+                run_rot_speed_imu(sub,agent);
             end 
         end 
 

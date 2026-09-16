@@ -35,12 +35,12 @@ function run_rot_speed_imu(subID,agent)
     input_filename = fullfile(root,'supporting_files',sprintf('%s_imu.csv',agent));
 
     % get the time offset based on the first onset in extract range
-    % input_range_filename = fullfile(root,'supporting_files','extract_range.txt');
-    % rangeID = fopen(input_range_filename, 'r');
-    % range_onset = fgetl(rangeID);
-    % range_onset = str2double(range_onset(2:end-1));
-    % fclose(rangeID);
-    % time_offset = range_onset/30;
+    input_range_filename = fullfile(root,'supporting_files','extract_range.txt');
+    rangeID = fopen(input_range_filename, 'r');
+    range_onset = fgetl(rangeID);
+    range_onset = str2double(range_onset(2:end-1));
+    fclose(rangeID);
+    time_offset = range_onset/30;
 
     % read summary input data file
     data = readtable(input_filename);
@@ -55,8 +55,7 @@ function run_rot_speed_imu(subID,agent)
     pitch = mod(data.pitch_deg_, 360);
     yaw = mod(data.yaw_deg_, 360);
 
-    % converted_timestamp = timestamp/1000 - time_offset + system_start - grey_screen_offset/1000;
-    converted_timestamp = timestamp/1000 + system_start;
+    converted_timestamp = timestamp/1000 - time_offset + system_start - grey_screen_offset/1000;
 
     %% Save variables in derived folder in Multiwork experiment folder
     gyro = sqrt(gyro_x.^2 + gyro_y.^2 + gyro_z.^2);
