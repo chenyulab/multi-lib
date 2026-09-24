@@ -18,7 +18,7 @@ function make_pheno_profiles(core_dir)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % reading in the core_variable_list.txt
-    % 'M:' is the directory input
+    % 'M:\extracted_datasets\project_vis_pheno_corr\pheno_input' is the directory input
 
     core_var_file = fullfile(core_dir, 'core_variable_list.txt');
     
@@ -45,6 +45,33 @@ function make_pheno_profiles(core_dir)
         numel(var_list));
 
 
+    % reading selected variable list
+    selected_var_file = fullfile(core_dir, 'selected_variable_list.txt');
+    
+    if ~isfile(selected_var_file)
+        error('Could not find selected variable list: %s', selected_var_file);
+    end
+    
+    % One variable name per line
+    selected_vars = readlines(selected_var_file);
+    
+    % Clean whitespace
+    selected_vars = strtrim(selected_vars);
+    
+    % Remove blank lines
+    selected_vars(selected_vars == "") = [];
+    
+    % Keep only cevent variables
+    selected_vars = selected_vars(startsWith(selected_vars, "cevent_"));
+    
+    % Convert to cell array
+    selected_var_list = cellstr(selected_vars);
+    
+    fprintf('Found %d selected cevent variables.\n', ...
+        numel(selected_var_list));
+
+
+
     % subject table file
     %'M:\subject_table.txt';
     subject_table_file = 'M:\subject_table.txt';
@@ -58,6 +85,11 @@ function make_pheno_profiles(core_dir)
     
     output_filename = fullfile(results_dir, 'pheno_table.csv');
     exp_summary_filename = fullfile(results_dir, 'exp_summary_table.csv');
+
+
+    selected_output_filename = fullfile(results_dir, 'pheno_table_selected.csv');
+
+    selected_exp_summary_filename = fullfile(results_dir, 'exp_summary_table_selected.csv');
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -96,12 +128,13 @@ function make_pheno_profiles(core_dir)
                 'cevent_eye_roi_parent', ...
                 'cevent_eye_joint-attend_both', ...
                 'cevent_eye_roi_sustained-3s_child', ...
-                'cevent_eye_roi_sustained-3s_parent'});
+                'cevent_eye_roi_sustained-3s_parent', ...
+                'cevent_eye_joint-attend_child-lead-moment_both', ...
+                'cevent_eye_joint-attend_parent-lead-moment_both'});
     
             % Every variable gets these object measures
            required_cols = { ...
                 make_pheno_col_name(var_name, '_object_prop'), ...
-                make_pheno_col_name(var_name, '_object_duration'), ...
                 make_pheno_col_name(var_name, '_object_norm_freq')};
         
             % Selected ROI variables also get face measures
@@ -109,7 +142,6 @@ function make_pheno_profiles(core_dir)
 
                 required_cols = [required_cols, { ...
                     make_pheno_col_name(var_name, '_face_prop'), ...
-                    make_pheno_col_name(var_name, '_face_duration'), ...
                     make_pheno_col_name(var_name, '_face_norm_freq')}];
             
             end
@@ -149,16 +181,12 @@ function make_pheno_profiles(core_dir)
 
             fprintf('Phenotype table is already up-to-date.\n');
         
-            % Rebuild experiment summary if it is missing
-            if ~isfile(exp_summary_filename)
-        
-                fprintf('Experiment summary missing. Creating it now.\n');
-        
-                exp_summary = summarize_by_exp(pheno_table);
-        
-                writetable(exp_summary, exp_summary_filename);
-        
-            end
+            % Rebuild experiment summary from current phenotype table
+            exp_summary = summarize_by_exp(pheno_table);
+            
+            writetable(exp_summary, exp_summary_filename);
+            
+            fprintf('Experiment summary updated.\n');
     
         else
     
@@ -179,6 +207,9 @@ function make_pheno_profiles(core_dir)
     
     end
 
+    % creating/updating selected var tables
+    create_selected_tables();
+
             
     function create_pheno_table( ...
         subIDs_to_add, subIDs_to_process, affected_vars, existing_table)
@@ -195,11 +226,21 @@ function make_pheno_profiles(core_dir)
     
         try
             num_roi = get_num_obj(curr_exp);
+        
+            if isempty(num_roi) || ~isscalar(num_roi) || isnan(num_roi)
+                fprintf('Skipping experiment %d: no valid ROI information.\n', ...
+                    curr_exp);
+                continue
+            end
+        
             curr_num_roi = num_roi + 1;
+        
         catch ME
+        
             fprintf('Invalid number of ROIs for experiment %d: %s\n', ...
                 curr_exp, ME.message);
             continue
+        
         end
     
         for i = 1:numel(affected_vars)
@@ -329,10 +370,29 @@ end
         
         % reading in tables for each variable of interest
         for e = 1:length(affected_exp_ids)
+        
             curr_exp = affected_exp_ids(e);
         
-            num_roi = get_num_obj(curr_exp);
-            curr_num_roi = num_roi + 1;
+            % skip experiments that do not have valid ROI
+            try
+                num_roi = get_num_obj(curr_exp);
+            
+                % get_num_obj may WARN rather than error, so also check its output
+                if isempty(num_roi) || ~isscalar(num_roi) || isnan(num_roi)
+                    fprintf('Skipping experiment %d: no valid ROI information.\n', ...
+                        curr_exp);
+                    continue
+                end
+            
+                curr_num_roi = num_roi + 1;
+            
+            catch ME
+            
+                fprintf('Skipping experiment %d: invalid number of ROIs (%s)\n', ...
+                    curr_exp, ME.message);
+                continue
+            
+            end
         
             expID = num2str(curr_exp);
         
@@ -347,14 +407,13 @@ end
                 
                 object_freq_name = make_pheno_col_name( ...
                     var_name, '_object_norm_freq');
-                
-                object_duration_name = make_pheno_col_name( ...
-                    var_name, '_object_duration');
-                
+                            
                 has_face = ismember(var_name, { ...
                     'cevent_eye_roi_child', ...
                     'cevent_eye_roi_parent', ...
                     'cevent_eye_joint-attend_both', ...
+                    'cevent_eye_joint-attend_child-lead-moment_both', ...
+                    'cevent_eye_joint-attend_parent-lead-moment_both', ...
                     'cevent_eye_roi_sustained-3s_child', ...
                     'cevent_eye_roi_sustained-3s_parent'});
                 
@@ -366,22 +425,17 @@ end
                     face_freq_name = make_pheno_col_name( ...
                         var_name, '_face_norm_freq');
                 
-                    face_duration_name = make_pheno_col_name( ...
-                        var_name, '_face_duration');
-                
                 end
         
         
                 object_columns_exist = ...
                     ismember(object_prop_name, output_table.Properties.VariableNames) && ...
-                    ismember(object_duration_name, output_table.Properties.VariableNames) && ...
                     ismember(object_freq_name, output_table.Properties.VariableNames);
                 
                 if has_face
                 
                     face_columns_exist = ...
                         ismember(face_prop_name, output_table.Properties.VariableNames) && ...
-                        ismember(face_duration_name, output_table.Properties.VariableNames) && ...
                         ismember(face_freq_name, output_table.Properties.VariableNames);
                 
                 else
@@ -450,14 +504,6 @@ end
             
                 end
 
-                if ~ismember(object_duration_name, ...
-                    output_table.Properties.VariableNames)
-            
-                    output_table.(object_duration_name) = ...
-                        nan(height(output_table), 1);
-            
-                end
-            
             
                 if has_face
             
@@ -467,14 +513,7 @@ end
             
                     end
 
-                    if ~ismember(face_duration_name, ...
-                        output_table.Properties.VariableNames)
-                
-                        output_table.(face_duration_name) = ...
-                            nan(height(output_table), 1);
-                
-                    end
-            
+
                     if ~ismember(face_freq_name, output_table.Properties.VariableNames)
                 
                         output_table.(face_freq_name) = nan(height(output_table), 1);
@@ -540,13 +579,6 @@ end
                             end
                         end
                     end
-        
-                % aggregating object columns for duration
-                vars = results_table.Properties.VariableNames;
-                time_cat_cols = startsWith(vars, 'time_cat_');
-                time_cat_names = vars(time_cat_cols);
-
-                time_object_cols = time_cat_names(1:curr_num_roi - 1);
 
               
 
@@ -580,15 +612,13 @@ end
                     
                % overwriting 0s to NaN for missing vars
                results_table{missing, prop_cat_names} = NaN;
-               results_table{missing, time_cat_names} = NaN;
                freq_table{missing, norm_freq_names} = NaN;
         
         
         
-                % calculating object_prop, duration, and norm_freq
+                % calculating object_prop and norm_freq
                 object_prop = sum(results_table{:,prop_object_cols}, 2);
                 norm_freq = sum(freq_table{:,freq_object_cols}, 2);
-                object_time = sum(results_table{:,time_object_cols}, 2);
         
         
         
@@ -609,8 +639,6 @@ end
                 output_table.(object_prop_name)(out_idx) = object_prop(idx);
                 
                 output_table.(object_freq_name)(out_idx) = norm_freq(idx);
-
-                output_table.(object_duration_name)(out_idx) = object_time(idx);
                 
             
         
@@ -623,15 +651,9 @@ end
                     freq_face_col = norm_freq_names(curr_num_roi);
                     face_freq = freq_table{:, freq_face_col};
                 
-                    time_face_col = time_cat_names(curr_num_roi);
-                    face_time = results_table{:, time_face_col};
-                
                     output_table.(face_prop_name)(out_idx) = ...
                         face_prop(idx);
-                
-                    output_table.(face_duration_name)(out_idx) = ...
-                        face_time(idx);
-                
+
                     output_table.(face_freq_name)(out_idx) = ...
                         face_freq(idx);
                 
@@ -666,10 +688,19 @@ end
         'stable');
 
 
-    % one row per experiment
-    exp_ids = unique(output_table.expID);
-    exp_ids = exp_ids(~isnan(exp_ids));
+    % Only include these experiments in the experiment summary
+    summary_exp_ids = [ ...
+        12, 15, ...
+        77, 78, 79, 80, 81, 91, ...
+        310, 351, 353, 361, 362, 363, 371, ...
+        381, 382, 383];
 
+    % Keep only requested experiments that actually exist in the phenotype table
+    exp_ids = summary_exp_ids(ismember(summary_exp_ids, output_table.expID));
+    
+    % Make column vector for table
+    exp_ids = exp_ids(:);
+    
     exp_summary = table();
     exp_summary.expID = exp_ids;
 
@@ -700,8 +731,85 @@ end
 
     end
 
-end
-    
+    end
+
+
+     function create_selected_tables()
+
+        fprintf('\nCreating selected-variable phenotype tables...\n');
+
+        % Always read the finished full phenotype table from disk
+        if ~isfile(output_filename)
+            warning('Full phenotype table does not exist. Selected tables not created.');
+            return
+        end
+
+        full_table = readtable(output_filename);
+
+        % Metadata columns that should always remain
+        selected_columns = { ...
+            'subID', ...
+            'expID', ...
+            'kidID', ...
+            'age'};
+
+        % Find phenotype columns associated with each selected base variable
+        for i = 1:numel(selected_var_list)
+
+            var_name = selected_var_list{i};
+
+            % Every variable has object measures
+            candidate_columns = { ...
+                make_pheno_col_name(var_name, '_object_prop'), ...
+                make_pheno_col_name(var_name, '_object_norm_freq')};
+
+            % These variables also have face measures
+            has_face = ismember(var_name, { ...
+                'cevent_eye_roi_child', ...
+                'cevent_eye_roi_parent', ...
+                'cevent_eye_joint-attend_both', ...
+                'cevent_eye_roi_sustained-3s_child', ...
+                'cevent_eye_roi_sustained-3s_parent'});
+
+            if has_face
+
+                candidate_columns = [candidate_columns, { ...
+                    make_pheno_col_name(var_name, '_face_prop'), ...
+                    make_pheno_col_name(var_name, '_face_norm_freq')}];
+
+            end
+
+            % Only keep columns that actually exist in the full table
+            existing_columns = candidate_columns( ...
+                ismember(candidate_columns, ...
+                full_table.Properties.VariableNames));
+
+            selected_columns = [selected_columns, existing_columns];
+
+        end
+
+        % Remove duplicates while preserving order
+        selected_columns = unique(selected_columns, 'stable');
+
+        % Create selected phenotype table
+        selected_table = full_table(:, selected_columns);
+
+        % Save selected phenotype table
+        writetable(selected_table, selected_output_filename);
+
+        fprintf('Saved selected phenotype table: %s\n', ...
+            selected_output_filename);
+
+        % Create experiment summary using the SAME summary function
+        selected_exp_summary = summarize_by_exp(selected_table);
+
+        writetable(selected_exp_summary, ...
+            selected_exp_summary_filename);
+
+        fprintf('Saved selected experiment summary: %s\n', ...
+            selected_exp_summary_filename);
+
+    end
 
 
     function T = fix_bad_headers(filename, sheet_num, T)
