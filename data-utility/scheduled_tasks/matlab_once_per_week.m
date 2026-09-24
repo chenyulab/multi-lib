@@ -153,3 +153,15 @@ var_list = {'cevent_eye_roi_child','cevent_eye_roi_parent', 'cevent_inhand_left-
 output_dir = 'M:';
 output_filename = 'exp_variables_stats';
 get_exp_variables_stats(expIDs,var_list,output_dir,output_filename)
+
+%% 
+% generate phenotype variable table and experiment summary table
+disp("==============================")
+disp('[*]Running extract_phenotype_profiles...')
+disp("==============================")
+core_dir = 'M:\extracted_datasets\project_vis_pheno_corr\pheno_input';
+try 
+    extract_phenotype_profiles(core_dir)
+catch ME
+    disp(ME.message)
+end
