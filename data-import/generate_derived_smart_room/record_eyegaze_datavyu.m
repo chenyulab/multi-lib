@@ -127,7 +127,7 @@ function record_eyegaze_datavyu(subID,agent)
 
     var_name = sprintf('eye_xy_%s',agent);
 
-    % record_variable(subID,['cont2_' char(var_name)],cont2);
+    record_variable(subID,['cont2_' char(var_name)],cont2);
 
     %disp(cont2);
 
