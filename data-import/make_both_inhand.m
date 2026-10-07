@@ -69,7 +69,7 @@ function make_both_inhand(IDs)
             end
             new_data = sortrows(new_data,1);
             new_varname = sprintf('cevent_inhand_merged_%s',agents{a});
-            record_additional_variable(subject_id,new_varname,new_data);
+            record_additional_variable(subs(s),new_varname,new_data);
         end
     end
 end
