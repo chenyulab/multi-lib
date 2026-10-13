@@ -60,8 +60,8 @@ function demo_make_combined_cevents(option)
                 "cevent_naming-with-SA-same_parent-child", ... % same category
                 "cevent_naming-with-SA-diff_parent-child", ... % category from naming
                 "cevent_SA-with-naming-diff_parent-child" ... % category from SA
-                "cevent_naming-wo-SA_parent_child", ... % category from naming
-                "cevent_SA-wo-naming_parent_child" % category from SA
+                "cevent_naming-wo-SA_parent-child", ... % category from naming
+                "cevent_SA-wo-naming_parent-child" % category from SA
             ];
             make_combined_cevents(subexpID,cevent1,cevent2,cevent_naming_matrix);
         case 2
@@ -73,8 +73,8 @@ function demo_make_combined_cevents(option)
                 "cevent_naming-with-SA-same_parent-child", ...
                 "", ...
                 "", ...
-                "cevent_naming-wo-SA_parent_child", ...
-                "cevent_SA-wo-naming_parent_child"
+                "cevent_naming-wo-SA_parent-child", ...
+                "cevent_SA-wo-naming_parent-child"
             ];
             make_combined_cevents(subexpID, cevent1, cevent2, cevent_naming_matrix);
         case 3
