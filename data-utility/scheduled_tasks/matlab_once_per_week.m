@@ -154,7 +154,34 @@ output_dir = 'M:';
 output_filename = 'exp_variables_stats';
 get_exp_variables_stats(expIDs,var_list,output_dir,output_filename)
 
-%% 
+%%
+% generate single-variable basic stats (extract_basic_stats) for the cevent
+% variables above, across all experiments
+disp("==============================")
+disp('[*]Running extract_basic_stats...')
+disp("==============================")
+basic_var_list = var_list(startsWith(var_list, 'cevent_'));
+for e = 1:numel(expIDs)
+    try
+        num_roi = get_num_obj(expIDs(e));
+        if isempty(num_roi) || ~isscalar(num_roi) || isnan(num_roi)
+            fprintf('Skipping exp %d: no valid ROI information.\n', expIDs(e));
+            continue
+        end
+    catch ME
+        fprintf('Skipping exp %d: %s\n', expIDs(e), ME.message);
+        continue
+    end
+    for v = 1:numel(basic_var_list)
+        try
+            extract_basic_stats(basic_var_list{v}, expIDs(e), num_roi + 1);
+        catch ME
+            fprintf('extract_basic_stats failed for exp %d, %s: %s\n', expIDs(e), basic_var_list{v}, ME.message);
+        end
+    end
+end
+
+%%
 % generate phenotype variable table and experiment summary table
 disp("==============================")
 disp('[*]Running extract_phenotype_profiles...')
