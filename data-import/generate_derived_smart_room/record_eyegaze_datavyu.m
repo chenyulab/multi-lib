@@ -93,11 +93,8 @@ function record_eyegaze_datavyu(subID,agent)
 
     var_name = sprintf('eye_xy_%dhz_%s',sample_rate_raw, agent);
 
-    try
-        record_additional_variable(subID,['cont2_' char(var_name)],cont2_raw);
-    catch ME
-        warning('200 Hz var gen fail %s');
-    end
+    record_additional_variable(subID,['cont2_' char(var_name)],cont2_raw);
+
 
 
     % convert data to 30 hz, align with system sample rate
